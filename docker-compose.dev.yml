@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  frontend:
+    container_name: my-frontend
+    build: ./frontend
+    volumes:
+      - ./frontend:/usr/src/app # Bind-Mount mapping (for hot reload)
+      - /usr/src/app/node_modules # Anonymous Volume for node_modules
+    ports:
+      - "3000:3000"
+    networks:
+      - my-network
+  database:
+    container_name: my-database
+    image: mongo
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - my-network
+  backend:
+    container_name: my-backend
+    build: ./backend
+    volumes:
+      - ./backend:/usr/src/app
+    ports:
+      - "5000:5000"
+    networks:
+      - my-network
+
+networks:
+  my-network:
+
+volumes:
+  mongo-data:
