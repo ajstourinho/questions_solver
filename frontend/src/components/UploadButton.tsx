@@ -1,19 +1,29 @@
 import Button from '@mui/material/Button';
-import { ChangeEvent } from 'react';
+import { ChangeEvent, useEffect } from 'react';
+import { useFileContext } from '../contexts/FileContext';
 
 export default function UploadButton() {
+    const {file, receiveFile} = useFileContext()
+
     const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files) {
             return;
         }
-        const file = e.target.files[0];
+        receiveFile(e.target.files[0])
     }
+    // debugging if file was set
+    useEffect(()=>{
+        const asyncPrint = async () => {
+            console.log(file?.text())
+        }
+        asyncPrint()
+    }, [file])
     return <Button variant="contained" component="label">
         SELECIONAR ARQUIVO PDF
-        
+    
         <input
             type="file"
-            accept=".csv"
+            accept=".pdf"
             onChange={handleFileUpload}
             hidden
         />
