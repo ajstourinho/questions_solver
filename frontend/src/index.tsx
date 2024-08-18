@@ -13,17 +13,22 @@ import App from "./App";
 // import { Provider } from "react-redux";
 
 import { BrowserRouter } from "react-router-dom";
+import UploadButton from "./components/UploadButton";
+import { FileContextProvider } from "./contexts/FileContext";
 
 const root = document.getElementById("root");
 ReactDOM.render(
   <React.StrictMode>
+    <FileContextProvider>
     {/* <Provider store={store}>
       <ThemeProvider theme={theme}> */}
         <BrowserRouter>
           <App />
+          <UploadButton/>
         </BrowserRouter>
       {/* </ThemeProvider>
     </Provider> */}
+    </FileContextProvider>
   </React.StrictMode >,
   root
 );
