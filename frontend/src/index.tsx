@@ -11,20 +11,21 @@ import "@fontsource/roboto/700.css";
 import App from "./App";
 // import { store } from "./store/store";
 // import { Provider } from "react-redux";
-import { RouterProvider, } from "react-router-dom";
-import { router } from './routes';
+import { BrowserRouter } from "react-router-dom";
 import { FileContextProvider } from "./contexts/FileContext";
 
 const root = document.getElementById("root");
 ReactDOM.render(
   <React.StrictMode>
     <FileContextProvider>
-    {/* <Provider store={store}>
+      {/* <Provider store={store}>
       <ThemeProvider theme={theme}> */}
-      <RouterProvider router={router} />
+      <BrowserRouter>
+          <App />
+      </BrowserRouter>
       {/* </ThemeProvider>
     </Provider> */}
     </FileContextProvider>
-  </React.StrictMode >,
+  </React.StrictMode>,
   root
 );
