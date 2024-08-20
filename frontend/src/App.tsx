@@ -97,7 +97,7 @@ function App() {
         justifyContent="center"
         style={{ textAlign: "center" }}
         xs={12}
-        sx={{mt: 3}}
+        sx={{ mt: 3 }}
       >
         {/* Botão de upload */}
         <Grid item direction="column" sx={{ mx: 1 }}>
@@ -117,9 +117,13 @@ function App() {
                 variant="contained"
                 component="span"
                 startIcon={<UploadFile />}
-                sx={{ backgroundColor: "#888" }}
+                style={{
+                  marginBottom: 15,
+                  backgroundColor: "#E0E0E0",
+                  color: "#000",
+                }}
               >
-                Selecione 1 arquivo PDF
+                SELECIONE ARQUIVO PDF
               </Button>
             </label>
           </Grid>
@@ -169,28 +173,27 @@ function App() {
 
         {/* Carrinho */}
         <Grid item direction="column" sx={{ mx: 1 }}>
-            <Grid item>
-              <Box display="flex" alignItems="center" style={{ marginTop: 5 }}>
-                <Box display="flex">
-                  <img src={pixIcon} alt="pixIcon" style={{ maxWidth: "20px" }} />
-                  <ShoppingCart style={{ marginRight: 5 }} />
-                  <Typography variant="subtitle1" color="textSecondary">
-                    R$ {formatToCurrency(price)}
-                  </Typography>
-                </Box>
-              </Box>
-            </Grid>
-
-            <Grid item>
-              <Box>
-                <Typography variant="caption" style={{ marginLeft: 5 }}>
-                  (R$ {formatToCurrency(reaisPerPage)} por questão)
+          <Grid item>
+            <Box display="flex" alignItems="center" style={{ marginTop: 5 }}>
+              <Box display="flex">
+                <img src={pixIcon} alt="pixIcon" style={{ maxWidth: "20px" }} />
+                <ShoppingCart style={{ marginRight: 10 }} />
+                <Typography variant="subtitle1">
+                  R$ {formatToCurrency(price)}
                 </Typography>
               </Box>
-            </Grid>
+            </Box>
+          </Grid>
+
+          <Grid item>
+            <Box>
+              <Typography variant="caption" style={{ marginLeft: 5 }} color="textSecondary">
+                (R$ {formatToCurrency(reaisPerPage)} por questão)
+              </Typography>
+            </Box>
+          </Grid>
         </Grid>
       </Grid>
-
 
       {/* Seção de exemplo */}
       <Grid item xs={12} sx={{ marginTop: 15 }}>
