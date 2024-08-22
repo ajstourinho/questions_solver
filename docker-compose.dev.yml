@@ -11,15 +11,6 @@ services:
       - "3000:3000"
     networks:
       - my-network
-  database:
-    container_name: my-database
-    image: mongo
-    volumes:
-      - mongo-data:/data/db
-    ports:
-      - "27017:27017"
-    networks:
-      - my-network
   backend:
     container_name: my-backend
     build: ./backend
@@ -32,6 +23,3 @@ services:
 
 networks:
   my-network:
-
-volumes:
-  mongo-data:
