@@ -4,7 +4,7 @@ import { ChangeEvent } from "react";
 import { PDFDocument } from "pdf-lib";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store";
-import { reset } from "../../store/slices/FilesSlice";
+import { reset, add } from "../../store/slices/FilesSlice";
 import { setPageNumber } from "../../store/slices/CheckoutSlice";
 
 export default function UploadButton() {
@@ -27,10 +27,12 @@ export default function UploadButton() {
           return;
         }
       });
+
       const pdfDoc = await PDFDocument.load(
         await event.target.files[0].arrayBuffer()
       );
-      dispatch(reset(Array.from(event.target.files)));
+
+      dispatch(add(Array.from(event.target.files)));
       dispatch(setPageNumber(pdfDoc.getPageCount()));
     }
   };
