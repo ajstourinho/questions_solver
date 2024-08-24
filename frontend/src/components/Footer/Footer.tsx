@@ -2,7 +2,7 @@ import React from "react";
 import fullLogo from "../../assets/full_logo.png";
 import { Grid, Typography } from "@mui/material";
 
-function Footer() {
+export default function Footer() {
 
   return (
     <Grid
@@ -34,6 +34,3 @@ function Footer() {
     </Grid>
   );
 }
-
-export default Footer;
-

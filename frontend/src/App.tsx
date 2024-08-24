@@ -1,10 +1,9 @@
-
-import { Links } from './Links';
-import { Grid} from "@mui/material";
+import { Grid } from "@mui/material";
+import Header from './components/Header/Header';
+import Links from './Links';
 import Footer from "./components/Footer/Footer";
-import { Header } from './components/Header/Header';
 
-function App() {
+export default function App() {
   return (
     <Grid container spacing={1} justifyContent="center" alignItems="center" style={{ textAlign: "center" }}>
       <Header/>
@@ -13,5 +12,3 @@ function App() {
     </Grid>
   );
 }
-
-export default App;
