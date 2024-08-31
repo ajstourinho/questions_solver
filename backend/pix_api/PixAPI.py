@@ -69,9 +69,3 @@ class PixAPI:
         }
         response =  self.api.pix_generate_qrcode(params=params)
         return {"b64Img": response['imagemQrcode'].replace('data:image/png;base64,', ''), "fullResponse": response}
-
-if __name__=="__main__":
-    efi = PixAPI(True)
-    id = efi.createCharge('5.00')["locId"]
-    print(id)
-    print(efi.getB64QRCode(id))
