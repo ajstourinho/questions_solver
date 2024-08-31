@@ -44,13 +44,10 @@ export default function SolveButton() {
 
   return (
     <>
-      <Button variant="contained" color="primary" onClick={handleSubmit}>
+      <Button variant="contained" color="primary" onClick={handleSubmit} disabled={files.length > 0 ? false : true}>
         RESOLVER!
       </Button>
-      <CustomModal open={openModal} onClose={handleCloseModal}>
-        <h2 id="simple-modal-title">Solução</h2>
-        <p id="simple-modal-description">Aqui vai a solução do problema.</p>
-      </CustomModal>
+      <CustomModal open={openModal} onClose={handleCloseModal} />
     </>
   );
 }
