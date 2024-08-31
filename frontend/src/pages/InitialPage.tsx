@@ -5,12 +5,12 @@ import { ShoppingCart } from "@mui/icons-material";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
 import pixIcon from "../assets/pix_icon.webp";
-import exampleImg from "../assets/exampleInitialPage.jpg";
+import exampleImg from "../assets/exampleInitialPage_transparent.png";
 // import dotenv from 'dotenv'
 
 // dotenv.config({ path: '../../../.env' })
 // const reaisPerPage = Number(process.env.REAIS_PER_PAGE);
-const reaisPerPage = 3;
+const reaisPerPage = 8;
 
 export default function InitialPage() {
   const price = useSelector((state: RootState) => state.checkoutSlice.price);
