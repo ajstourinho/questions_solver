@@ -122,7 +122,7 @@ const CustomModal: React.FC<ModalProps> = ({ open, onClose, children }) => {
           <Grid container spacing={2} sx={{ mt: 1, textAlign: "left" }}>
             <Grid item xs={12}>
               <Typography variant="body2">
-                <strong>Arquivo PDF:</strong> {files[0].name}
+                <strong>Arquivo PDF:</strong> {files[0] && files[0].name}
               </Typography>
             </Grid>
             <Grid item xs={12}>
