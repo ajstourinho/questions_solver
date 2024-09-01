@@ -22,24 +22,24 @@ export default function SolveButton() {
 
     setOpenModal(true);
 
-    const formData = new FormData();
-    formData.append("file", files[0]);
+    // const formData = new FormData();
+    // formData.append("file", files[0]);
 
-    try {
-      const response = await axiosInstance.post(
-        "/upload",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+    // try {
+    //   const response = await axiosInstance.post(
+    //     "/upload",
+    //     formData,
+    //     {
+    //       headers: {
+    //         "Content-Type": "multipart/form-data",
+    //       },
+    //     }
+    //   );
 
-      console.log("File uploaded successfully", response.data);
-    } catch (error) {
-      console.error("There was an error uploading the file!", error);
-    }
+    //   console.log("File uploaded successfully", response.data);
+    // } catch (error) {
+    //   console.error("There was an error uploading the file!", error);
+    // }
   };
 
   return (
