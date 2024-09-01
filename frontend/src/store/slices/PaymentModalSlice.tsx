@@ -23,6 +23,6 @@ const paymentModalSlice = createSlice({
   },
 });
 
-export const { openPaymentModal: openPaymentModal, closePaymentModal: closePaymentModal } = paymentModalSlice.actions;
+export const { openPaymentModal, closePaymentModal } = paymentModalSlice.actions;
 
 export default paymentModalSlice.reducer;

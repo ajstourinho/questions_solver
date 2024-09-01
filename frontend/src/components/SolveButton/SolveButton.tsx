@@ -1,43 +1,33 @@
-import { useState } from "react";
 import { Button } from "@mui/material";
-import {  useSelector, useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../store/store";
-import CustomModal from "../Modal/Modal";
-import { openPaymentModal } from "../../store/slices/PaymentModalSlice"
+import { openPaymentModal } from "../../store/slices/PaymentModalSlice";
 
 import axiosInstance from "../../axios/axiosInstance";
 
 export default function SolveButton() {
   const files = useSelector((state: RootState) => state.filesSlice.files);
-  const dispatch = useDispatch()
-
-  const [openModal, setOpenModal] = useState(false);
-
-  const handleCloseModal = () => setOpenModal(false);
+  const dispatch = useDispatch();
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+
     if (files.length === 0) {
       alert("Por favor, selecione 1 arquivo PDF primeiro.");
       return;
     }
 
-    setOpenModal(true);
+    dispatch(openPaymentModal());
 
     // const formData = new FormData();
     // formData.append("file", files[0]);
 
     // try {
-    //   const response = await axiosInstance.post(
-    //     "/upload",
-    //     formData,
-    //     {
-    //       headers: {
-    //         "Content-Type": "multipart/form-data",
-    //       },
-    //     }
-    //   );
-
+    //   const response = await axiosInstance.post("/upload", formData, {
+    //     headers: {
+    //       "Content-Type": "multipart/form-data",
+    //     },
+    //   });
     //   console.log("File uploaded successfully", response.data);
     // } catch (error) {
     //   console.error("There was an error uploading the file!", error);
@@ -46,10 +36,14 @@ export default function SolveButton() {
 
   return (
     <>
-      <Button variant="contained" color="primary" onClick={handleSubmit} disabled={files.length > 0 ? false : true}>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={handleSubmit}
+        disabled={files.length > 0 ? false : true}
+      >
         RESOLVER!
       </Button>
-      <CustomModal open={openModal} onClose={handleCloseModal} />
     </>
   );
 }
