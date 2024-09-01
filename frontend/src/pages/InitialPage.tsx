@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
 import pixIcon from "../assets/pix_icon.webp";
 import exampleImg from "../assets/exampleInitialPage_transparent.png";
+import PaymentModal from "../components/PaymentModal/PaymentModal";
 // import dotenv from 'dotenv'
 
 // dotenv.config({ path: '../../../.env' })
@@ -25,6 +26,9 @@ export default function InitialPage() {
 
   return (
     <>
+      {/* Modal de pagamento */}
+      <PaymentModal/>
+
       <Grid item xs={12} sx={{ marginTop: "10px" }}>
         <Typography variant="h5">
           Faça o upload de{" "}
