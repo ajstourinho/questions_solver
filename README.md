@@ -2,6 +2,25 @@
 
 ## Development Environment
 
+### Environment Configuration
+
+To run the application properly, you need to set up environment variables in two separate `.env` files: one for the frontend and one for the backend. Below is a description of the environment variables used in this project.
+
+#### Frontend: `.env` File
+
+The frontend environment variables should be defined in a `.env` file located inside the `frontend` folder.
+
+- **REAIS_PER_PAGE**: This variable defines the number of "REAIS" (likely a unit of measure or a specific item) that should be displayed per page in the frontend application.
+
+#### Backend: `.env` File
+
+The backend environment variables should be defined in a `.env` file located inside the `backend` folder. These variables are necessary for configuring the connection to the Pix API and handling secure transactions.
+
+- **CLIENT_ID**: The login string for the Pix provider.
+- **CLIENT_SECRET**: The password string for the Pix provider.
+- **KEY_PEM_PATH**: The file path to the certificate required for authentication with the Pix API.
+- **PIX_RECEIVER_KEY**: The receiving key for the desired account to handle Pix transactions.
+
 ### Building and running the containers
 
 To build the containers via the ```docker-compose.dev.yml``` file, use the command:
