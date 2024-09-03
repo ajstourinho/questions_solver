@@ -4,6 +4,7 @@ from flask_pymongo import PyMongo
 import gridfs
 import os
 from pix_api.PixAPI import PixAPI
+from gpt_api.GPTAPI import GPTAPI
 import re
 
 # Initialize app with CORS
@@ -12,15 +13,26 @@ CORS(app)
 
 # Initialize API for payment (Pix)
 pix_service = PixAPI(True)
+gpt_api = GPTAPI()
 
 # Configure backend folder for users uploads
-UPLOAD_FOLDER = './uploads'
+UPLOAD_FOLDER = './gpt_api/upoloaded_files'
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+@app.route('/')
+def index():
+    """
+    Basic index endpoint
+    """
+    return jsonify({"message": "Hello, world! This is the Flask backend."})
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
+    """
+    Endpoint to receive and save uploaded files from user.
+    """
     if 'file' not in request.files:
         return jsonify({'error': 'No file part'}), 400
 
@@ -34,9 +46,6 @@ def upload_file():
         file.save(file_path)
         return jsonify({'message': 'File uploaded successfully', 'file_path': file_path}), 200
     
-@app.route('/')
-def index():
-    return jsonify({"message": "Hello, world! This is the Flask backend."})
 
 @app.route('/cob', methods=['POST'])
 def pix_new_cob():
