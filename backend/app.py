@@ -16,7 +16,7 @@ pix_service = PixAPI(True)
 gpt_api = GPTAPI()
 
 # Configure backend folder for users uploads
-UPLOAD_FOLDER = './gpt_api/upoloaded_files'
+UPLOAD_FOLDER = './gpt_api/uploaded_files'
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
