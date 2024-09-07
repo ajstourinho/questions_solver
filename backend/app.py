@@ -28,21 +28,23 @@ def index():
     """
     return jsonify({"message": "Hello, world! This is the Flask backend."})
 
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
     """
-    Endpoint to receive and save uploaded files from user.
+    Endpoint to receive and save uploaded files from user with custom filename.
     """
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file part'}), 400
+    if 'file' not in request.files or 'filename' not in request.form:
+        return jsonify({'error': 'No file or filename provided'}), 400
 
     file = request.files['file']
+    custom_filename = request.form['filename']
 
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
-
+    
     if file:
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], custom_filename)
         file.save(file_path)
         return jsonify({'message': 'File uploaded successfully', 'file_path': file_path}), 200
     
