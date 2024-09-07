@@ -1,11 +1,13 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface FilesState {
-  files: File[];
+  files: File[],
+  filenames: string[]
 }
 
 const initialState: FilesState = {
   files: [],
+  filenames: []
 };
 
 // actions:
@@ -14,13 +16,13 @@ const filesSlice = createSlice({
   name: "files",
   initialState,
   reducers: {
-    add: (state, action: PayloadAction<File[]>) => {
-      let newArray = [...state.files, ...action.payload];
-      state.files = newArray;
+    add: (state, action: PayloadAction<FilesState>) => {
+      state.files = [...state.files, ...action.payload.files];
+      state.filenames = [...state.filenames, ...action.payload.filenames];
     },
-    reset: (state, action: PayloadAction<File[]>) => {
-      let newArray = [...action.payload];
-      state.files = newArray;
+    reset: (state) => {
+      state.files = [];
+      state.filenames = [];
     },
   },
 });
