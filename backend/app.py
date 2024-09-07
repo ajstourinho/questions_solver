@@ -1,3 +1,4 @@
+from dotenv import load_dotenv
 from flask import Flask, request, jsonify, Response
 from flask_cors import CORS
 from flask_pymongo import PyMongo
@@ -5,13 +6,19 @@ import gridfs
 import os
 from pix_api.PixAPI import PixAPI
 import re
+import ssl
+
+
+# Loading Environment
+load_dotenv()
+base_dir = os.path.abspath(os.path.dirname(__file__))
 
 # Initialize app with CORS
 app = Flask(__name__)
 CORS(app)
 
 # Initialize API for payment (Pix)
-pix_service = PixAPI(True)
+pix_service = PixAPI(False)
 
 # Configure backend folder for users uploads
 UPLOAD_FOLDER = './uploads'
@@ -105,4 +112,9 @@ def pix_qrcode():
         return str(e), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    context.verify_mode = ssl.CERT_REQUIRED
+    context.load_verify_locations(os.path.join(base_dir, os.getenv("EFI_PUBLIC_TLS_CRT_PATH")))
+    context.load_cert_chain(os.path.join(base_dir, os.getenv("SRV_PUBLIC_TLS_CRT_PATH")),
+                            os.path.join(base_dir, os.getenv("SRV_PUBLIC_TLS_KEY_PATH")))
+    app.run(ssl_context=context, debug=True, host='0.0.0.0')
