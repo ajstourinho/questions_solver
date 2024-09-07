@@ -111,13 +111,23 @@ export default function UploadButton() {
                   justifyContent: "center",
                 }}
               >
-                <Typography variant="body1">{files[0].name}</Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    width: "150px", // Set the width to control when truncation occurs
+                  }}
+                >
+                  {files[0].name}
+                </Typography>
                 <Button onClick={handleCancelUpload} size="small">
                   <Clear />
                 </Button>
               </Grid>
               <Grid item>
-                <Typography variant="body2" color="textSecondary">
+                <Typography variant="body2" color="textSecondary" sx={{mb: 3}}>
                   (número de questões: {pageCount.valueOf()})
                 </Typography>
               </Grid>
