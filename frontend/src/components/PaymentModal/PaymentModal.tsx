@@ -114,7 +114,8 @@ function PaymentModal() {
       // Automatically trigger download
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", filename || "download.pdf"); // Default filename
+      const customFilename = `prova_resolvida_${files[0].name}`;
+      link.setAttribute("download", customFilename);
       document.body.appendChild(link);
       link.click();
 
