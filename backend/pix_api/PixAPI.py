@@ -6,6 +6,10 @@ import string
 
 load_dotenv()
 
+
+# Define current directory, for relative paths
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
 def getRandomString(size=28):
     caracteres = string.ascii_letters + string.digits
     resultado = ''.join(random.choice(caracteres) for _ in range(size))
@@ -17,7 +21,7 @@ class PixAPI:
             "client_id": os.getenv("CLIENT_ID"),
             "client_secret": os.getenv("CLIENT_SECRET"),
             "sandbox": sandBox, # True: Hom |  False: Prod
-            "certificate": os.getenv("KEY_PEM_PATH")
+            "certificate": os.path.join(current_dir, "keys", os.getenv("KEY_PEM_FILENAME"))
         })
         
     def createCharge(self, value: str, expiration: int = 3600) -> dict:
