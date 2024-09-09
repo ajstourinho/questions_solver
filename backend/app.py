@@ -34,10 +34,10 @@ if not os.path.exists(GPT_OUTPUT_1_JSONS):
 app.config['GPT_OUTPUT_1_JSONS'] = GPT_OUTPUT_1_JSONS
 
 # Configure backend folder for GPT API outputs
-GPT_OUTPUT_2_DOCX_PDF_FOLDER = './gpt_api/output_2_docx_pdf'
-if not os.path.exists(GPT_OUTPUT_2_DOCX_PDF_FOLDER):
-    os.makedirs(GPT_OUTPUT_2_DOCX_PDF_FOLDER)
-app.config['GPT_OUTPUT_2_DOCX_PDF_FOLDER'] = GPT_OUTPUT_2_DOCX_PDF_FOLDER
+GPT_OUTPUT_2_PDF_FOLDER = './gpt_api/output_2_pdf'
+if not os.path.exists(GPT_OUTPUT_2_PDF_FOLDER):
+    os.makedirs(GPT_OUTPUT_2_PDF_FOLDER)
+app.config['GPT_OUTPUT_2_PDF_FOLDER'] = GPT_OUTPUT_2_PDF_FOLDER
 
 @app.route('/')
 def index():
@@ -85,23 +85,31 @@ def gpt_solver():
     # Define file basename (without extension)
     file_basename, _ = os.path.splitext(pdf_filename)
 
-    # Process PDF into images, and internally make the calls to create JSONs
-    gpt_api.process_pdf_into_imgs_and_make_requests(file_basename)
+    # Generate iterable of PDF pages as images
+    pdf_pages_as_imgs = convert_from_path(pdf_path)
 
+    # Iterate images
+    for i, image in enumerate(pdf_pages_as_imgs):
+        # Define image basename (without extension)
+        image_basename = f"{file_basename}_page_{i+1}" # Without extension
 
-    # Check if the output PDF file exists
-    if not os.path.exists(pdf_path):
-        return {'error': 'File not found'}, 404
+        # Save image as .png
+        gpt_api.save_img(image_basename, image)
+
+        # Call GPT API to generate JSON from processed image
+        # gpt_api.generate_json(image_basename)
+
+    # Generate PDF from JSONs
+    gpt_api.generate_pdf_from_jsons(file_basename)
 
     # Send the PDF file as a downloadable response
-    pdf_path_temp = pdf_path
+    pdf_path_temp = os.path.join(app.config["GPT_OUTPUT_2_PDF_FOLDER"], file_basename + "_resolvida.pdf") 
     return send_file(
         pdf_path_temp,
         mimetype='application/pdf',  # Specify the MIME type as PDF
         as_attachment=True,  # Force the download
-        download_name=pdf_filename  # Set the filename for the download
+        download_name="teste.pdf"  # Set the filename for the download
     )
-    
 
 @app.route('/cob', methods=['POST'])
 def pix_new_cob():
