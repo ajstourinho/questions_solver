@@ -13,11 +13,12 @@ import {
   Typography,
   TextField,
   Divider,
-  Modal
+  Modal,
 } from "@mui/material";
 import fullLogo from "../../assets/full_logo.png";
 import DownloadIcon from "@mui/icons-material/Download";
 import QRCodeImage from "../QRCodeImage/QRCodeImage";
+import { PDFDocument } from 'pdf-lib';
 
 const style = {
   position: "absolute" as const,
@@ -42,7 +43,9 @@ function formatToCurrency(value: number): string {
 
 function PaymentModal() {
   const files = useSelector((state: RootState) => state.filesSlice.files);
+  const filenames = useSelector((state: RootState) => state.filesSlice.filenames);
   const price = useSelector((state: RootState) => state.checkoutSlice.price);
+  const pageCount = useSelector((state: RootState) => state.checkoutSlice.pageCount);
   const open = useSelector((state: RootState) => state.paymentModalSlice.open);
 
   const dispatch = useDispatch();
@@ -82,6 +85,46 @@ function PaymentModal() {
       getQrCodeAsync();
     }
   }, [open, price]);
+
+  // test of gpt api
+  async function handleClick() {
+    const filename = filenames[0];
+
+    try {
+      // Step 1: Fetch the PDF as a binary blob
+      const response = await axiosInstance.post(
+        "/gpt_solver",
+        { filename, pageCount },
+        {
+          headers: { "Content-Type": "application/json" },
+          responseType: "arraybuffer", // PDF data as binary
+        }
+      );
+
+      // Step 2: Load the PDF into pdf-lib (optional if manipulation is needed)
+      const pdfDoc = await PDFDocument.load(response.data);
+
+      // Step 3: Save the modified or unmodified PDF back into bytes
+      const pdfBytes = await pdfDoc.save();
+
+      // Step 4: Create a Blob and trigger a download
+      const blob = new Blob([pdfBytes], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
+
+      // Automatically trigger download
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", filename || "download.pdf"); // Default filename
+      document.body.appendChild(link);
+      link.click();
+
+      // Clean up
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading PDF:", error);
+    }
+  }
 
   return (
     <Modal
@@ -165,7 +208,7 @@ function PaymentModal() {
             imagens pouco complexas e com conteúdos que não envolvam cálculos.
           </Typography>
            */}
-           
+
           {/* Divisor */}
           <Divider sx={{ mt: 3 }} />
 
@@ -195,7 +238,9 @@ function PaymentModal() {
               color="primary"
               sx={{ mt: 4, padding: 1.5 }}
               endIcon={<DownloadIcon />}
-              disabled={true}
+              // disabled={true}
+              disabled={false}
+              onClick={handleClick}
             >
               PROVA RESOLVIDA!
             </Button>
