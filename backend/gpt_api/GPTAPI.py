@@ -4,10 +4,15 @@ import os
 import requests
 import json
 from pdf2image import convert_from_path
+from docx import Document
+from docx2pdf import convert
+from fpdf import FPDF
 
 from .assistant_instructions import assistant_instructions
 
 load_dotenv()
+
+# Define current directory, for relative paths
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
 # Function to encode the image
@@ -23,11 +28,11 @@ class GPTAPI:
         self.gpt_model = "gpt-4-turbo-2024-04-09"
         self.assistant_instructions = assistant_instructions
 
-    def gpt_get_response(self, image_name):
+    def gpt_get_response(self, image_basename):
         print(f"Making request for OpenAI API...")
 
         # Getting the base64 string for image
-        image_path = os.path.join(current_dir, 'output_0_areas', f'{image_name}.png')
+        image_path = os.path.join(current_dir, 'output_0_areas', f'{image_basename}.png')
         base64_image = encode_image(image_path)
 
         # Define headers
@@ -35,7 +40,6 @@ class GPTAPI:
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.API_KEY}"
         }
-        #
 
         # Define parameters for API call
         payload = {
@@ -65,29 +69,18 @@ class GPTAPI:
 
         return response
     
-    def process_pdf_into_imgs_and_make_requests(self, file_basename):
-        # Define paths of PDF input, and images output
-        pdf_path = os.path.join(current_dir, 'uploaded_files', f'{file_basename}.pdf')
+    def generate_json(self, image_basename):
+        # Make GPT API call for respective image
+        response = self.gpt_get_response(image_basename)
+        response_data = response.json()
+        self.save_response_data_as_json(image_basename, response_data)
 
-        # Generate iterable of PDF pages
-        images = convert_from_path(pdf_path)
+    def save_img(self, image_basename, image):
+        image_path = os.path.join(current_dir, 'output_0_areas', image_basename + ".png")
+        image.save(image_path, 'PNG')
 
-        # Save each page as a separate PNG file
-        for i, image in enumerate(images):
-            image_basename = f"{file_basename}_page_{i+1}" # Without extension
-            image_path = os.path.join(current_dir, 'output_0_areas', image_basename + ".png")
-            image.save(image_path, 'PNG')
-
-            # Make GPT API call for respective image
-            gpt_response = self.gpt_get_response(image_basename)
-            gpt_data = self.get_data_from_response(gpt_response)
-            self.save_response_data_as_json(image_basename, gpt_data)
-
-    def get_data_from_response(self, response):
-        return response.json()
-    
-    def save_response_data_as_json(self, image_name, response_data) -> None:
-        print(f"Saving data as JSON: {image_name}")
+    def save_response_data_as_json(self, image_basename, response_data) -> None:
+        print(f"Saving data as JSON: {image_basename}")
 
         # Extract the 'choices' field from the response
         choices_data = response_data['choices']
@@ -108,8 +101,32 @@ class GPTAPI:
             print(f"Error decoding JSON: {e}")
 
         # Specify the filename you want to write to
-        filepath = os.path.join(current_dir, 'output_1_jsons', f'{image_name}.json')
+        filepath = os.path.join(current_dir, 'output_1_jsons', f'{image_basename}.json')
         
         # Write the 'choices' data to a file
         with open(filepath, 'w', encoding='utf-8') as file:
             json.dump(parsed_json, file, indent=2, ensure_ascii=False)
+
+    def generate_pdf_from_jsons(self, file_basename):
+
+        data = {"nome": "alexandre", "idade": "25", "email": "meuemail"}
+
+        # Criar instância de PDF
+        pdf = FPDF()
+        pdf.add_page()
+
+        # Adicionar um título
+        pdf.set_font("Arial", size=12)
+        pdf.cell(200, 10, txt="Relatório de Dados", ln=True, align='C')
+
+        # Adicionar os dados
+        pdf.set_font("Arial", size=10)
+
+        pdf.cell(200, 10, txt=f"Nome: {data['nome']}", ln=True)
+        pdf.cell(200, 10, txt=f"Idade: {data['idade']}", ln=True)
+        pdf.cell(200, 10, txt=f"Email: {data['email']}", ln=True)
+        pdf.cell(200, 10, txt="", ln=True)  # Espaço entre entradas
+
+        # Salvar o PDF
+        output_path_name = os.path.join(current_dir, 'output_2_pdf', file_basename + "_resolvida.pdf")
+        pdf.output(output_path_name)
