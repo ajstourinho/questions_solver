@@ -5,7 +5,7 @@ import { ShoppingCart } from "@mui/icons-material";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
 import pixIcon from "../assets/pix_icon.webp";
-import exampleImg from "../assets/exampleInitialPage_transp.png";
+import exampleImg from "../assets/exampleInitialPage_transp-min.png";
 import PaymentModal from "../components/PaymentModal/PaymentModal";
 // import dotenv from 'dotenv'
 
