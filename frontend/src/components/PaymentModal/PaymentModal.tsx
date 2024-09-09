@@ -19,17 +19,18 @@ import fullLogo from "../../assets/full_logo.png";
 import DownloadIcon from "@mui/icons-material/Download";
 import QRCodeImage from "../QRCodeImage/QRCodeImage";
 import { PDFDocument } from 'pdf-lib';
+import Skeleton from "@mui/material/Skeleton";
 
 const style = {
   position: "absolute" as const,
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: 300,
+  width: 360,
   bgcolor: "background.paper",
   border: "2px solid #777",
   boxShadow: 24,
-  p: 4,
+  p: 2,
   borderRadius: "25px",
 };
 
@@ -176,9 +177,7 @@ function PaymentModal() {
           {b64qrCode ? (
             <QRCodeImage base64String={b64qrCode} />
           ) : (
-            <Typography id="loading-text" sx={{ mt: 2 }}>
-              Carregando o QRCode...
-            </Typography>
+            <Skeleton variant="rectangular" width={200} height={200} sx={{margin: "auto"}}/>
           )}
           {/* <Grid container justifyContent="center" sx={{ mt: 2 }}>
             <img
@@ -190,7 +189,7 @@ function PaymentModal() {
 
           <Box sx={{ mt: 2, textAlign: "left" }}>
             <Typography variant="subtitle2">
-              Se preferir, pague copiando e colando o código abaixo:
+              Se preferir, copie e cole o código abaixo para pagar:
             </Typography>
             <TextField
               fullWidth
