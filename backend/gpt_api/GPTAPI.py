@@ -4,8 +4,6 @@ import os
 import requests
 import json
 from pdf2image import convert_from_path
-from docx import Document
-from docx2pdf import convert
 from fpdf import FPDF
 
 from .assistant_instructions import assistant_instructions
