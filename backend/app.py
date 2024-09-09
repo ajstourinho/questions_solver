@@ -1,11 +1,11 @@
-from flask import Flask, request, jsonify, Response
+from flask import Flask, request, jsonify, Response, send_file
 from flask_cors import CORS
-from flask_pymongo import PyMongo
 import gridfs
 import os
 from pix_api.PixAPI import PixAPI
 from gpt_api.GPTAPI import GPTAPI
 import re
+from pdf2image import convert_from_path
 
 # Initialize app with CORS
 app = Flask(__name__)
@@ -21,6 +21,24 @@ if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+# Configure backend folder to preprocess uploaded PDF into question areas (pages to images)
+GPT_OUTPUT_0_AREAS_FOLDER = './gpt_api/output_0_areas'
+if not os.path.exists(GPT_OUTPUT_0_AREAS_FOLDER):
+    os.makedirs(GPT_OUTPUT_0_AREAS_FOLDER)
+app.config['GPT_OUTPUT_0_AREAS_FOLDER'] = GPT_OUTPUT_0_AREAS_FOLDER
+
+# Configure backend folder for GPT API JSON outputs
+GPT_OUTPUT_1_JSONS = './gpt_api/output_1_jsons'
+if not os.path.exists(GPT_OUTPUT_1_JSONS):
+    os.makedirs(GPT_OUTPUT_1_JSONS)
+app.config['GPT_OUTPUT_1_JSONS'] = GPT_OUTPUT_1_JSONS
+
+# Configure backend folder for GPT API outputs
+GPT_OUTPUT_2_DOCX_PDF_FOLDER = './gpt_api/output_2_docx_pdf'
+if not os.path.exists(GPT_OUTPUT_2_DOCX_PDF_FOLDER):
+    os.makedirs(GPT_OUTPUT_2_DOCX_PDF_FOLDER)
+app.config['GPT_OUTPUT_2_DOCX_PDF_FOLDER'] = GPT_OUTPUT_2_DOCX_PDF_FOLDER
+
 @app.route('/')
 def index():
     """
@@ -32,7 +50,7 @@ def index():
 @app.route('/upload', methods=['POST'])
 def upload_file():
     """
-    Endpoint to receive and save uploaded files from user with custom filename.
+    Endpoint to receive and save files (with custom filenames) uploaded from user.
     """
     if 'file' not in request.files or 'filename' not in request.form:
         return jsonify({'error': 'No file or filename provided'}), 400
@@ -47,6 +65,42 @@ def upload_file():
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], custom_filename)
         file.save(file_path)
         return jsonify({'message': 'File uploaded successfully', 'file_path': file_path}), 200
+    
+
+@app.route('/gpt_solver', methods=['POST'])
+def gpt_solver():
+    """
+    Endpoint to activate GPT API on previously uploaded file, after having confirmed the payment.
+    """
+
+    # Consider the filename and pageCount are being sent in the request body
+    data = request.get_json()
+    pdf_filename = data.get('filename')
+    pdf_pageCount = int(data.get('pageCount'))
+
+    # Define the path of uploaded PDF file, based on the filename
+    pdf_directory = app.config['UPLOAD_FOLDER']
+    pdf_path = os.path.join(pdf_directory, pdf_filename)
+
+    # Define file basename (without extension)
+    file_basename, _ = os.path.splitext(pdf_filename)
+
+    # Process PDF into images, and internally make the calls to create JSONs
+    gpt_api.process_pdf_into_imgs_and_make_requests(file_basename)
+
+
+    # Check if the output PDF file exists
+    if not os.path.exists(pdf_path):
+        return {'error': 'File not found'}, 404
+
+    # Send the PDF file as a downloadable response
+    pdf_path_temp = pdf_path
+    return send_file(
+        pdf_path_temp,
+        mimetype='application/pdf',  # Specify the MIME type as PDF
+        as_attachment=True,  # Force the download
+        download_name=pdf_filename  # Set the filename for the download
+    )
     
 
 @app.route('/cob', methods=['POST'])
