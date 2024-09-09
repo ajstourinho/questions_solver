@@ -12,7 +12,7 @@ app = Flask(__name__)
 CORS(app)
 
 # Initialize API for payment (Pix)
-pix_service = PixAPI(True)
+pix_service = PixAPI(False) # True: Homolog |  False: Prod
 gpt_api = GPTAPI()
 
 # Configure backend folder for users uploads
