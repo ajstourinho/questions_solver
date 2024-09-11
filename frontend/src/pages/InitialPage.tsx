@@ -5,7 +5,7 @@ import { ShoppingCart } from "@mui/icons-material";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
 import pixIcon from "../assets/pix_icon.webp";
-import exampleImg from "../assets/exampleInitialPage_transparent.png";
+import exampleImg from "../assets/exampleInitialPage_transp-min.png";
 import PaymentModal from "../components/PaymentModal/PaymentModal";
 // import dotenv from 'dotenv'
 
@@ -27,31 +27,33 @@ export default function InitialPage() {
   return (
     <>
       {/* Modal de pagamento */}
-      <PaymentModal/>
+      <PaymentModal />
 
       <Grid item xs={12} sx={{ marginTop: "10px" }}>
-        <Typography variant="h5">
+        <Typography variant="h5" sx={{ fontFamily: "Roboto Mono, monospace" }}>
           Faça o upload de{" "}
           <Typography
             component="span"
             variant="h5"
             style={{ color: "dodgerblue" }}
+            sx={{ fontFamily: "Roboto Mono, monospace" }}
           >
             1 arquivo PDF
           </Typography>{" "}
           de uma prova antiga
         </Typography>
 
-        <Typography variant="h5">
+        <Typography variant="h5" sx={{ fontFamily: "Roboto Mono, monospace" }}>
           e deixe a IA <strong>resolvê-la automaticamente!</strong>
         </Typography>
 
         <Typography
           variant="subtitle1"
           color="textSecondary"
-          sx={{ marginTop: "5px" }}
+          sx={{ marginTop: "15px" }}
         >
-          Certifique-se que há <strong>somente uma 1 questão por página</strong>.
+          Certifique-se que há <strong>somente uma 1 questão por página</strong>
+          .
         </Typography>
       </Grid>
 
@@ -101,14 +103,19 @@ export default function InitialPage() {
 
       {/* Seção de exemplo */}
       <Grid item xs={12} sx={{ marginTop: 15 }}>
-        <Typography variant="h4">Confira um exemplo!</Typography>
+        <Typography
+          variant="h4"
+          sx={{ fontFamily: "Roboto Mono, monospace" }}
+        >
+          <strong>Confira um exemplo!</strong>
+        </Typography>
       </Grid>
 
       <Grid
         item
         xs={12}
         sx={{
-          backgroundColor: "rgb(175, 210, 237)",
+          backgroundColor: "#C5E3E9",
           marginTop: 1,
           width: "100%",
         }}

@@ -7,6 +7,7 @@ import axiosInstance from "../../axios/axiosInstance";
 
 export default function SolveButton() {
   const files = useSelector((state: RootState) => state.filesSlice.files);
+  const filenames = useSelector((state: RootState) => state.filesSlice.filenames);
   const dispatch = useDispatch();
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -19,19 +20,20 @@ export default function SolveButton() {
 
     dispatch(openPaymentModal());
 
-    // const formData = new FormData();
-    // formData.append("file", files[0]);
+    const formData = new FormData();
+    formData.append("file", files[0]);
+    formData.append("filename", filenames[0]);
 
-    // try {
-    //   const response = await axiosInstance.post("/upload", formData, {
-    //     headers: {
-    //       "Content-Type": "multipart/form-data",
-    //     },
-    //   });
-    //   console.log("File uploaded successfully", response.data);
-    // } catch (error) {
-    //   console.error("There was an error uploading the file!", error);
-    // }
+    try {
+      const response = await axiosInstance.post("/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      console.log("File uploaded successfully", response.data);
+    } catch (error) {
+      console.error("There was an error uploading the file!", error);
+    }
   };
 
   return (

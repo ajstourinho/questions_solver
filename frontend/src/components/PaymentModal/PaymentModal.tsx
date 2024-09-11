@@ -13,22 +13,24 @@ import {
   Typography,
   TextField,
   Divider,
-  Modal
+  Modal,
 } from "@mui/material";
 import fullLogo from "../../assets/full_logo.png";
 import DownloadIcon from "@mui/icons-material/Download";
 import QRCodeImage from "../QRCodeImage/QRCodeImage";
+import { PDFDocument } from 'pdf-lib';
+import Skeleton from "@mui/material/Skeleton";
 
 const style = {
   position: "absolute" as const,
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: 300,
+  width: 360,
   bgcolor: "background.paper",
   border: "2px solid #777",
   boxShadow: 24,
-  p: 4,
+  p: 2,
   borderRadius: "25px",
 };
 
@@ -42,7 +44,9 @@ function formatToCurrency(value: number): string {
 
 function PaymentModal() {
   const files = useSelector((state: RootState) => state.filesSlice.files);
+  const filenames = useSelector((state: RootState) => state.filesSlice.filenames);
   const price = useSelector((state: RootState) => state.checkoutSlice.price);
+  const pageCount = useSelector((state: RootState) => state.checkoutSlice.pageCount);
   const open = useSelector((state: RootState) => state.paymentModalSlice.open);
 
   const dispatch = useDispatch();
@@ -82,6 +86,47 @@ function PaymentModal() {
       getQrCodeAsync();
     }
   }, [open, price]);
+
+  // test of gpt api
+  async function handleClick() {
+    const filename = filenames[0];
+
+    try {
+      // Step 1: Fetch the PDF as a binary blob
+      const response = await axiosInstance.post(
+        "/gpt_solver",
+        { filename, pageCount },
+        {
+          headers: { "Content-Type": "application/json" },
+          responseType: "arraybuffer", // PDF data as binary
+        }
+      );
+
+      // Step 2: Load the PDF into pdf-lib (optional if manipulation is needed)
+      const pdfDoc = await PDFDocument.load(response.data);
+
+      // Step 3: Save the modified or unmodified PDF back into bytes
+      const pdfBytes = await pdfDoc.save();
+
+      // Step 4: Create a Blob and trigger a download
+      const blob = new Blob([pdfBytes], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
+
+      // Automatically trigger download
+      const link = document.createElement("a");
+      link.href = url;
+      const customFilename = `prova_resolvida_${files[0].name}`;
+      link.setAttribute("download", customFilename);
+      document.body.appendChild(link);
+      link.click();
+
+      // Clean up
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading PDF:", error);
+    }
+  }
 
   return (
     <Modal
@@ -132,9 +177,7 @@ function PaymentModal() {
           {b64qrCode ? (
             <QRCodeImage base64String={b64qrCode} />
           ) : (
-            <Typography id="loading-text" sx={{ mt: 2 }}>
-              Carregando o QRCode...
-            </Typography>
+            <Skeleton variant="rectangular" width={200} height={200} sx={{margin: "auto"}}/>
           )}
           {/* <Grid container justifyContent="center" sx={{ mt: 2 }}>
             <img
@@ -146,7 +189,7 @@ function PaymentModal() {
 
           <Box sx={{ mt: 2, textAlign: "left" }}>
             <Typography variant="subtitle2">
-              Se preferir, pague copiando e colando o código abaixo:
+              Se preferir, copie e cole o código abaixo para pagar:
             </Typography>
             <TextField
               fullWidth
@@ -165,7 +208,7 @@ function PaymentModal() {
             imagens pouco complexas e com conteúdos que não envolvam cálculos.
           </Typography>
            */}
-           
+
           {/* Divisor */}
           <Divider sx={{ mt: 3 }} />
 
@@ -195,7 +238,9 @@ function PaymentModal() {
               color="primary"
               sx={{ mt: 4, padding: 1.5 }}
               endIcon={<DownloadIcon />}
-              disabled={true}
+              // disabled={true}
+              disabled={false}
+              onClick={handleClick}
             >
               PROVA RESOLVIDA!
             </Button>

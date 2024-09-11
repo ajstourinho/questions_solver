@@ -7,6 +7,20 @@ import { RootState } from "../../store/store";
 import { reset, add } from "../../store/slices/FilesSlice";
 import { setPageNumber } from "../../store/slices/CheckoutSlice";
 
+function getCurrentDateTimeForFilename() {
+  const now = new Date();
+
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0"); // Months are 0-based, so add 1
+  const day = String(now.getDate()).padStart(2, "0");
+
+  const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+  const seconds = String(now.getSeconds()).padStart(2, "0");
+
+  return `${year}-${month}-${day}_${hours}-${minutes}-${seconds}`;
+}
+
 export default function UploadButton() {
   const files = useSelector((state: RootState) => state.filesSlice.files);
 
@@ -15,9 +29,6 @@ export default function UploadButton() {
   );
   
   const dispatch = useDispatch();
-  // const [filesDummy, setFilesDummy] = useState<File[]>([])
-
-  // useEffect(() => setFilesDummy(files), [files])
 
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -32,13 +43,22 @@ export default function UploadButton() {
         await event.target.files[0].arrayBuffer()
       );
 
-      dispatch(add(Array.from(event.target.files)));
+      // implement filename with datetime to save to store
+      const filename = `myfile_${getCurrentDateTimeForFilename()}.pdf`;
+
+      dispatch(
+        add({
+          files: Array.from(event.target.files),
+          filenames: [filename],
+        })
+      );
+
       dispatch(setPageNumber(pdfDoc.getPageCount()));
     }
   };
 
   const handleCancelUpload = () => {
-    dispatch(reset([]));
+    dispatch(reset());
     dispatch(setPageNumber(0));
   };
 
@@ -91,13 +111,23 @@ export default function UploadButton() {
                   justifyContent: "center",
                 }}
               >
-                <Typography variant="body1">{files[0].name}</Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    width: "150px", // Set the width to control when truncation occurs
+                  }}
+                >
+                  {files[0].name}
+                </Typography>
                 <Button onClick={handleCancelUpload} size="small">
                   <Clear />
                 </Button>
               </Grid>
               <Grid item>
-                <Typography variant="body2" color="textSecondary">
+                <Typography variant="body2" color="textSecondary" sx={{mb: 3}}>
                   (número de questões: {pageCount.valueOf()})
                 </Typography>
               </Grid>
