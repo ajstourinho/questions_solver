@@ -15,7 +15,6 @@ const CopyTextField: React.FC<CopyTextFieldProps> = ({ value, ...props }) => {
     (state: RootState) => state.paymentModalSlice.pixCopiaECola
   );
 
-
   const handleCopy = () => {
     navigator.clipboard.writeText(value).then(() => {
       setCopied(true);
@@ -23,7 +22,8 @@ const CopyTextField: React.FC<CopyTextFieldProps> = ({ value, ...props }) => {
     });
   };
 
-  useEffect(() => {console.log(pixCopiaECola);}, [pixCopiaECola]);
+  // Update component when pixCopiaECola changes
+  useEffect(() => {}, [pixCopiaECola]);
 
   return (
     <TextField
