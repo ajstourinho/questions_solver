@@ -177,16 +177,15 @@ function PaymentModal() {
           {b64qrCode ? (
             <QRCodeImage base64String={b64qrCode} />
           ) : (
-            <Skeleton variant="rectangular" width={200} height={200} sx={{margin: "auto"}}/>
-          )}
-          {/* <Grid container justifyContent="center" sx={{ mt: 2 }}>
-            <img
-              src="your-qr-code-url.png"
-              alt="QR Code"
-              style={{ width: 200, height: 200 }}
+            <Skeleton
+              variant="rectangular"
+              width={200}
+              height={200}
+              sx={{ margin: "auto" }}
             />
-          </Grid> */}
+          )}
 
+          {/* Codigo Pix Copia-e-Cola */}
           <Box sx={{ mt: 2, textAlign: "left" }}>
             <Typography variant="subtitle2">
               Se preferir, copie e cole o código abaixo para pagar:
@@ -203,17 +202,20 @@ function PaymentModal() {
             />
           </Box>
 
-          {/* <Typography id="modal-description" sx={{ mt: 2 }}>
-            Lembre-se de que esse site funciona adequadamente com questões com
-            imagens pouco complexas e com conteúdos que não envolvam cálculos.
+          {/* Divisor */}
+          <Divider sx={{ mt: 1 }} />
+
+          {/* Texto de ressalva */}
+          <Typography variant="caption" color="grey" sx={{ mt: 2 }}>
+            Este site funciona melhor com textos simples e não é otimizado para
+            imagens complexas ou questões que envolvam cálculos matemáticos.
           </Typography>
-           */}
 
           {/* Divisor */}
-          <Divider sx={{ mt: 3 }} />
+          <Divider sx={{ mt: 1 }} />
 
           {/* Dados */}
-          <Grid container spacing={2} sx={{ mt: 1, textAlign: "left" }}>
+          <Grid container spacing={2} sx={{ mt: 0, textAlign: "left" }}>
             <Grid item xs={12}>
               <Typography variant="body2">
                 <strong>Arquivo PDF:</strong> {files[0] && files[0].name}
@@ -225,9 +227,19 @@ function PaymentModal() {
               </Typography>
             </Grid>
             <Grid item xs={12}>
-              <Typography variant="body2">
-                <strong>Status:</strong> Aguardando pagamento...
-              </Typography>
+              <Box display="flex" alignItems="center">
+                <Typography variant="body2" component="span">
+                  <strong>Status:</strong>
+                </Typography>
+                <Typography
+                  variant="body2"
+                  component="span"
+                  color="#BF6900"
+                  sx={{ marginLeft: 1 }}
+                >
+                  Aguardando pagamento...
+                </Typography>
+              </Box>
             </Grid>
           </Grid>
 

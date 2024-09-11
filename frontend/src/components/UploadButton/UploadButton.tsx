@@ -95,9 +95,6 @@ export default function UploadButton() {
           <Box
             sx={{
               display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              marginLeft: "10px",
             }}
           >
             <Grid container direction="column">
@@ -107,10 +104,16 @@ export default function UploadButton() {
                 direction="row"
                 sx={{
                   display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
                 }}
               >
+                <Button
+                  onClick={handleCancelUpload}
+                  variant="outlined"
+                  size="small"
+                  sx={{ px: 2, minWidth: "24px", width: "24px" }}
+                >
+                  <Clear sx={{ px: 2, width: "20px", height: "20px" }} />
+                </Button>
                 <Typography
                   variant="body2"
                   sx={{
@@ -118,16 +121,14 @@ export default function UploadButton() {
                     overflow: "hidden",
                     textOverflow: "ellipsis",
                     width: "150px", // Set the width to control when truncation occurs
+                    ml: "10px"
                   }}
                 >
                   {files[0].name}
                 </Typography>
-                <Button onClick={handleCancelUpload} size="small">
-                  <Clear />
-                </Button>
               </Grid>
-              <Grid item>
-                <Typography variant="body2" color="textSecondary" sx={{mb: 3}}>
+              <Grid item sx={{ mb: 3 }}>
+                <Typography variant="caption" color="textSecondary">
                   (número de questões: {pageCount.valueOf()})
                 </Typography>
               </Grid>

@@ -30,30 +30,31 @@ export default function InitialPage() {
       <PaymentModal />
 
       <Grid item xs={12} sx={{ marginTop: "10px" }}>
-        <Typography variant="h5" sx={{ fontFamily: "Roboto Mono, monospace" }}>
+        <Typography variant="h4" sx={{ fontFamily: "Roboto Mono, monospace" }}>
+          <strong>Resolva provas antigas com IA 🤖</strong>
+        </Typography>
+
+        <Typography variant="h5" sx={{ mt: 2 }}>
           Faça o upload de{" "}
           <Typography
             component="span"
             variant="h5"
-            style={{ color: "dodgerblue" }}
+            style={{ color: "#0098BA" }}
             sx={{ fontFamily: "Roboto Mono, monospace" }}
           >
             1 arquivo PDF
           </Typography>{" "}
-          de uma prova antiga
-        </Typography>
-
-        <Typography variant="h5" sx={{ fontFamily: "Roboto Mono, monospace" }}>
-          e deixe a IA <strong>resolvê-la automaticamente!</strong>
+          de uma <u>prova antiga </u> e deixe a IA{" "}
+          <strong>resolvê-la automaticamente!</strong>
         </Typography>
 
         <Typography
-          variant="subtitle1"
+          variant="body2"
           color="textSecondary"
           sx={{ marginTop: "15px" }}
         >
-          Certifique-se que há <strong>somente uma 1 questão por página</strong>
-          .
+          Certifique-se que há{" "}
+          <strong>somente uma 1 questão por página.</strong>
         </Typography>
       </Grid>
 
@@ -67,7 +68,10 @@ export default function InitialPage() {
         sx={{ mt: 3 }}
       >
         {/* Botão de upload */}
-        <UploadButton />
+        <Grid item sx={{ mx: 1 }}>
+          <UploadButton />
+        </Grid>
+        
         {/* Botão de resolver */}
         <Grid item sx={{ mx: 1 }}>
           <SolveButton />
@@ -102,11 +106,8 @@ export default function InitialPage() {
       </Grid>
 
       {/* Seção de exemplo */}
-      <Grid item xs={12} sx={{ marginTop: 15 }}>
-        <Typography
-          variant="h4"
-          sx={{ fontFamily: "Roboto Mono, monospace" }}
-        >
+      <Grid item xs={12} sx={{ marginTop: 8 }}>
+        <Typography variant="h5" sx={{ fontFamily: "Roboto Mono, monospace" }}>
           <strong>Confira um exemplo!</strong>
         </Typography>
       </Grid>

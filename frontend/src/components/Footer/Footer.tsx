@@ -24,7 +24,7 @@ export default function Footer() {
           <img src={fullLogo} alt="logo" style={{ maxHeight: "35px" }} />
         </Grid>
         <Grid item xs={4} style={{ textAlign: "right", paddingRight: "20px" }}>
-          <Typography variant="body2" color="textSecondary">
+          <Typography variant="caption" color="textSecondary">
             Esse site usa Inteligência Artificial, que pode cometer erros.
             <br />
             Considere verificar informações importantes.
