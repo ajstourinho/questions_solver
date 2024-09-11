@@ -15,29 +15,27 @@ CORS(app)
 pix_service = PixAPI(False) # True: Homolog |  False: Prod
 gpt_api = GPTAPI()
 
-# Configure backend folder for users uploads
-UPLOAD_FOLDER = './gpt_api/uploaded_files'
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+# Define current directory, for relative paths
+current_dir = os.path.dirname(os.path.abspath(__file__))
 
-# Configure backend folder to preprocess uploaded PDF into question areas (pages to images)
-GPT_OUTPUT_0_AREAS_FOLDER = './gpt_api/output_0_areas'
-if not os.path.exists(GPT_OUTPUT_0_AREAS_FOLDER):
-    os.makedirs(GPT_OUTPUT_0_AREAS_FOLDER)
-app.config['GPT_OUTPUT_0_AREAS_FOLDER'] = GPT_OUTPUT_0_AREAS_FOLDER
+# Define necessary folders
+FOLDER_UPLOADED_FILES = os.path.join(current_dir, "gpt_api", "uploaded_files")
+FOLDER_OUTPUT_0_AREAS = os.path.join(current_dir, "gpt_api", "output_0_areas")
+FOLDER_OUTPUT_1_JSONS = os.path.join(current_dir, "gpt_api", "output_1_jsons")
+FOLDER_OUTPUT_2_PDFS = os.path.join(current_dir, "gpt_api", "output_2_pdfs")
 
-# Configure backend folder for GPT API JSON outputs
-GPT_OUTPUT_1_JSONS = './gpt_api/output_1_jsons'
-if not os.path.exists(GPT_OUTPUT_1_JSONS):
-    os.makedirs(GPT_OUTPUT_1_JSONS)
-app.config['GPT_OUTPUT_1_JSONS'] = GPT_OUTPUT_1_JSONS
+# Define list of necessary folders
+folders_list = [
+    FOLDER_UPLOADED_FILES,
+    FOLDER_OUTPUT_0_AREAS,
+    FOLDER_OUTPUT_1_JSONS,
+    FOLDER_OUTPUT_2_PDFS
+]
 
-# Configure backend folder for GPT API outputs
-GPT_OUTPUT_2_PDF_FOLDER = './gpt_api/output_2_pdf'
-if not os.path.exists(GPT_OUTPUT_2_PDF_FOLDER):
-    os.makedirs(GPT_OUTPUT_2_PDF_FOLDER)
-app.config['GPT_OUTPUT_2_PDF_FOLDER'] = GPT_OUTPUT_2_PDF_FOLDER
+# Create folders if they do not yet exist
+for folder in folders_list:
+    if not os.path.exists(folder):
+        os.makedirs(folder)
 
 @app.route('/')
 def index():
@@ -62,7 +60,7 @@ def upload_file():
         return jsonify({'error': 'No selected file'}), 400
     
     if file:
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], custom_filename)
+        file_path = os.path.join(FOLDER_UPLOADED_FILES, custom_filename)
         file.save(file_path)
         return jsonify({'message': 'File uploaded successfully', 'file_path': file_path}), 200
     
@@ -79,7 +77,7 @@ def gpt_solver():
     pdf_pageCount = int(data.get('pageCount'))
 
     # Define the path of uploaded PDF file, based on the filename
-    pdf_directory = app.config['UPLOAD_FOLDER']
+    pdf_directory = FOLDER_UPLOADED_FILES
     pdf_path = os.path.join(pdf_directory, pdf_filename)
 
     # Define file basename (without extension)
@@ -97,18 +95,18 @@ def gpt_solver():
         gpt_api.save_img(image_basename, image)
 
         # Call GPT API to generate JSON from processed image
-        # gpt_api.generate_json(image_basename)
+        gpt_api.generate_json(image_basename)
 
     # Generate PDF from JSONs
     gpt_api.generate_pdf_from_jsons(file_basename)
 
     # Send the PDF file as a downloadable response
-    pdf_path_temp = os.path.join(app.config["GPT_OUTPUT_2_PDF_FOLDER"], file_basename + "_resolvida.pdf") 
+    pdf_path_temp = os.path.join(FOLDER_OUTPUT_2_PDFS, file_basename + "_resolvida.pdf") 
     return send_file(
         pdf_path_temp,
         mimetype='application/pdf',  # Specify the MIME type as PDF
         as_attachment=True,  # Force the download
-        download_name="teste.pdf"  # Set the filename for the download
+        download_name="prova_resolvida.pdf"  # Set the filename for the download
     )
 
 @app.route('/cob', methods=['POST'])
