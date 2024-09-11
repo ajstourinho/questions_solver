@@ -20,6 +20,7 @@ import DownloadIcon from "@mui/icons-material/Download";
 import QRCodeImage from "../QRCodeImage/QRCodeImage";
 import { PDFDocument } from 'pdf-lib';
 import Skeleton from "@mui/material/Skeleton";
+import CopyTextField from '../CopyTextField/CopyTextField';
 
 const style = {
   position: "absolute" as const,
@@ -190,16 +191,7 @@ function PaymentModal() {
             <Typography variant="subtitle2">
               Se preferir, copie e cole o código abaixo para pagar:
             </Typography>
-            <TextField
-              fullWidth
-              variant="outlined"
-              value="1234kuyfgasfjkhg81778976t3412lhgdfasy"
-              InputProps={{
-                readOnly: true,
-                sx: { fontSize: 14 },
-              }}
-              sx={{ mt: 1 }}
-            />
+            <CopyTextField value="1234kuyfgasfjkhg81778976t3412lhgdfasyssssssss" />
           </Box>
 
           {/* Divisor */}
