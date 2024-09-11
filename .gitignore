@@ -5,7 +5,7 @@ backend/gpt_api/__pycache__/
 /backend/gpt_api/uploaded_files
 /backend/gpt_api/output_0_areas
 /backend/gpt_api/output_1_jsons
-/backend/gpt_api/output_2_pdf
+/backend/gpt_api/output_2_pdfs
 /backend/pix_api/keys
 /backend/.env
 /frontend/.env
