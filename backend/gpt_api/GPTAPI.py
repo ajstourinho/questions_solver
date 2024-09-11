@@ -5,7 +5,7 @@ import requests
 import json
 from pdf2image import convert_from_path
 from fpdf import FPDF
-
+import re
 from .assistant_instructions import assistant_instructions
 
 load_dotenv()
@@ -105,26 +105,87 @@ class GPTAPI:
         with open(filepath, 'w', encoding='utf-8') as file:
             json.dump(parsed_json, file, indent=2, ensure_ascii=False)
 
+    def find_matching_files(self, file_basename, directory):
+        """
+        This function has O(N) time complexity, where N is the total number of files in the given directory.
+        """
+        # This regex pattern will match any file that contains the file_basename anywhere in the filename.
+        pattern = re.compile(rf"{re.escape(file_basename)}")
+
+        # List all files in the given directory
+        files = os.listdir(directory)
+
+        # Filter files that match the pattern
+        matching_files = [os.path.join(directory, file) for file in files if pattern.match(file)]
+
+        return matching_files
+
+    def insert_json_data_into_pdf_instance(self, json_data, pdf_instance, question_num):
+        # Add page to PDF
+        pdf_instance.add_page()
+
+        # Display Question Number
+        pdf_instance.set_font("DejaVu", style='B', size=12)
+        pdf_instance.cell(200, 7, txt=f"Questão {question_num})", ln=True)
+        pdf_instance.cell(200, 7, txt="", ln=True)
+
+        # Display Question 'enunciado'
+        question_enunciado = json_data["enunciado"]
+        pdf_instance.set_font("DejaVu", style='', size=11)
+        pdf_instance.multi_cell(190, 7, txt=question_enunciado)
+
+        if json_data['tipo'] == "Objetiva":
+            pdf_instance.cell(200, 5, txt="", ln=True)
+            for key, value in json_data['resposta'].items():
+                if key != "alternativaCorreta":
+                    text_alternativa = key.upper() + ')  ' + value['alternativa']
+                    pdf_instance.multi_cell(190, 7, txt=text_alternativa)
+                    pdf_instance.cell(200, 4, txt="", ln=True)
+
+        # Display Question 'resposta';
+        pdf_instance.cell(190, 10, txt="", ln=True)
+        pdf_instance.set_font("DejaVu", style='B', size=12)
+        pdf_instance.cell(200, 7, txt="Solução:", ln=True)
+        pdf_instance.cell(200, 7, txt="", ln=True)
+
+        pdf_instance.set_font("DejaVu", style='', size=11)
+        if json_data['tipo'] == "Discursiva":
+            pdf_instance.multi_cell(190, 7, txt=json_data['resposta'])
+        if json_data['tipo'] == "Objetiva":
+            for key, value in json_data['resposta'].items():
+                if key != "alternativaCorreta":
+                    textoExplicativo = key.upper() + ')  ' + value['textoExplicativo']
+                    pdf_instance.multi_cell(180, 7, txt=textoExplicativo)
+                    pdf_instance.cell(200, 4, txt="", ln=True)
+
+            pdf_instance.cell(190, 10, txt="", ln=True)
+            pdf_instance.set_font("DejaVu", style='B', size=12)
+            pdf_instance.cell(200, 7, txt='Alternativa correta: ', ln=True)
+
+            pdf_instance.set_font("DejaVu", style='', size=11)
+            pdf_instance.cell(200, 7, txt=json_data['resposta']['alternativaCorreta'].upper(), ln=True)
+
     def generate_pdf_from_jsons(self, file_basename):
 
-        data = {"nome": "alexandre", "idade": "25", "email": "meuemail"}
+        # Define JSON files
+        json_directory = os.path.join(current_dir, 'output_1_jsons')
+        files_paths = self.find_matching_files(file_basename, json_directory)
 
-        # Criar instância de PDF
-        pdf = FPDF()
-        pdf.add_page()
+        # Create PDF instance
+        pdf_instance = FPDF()
+        font_dejavu_path = os.path.join(current_dir, 'dejavu_font', 'ttf', 'DejaVuSans.ttf')
+        pdf_instance.add_font('DejaVu', '', font_dejavu_path, uni=True)
+        font_dejavu_bold_path = os.path.join(current_dir, 'dejavu_font', 'ttf', 'DejaVuSans-Bold.ttf')
+        pdf_instance.add_font('DejaVu', 'B', font_dejavu_bold_path, uni=True)  
 
-        # Adicionar um título
-        pdf.set_font("Arial", size=12)
-        pdf.cell(200, 10, txt="Relatório de Dados", ln=True, align='C')
+        # Iterate over JSON files, and add content do PDF
+        for i, file_path in enumerate(files_paths):
+            with open(file_path, 'r') as file:
+                json_data = json.load(file)
 
-        # Adicionar os dados
-        pdf.set_font("Arial", size=10)
+            question_num = i+1
+            self.insert_json_data_into_pdf_instance(json_data, pdf_instance, question_num)
 
-        pdf.cell(200, 10, txt=f"Nome: {data['nome']}", ln=True)
-        pdf.cell(200, 10, txt=f"Idade: {data['idade']}", ln=True)
-        pdf.cell(200, 10, txt=f"Email: {data['email']}", ln=True)
-        pdf.cell(200, 10, txt="", ln=True)  # Espaço entre entradas
-
-        # Salvar o PDF
-        output_path_name = os.path.join(current_dir, 'output_2_pdf', file_basename + "_resolvida.pdf")
-        pdf.output(output_path_name)
+        # Save PDF
+        output_path_name = os.path.join(current_dir, 'output_2_pdfs', file_basename + "_resolvida.pdf")
+        pdf_instance.output(output_path_name)
