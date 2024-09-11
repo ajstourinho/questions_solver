@@ -1,4 +1,3 @@
-import React, { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../store/store";
@@ -14,7 +13,6 @@ import {
   Button,
   Grid,
   Typography,
-  TextField,
   Divider,
   Modal,
 } from "@mui/material";
@@ -91,7 +89,7 @@ function PaymentModal() {
     if (open && price.valueOf() !== 0) {
       getQrCodeAsync();
     }
-  }, [open, price]);
+  }, [open, price, dispatch]);
 
   // test of gpt api
   async function handleClick() {

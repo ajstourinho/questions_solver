@@ -1,5 +1,4 @@
-import React from 'react';
-import { Box, Card, CardMedia, Typography } from '@mui/material';
+import {  Card, CardMedia } from '@mui/material';
 
 interface IQRCodeImage {
     base64String: string,
