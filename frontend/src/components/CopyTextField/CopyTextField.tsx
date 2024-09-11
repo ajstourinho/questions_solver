@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { TextField, IconButton, InputAdornment, Tooltip } from "@mui/material";
 import CopyAllIcon from "@mui/icons-material/CopyAll";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
 
 interface CopyTextFieldProps {
   value: string;
@@ -9,6 +11,10 @@ interface CopyTextFieldProps {
 
 const CopyTextField: React.FC<CopyTextFieldProps> = ({ value, ...props }) => {
   const [copied, setCopied] = useState(false);
+  const pixCopiaECola = useSelector(
+    (state: RootState) => state.paymentModalSlice.pixCopiaECola
+  );
+
 
   const handleCopy = () => {
     navigator.clipboard.writeText(value).then(() => {
@@ -17,10 +23,12 @@ const CopyTextField: React.FC<CopyTextFieldProps> = ({ value, ...props }) => {
     });
   };
 
+  useEffect(() => {console.log(pixCopiaECola);}, [pixCopiaECola]);
+
   return (
     <TextField
       {...props}
-      value={value}
+      value={pixCopiaECola}
       fullWidth
       variant="outlined"
       InputProps={{

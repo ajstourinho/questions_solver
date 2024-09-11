@@ -139,7 +139,7 @@ def pix_new_cob():
         if not bool(re.match(r'^\d{1,10}\.\d{2}$', data['val'])):
             pass #throw custom exception
         pix_response = pix_service.createCharge(value = data['val'])
-        return jsonify({'locId': pix_response['locId']}), 200
+        return jsonify({'locId': pix_response['locId'], "pixCopiaECola": pix_response["pixCopiaECola"]}), 200
     except Exception as e:
         return str(e), 500
 
@@ -170,7 +170,6 @@ def pix_qrcode():
         if not data['locId']:
             pass #throw custom exception
         pix_response = pix_service.getB64QRCode(locId = data['locId'])
-        print(pix_response)
         return jsonify({'qrcode': pix_response['b64Img']}), 200
     except Exception as e:
         return str(e), 500

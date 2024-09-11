@@ -2,7 +2,10 @@ import React, { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../store/store";
-import { closePaymentModal } from "../../store/slices/PaymentModalSlice";
+import {
+  closePaymentModal,
+  setPixCopiaECola,
+} from "../../store/slices/PaymentModalSlice";
 import axiosInstance from "../../axios/axiosInstance";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
@@ -70,6 +73,8 @@ function PaymentModal() {
           throw Error(`/cob response failed: ${cobResponse.data}`);
         }
         const locID = cobResponse.data["locId"];
+        console.log(cobResponse);
+        dispatch(setPixCopiaECola(cobResponse.data["pixCopiaECola"]));
         const qrCodeResponse = await axiosInstance.post(
           "/qrcode",
           { locId: locID },
@@ -191,7 +196,7 @@ function PaymentModal() {
             <Typography variant="subtitle2">
               Se preferir, copie e cole o código abaixo para pagar:
             </Typography>
-            <CopyTextField value="1234kuyfgasfjkhg81778976t3412lhgdfasyssssssss" />
+            <CopyTextField value="" />
           </Box>
 
           {/* Divisor */}

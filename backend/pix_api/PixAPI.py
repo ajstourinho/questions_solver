@@ -52,7 +52,8 @@ class PixAPI:
             'chave': os.getenv("PIX_RECEIVER_KEY")
         }
         response =  self.api.pix_create_charge(params=params,body=body)
-        return {"locId": response['loc']['id'], "fullResponse": response}
+        print(response["pixCopiaECola"])
+        return {"locId": response['loc']['id'], "pixCopiaECola": response["pixCopiaECola"], "fullResponse": response}
     
     def getB64QRCode(self, locId: str):
         """
