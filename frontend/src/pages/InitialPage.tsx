@@ -1,4 +1,4 @@
-import { Box, Grid, Typography } from "@mui/material";
+import { Box, Grid, Typography, useMediaQuery, useTheme } from "@mui/material";
 import UploadButton from "../components/UploadButton/UploadButton";
 import SolveButton from "../components/SolveButton/SolveButton";
 import { ShoppingCart } from "@mui/icons-material";
@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
 import pixIcon from "../assets/pix_icon.webp";
 import exampleImg from "../assets/exampleInitialPage_transp-min.png";
+import exampleImgMobile from "../assets/exampleInitialPage_vertical_transp-min.png";
 import PaymentModal from "../components/PaymentModal/PaymentModal";
 // import dotenv from 'dotenv'
 
@@ -15,6 +16,8 @@ const reaisPerPage = 8;
 
 export default function InitialPage() {
   const price = useSelector((state: RootState) => state.checkoutSlice.price);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   function formatToCurrency(value: number): string {
     // Ensure the value is a number and fix it to two decimal places
@@ -71,7 +74,7 @@ export default function InitialPage() {
         <Grid item sx={{ mx: 1 }}>
           <UploadButton />
         </Grid>
-        
+
         {/* Botão de resolver */}
         <Grid item sx={{ mx: 1 }}>
           <SolveButton />
@@ -122,7 +125,7 @@ export default function InitialPage() {
         }}
       >
         <img
-          src={exampleImg}
+          src={isMobile ? exampleImgMobile : exampleImg}
           alt="exampleImg"
           style={{ maxWidth: "90%", marginBottom: 20 }}
         />
