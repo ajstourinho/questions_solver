@@ -17,7 +17,8 @@ class PixAPI:
             "client_id": os.getenv("CLIENT_ID"),
             "client_secret": os.getenv("CLIENT_SECRET"),
             "sandbox": sandBox, # True: Hom |  False: Prod
-            "certificate": os.getenv("KEY_PEM_PATH")
+            "certificate": os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                                                        os.getenv("KEY_PEM_PATH"))
         })
         
     def createCharge(self, value: str, expiration: int = 3600) -> dict:
