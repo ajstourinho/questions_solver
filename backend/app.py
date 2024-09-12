@@ -75,7 +75,8 @@ def pix_new_cob():
         if not bool(re.match(r'^\d{1,10}\.\d{2}$', data['val'])):
             pass #throw custom exception
         pix_response = pix_service.createCharge(value = data['val'])
-        return jsonify({'locId': pix_response['locId']}), 200
+        # TO DO: RETURN THE TXID TO USE IN WEBHOOK
+        return jsonify({'locId': pix_response['locId'], 'txid': pix_response['txid']}), 200
     except Exception as e:
         return str(e), 500
 
