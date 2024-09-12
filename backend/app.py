@@ -112,6 +112,27 @@ def pix_qrcode():
     except Exception as e:
         return str(e), 500
 
+@app.route('/createhook', methods=['POST'])
+def register():
+    data = request.json
+    if not data['status']:
+        pass #throw custom exception
+    if not data['msg']:
+        pass #throw custom exception
+    pix_service.createHook(os.getenv("EFI_PUBLIC_TLS_CRT_PATH"), webHookUrl='?')
+
+@app.route('/listenhook', methods=["POST"])
+def listenHook():
+  print(request.json)
+  response = {"status": 200}
+  return jsonify(response)
+    
+@app.route("/listenhook/pix", methods=["POST"])
+def listenHook():
+  print(request.json)
+  response = {"status": 200}
+  return jsonify(response)
+
 if __name__ == '__main__':
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     context.verify_mode = ssl.CERT_REQUIRED

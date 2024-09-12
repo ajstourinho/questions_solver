@@ -69,3 +69,13 @@ class PixAPI:
         }
         response =  self.api.pix_generate_qrcode(params=params)
         return {"b64Img": response['imagemQrcode'].replace('data:image/png;base64,', ''), "fullResponse": response}
+
+    def createHook(self, pixReceiverKey, webHookUrl):
+        headers  = {'x-skip-mtls-checking': 'false'}
+        body = {'webhookUrl': webHookUrl}
+        params = {'chave': pixReceiverKey}
+        print(response)
+        response =  self.api.pix_config_webhook(params, body, headers)
+        return {'status': response['?'], }
+    
+    
