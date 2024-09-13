@@ -1,4 +1,4 @@
-import fullLogo from "../../assets/full_logo.png";
+import fullLogo from "../../assets/full_logo_medicina.png";
 import { Grid } from "@mui/material";
 
 export default function Header() {
