@@ -46,6 +46,9 @@ export default function UploadButton() {
       // implement filename with datetime to save to store
       const filename = `myfile_${getCurrentDateTimeForFilename()}.pdf`;
 
+      // reset, considering upload of only 1 file
+      handleCancelUpload();
+
       dispatch(
         add({
           files: Array.from(event.target.files),
