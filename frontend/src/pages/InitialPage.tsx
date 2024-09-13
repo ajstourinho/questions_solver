@@ -32,7 +32,7 @@ export default function InitialPage() {
       {/* Modal de pagamento */}
       <PaymentModal />
 
-      <Grid item xs={12} sx={{ marginTop: "10px" }}>
+      <Grid item xs={12} sx={{ marginTop: "25px" }}>
         <Typography variant="h4" sx={{ fontFamily: "Roboto Mono, monospace" }}>
           <strong>Resolva provas antigas com IA 🤖</strong>
         </Typography>
@@ -45,9 +45,9 @@ export default function InitialPage() {
             style={{ color: "#0098BA" }}
             sx={{ fontFamily: "Roboto Mono, monospace" }}
           >
-            1 arquivo PDF
+            <strong>1 arquivo PDF</strong>
           </Typography>{" "}
-          de uma <u>prova antiga </u> e deixe a IA{" "}
+          de uma <u>prova antiga </u> e <br/>deixe a IA{" "}
           <strong>resolvê-la automaticamente!</strong>
         </Typography>
 
