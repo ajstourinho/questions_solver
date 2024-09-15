@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Typography, Button, Divider, Chip } from "@mui/material";
-import { nextPage } from "../../../store/slices/ModalControlSlice";
+import { nextModalPage } from "../../../store/slices/ModalControlSlice";
 import { useDispatch } from "react-redux";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
@@ -26,7 +26,7 @@ function ModalPage2Mode() {
   const dispatch = useDispatch();
 
   const handleClick = () => {
-    dispatch(nextPage());
+    dispatch(nextModalPage());
   };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {

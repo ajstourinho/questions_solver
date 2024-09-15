@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import os
 import random
 import string
+import requests
 
 load_dotenv()
 
@@ -24,7 +25,7 @@ class PixAPI:
             "certificate": os.path.join(current_dir, "keys", os.getenv("KEY_PEM_FILENAME"))
         })
         
-    def createCharge(self, value: str, expiration: int = 3600) -> dict:
+    def createCharge(self, value: str, txid: str, expiration: int = 3600) -> dict:
         """
         Creates a PIX charge with the specified value and expiration time.
 
@@ -40,7 +41,7 @@ class PixAPI:
                 - "fullResponse": The complete response from the PIX API, containing details about the charge.
         """
         params = {
-            'txid': getRandomString()
+            'txid': txid
         }
         body = {
             'calendario': {
@@ -74,3 +75,10 @@ class PixAPI:
         }
         response =  self.api.pix_generate_qrcode(params=params)
         return {"b64Img": response['imagemQrcode'].replace('data:image/png;base64,', ''), "fullResponse": response}
+
+    def consultar_status_pix(self, txid):
+        params = {
+            'txid': txid
+        }
+        response = self.api.pix_detail_charge(params=params)
+        return response

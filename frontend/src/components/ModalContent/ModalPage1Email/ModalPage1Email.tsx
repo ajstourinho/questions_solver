@@ -1,7 +1,7 @@
 import React from "react";
 import { Typography, Button, Divider } from "@mui/material";
 import TextField from "@mui/material/TextField";
-import { nextPage } from "../../../store/slices/ModalControlSlice";
+import { nextModalPage } from "../../../store/slices/ModalControlSlice";
 import { useDispatch } from "react-redux";
 import { setUserEmail } from "../../../store/slices/UserSlice";
 
@@ -12,7 +12,7 @@ function ModalPage1Email() {
   
   const handleClick = () => {
     dispatch(setUserEmail(email));
-    dispatch(nextPage());
+    dispatch(nextModalPage());
   }
 
   return (

@@ -138,11 +138,11 @@ def pix_new_cob():
             pass #throw custom exception
         if not bool(re.match(r'^\d{1,10}\.\d{2}$', data['val'])):
             pass #throw custom exception
-        pix_response = pix_service.createCharge(value = data['val'])
+        pix_response = pix_service.createCharge(value = data['val'], txid = data['txid'])
         return jsonify({'locId': pix_response['locId'], "pixCopiaECola": pix_response["pixCopiaECola"]}), 200
     except Exception as e:
         return str(e), 500
-
+    
 @app.route('/qrcode', methods=['POST'])
 def pix_qrcode():
     """
@@ -174,5 +174,14 @@ def pix_qrcode():
     except Exception as e:
         return str(e), 500
 
+@app.route('/status_pix/<txid>', methods=['GET'])
+def status_pix(txid):
+    status_cobranca = pix_service.consultar_status_pix(txid)
+    
+    if 'status' in status_cobranca and status_cobranca['status'] == 'CONCLUIDA':
+        return jsonify({'status': 'CONCLUIDA', 'mensagem': 'Pagamento realizado com sucesso!'})
+    else:
+        return jsonify({'status': status_cobranca.get('status', 'N/A'), 'mensagem': 'Pagamento não concluído.'})
+    
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

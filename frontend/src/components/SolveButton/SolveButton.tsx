@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../store/store";
 
 import axiosInstance from "../../axios/axiosInstance";
-import { nextPage, openModal } from "../../store/slices/ModalControlSlice";
+import { nextModalPage, openModal } from "../../store/slices/ModalControlSlice";
 
 export default function SolveButton() {
   const files = useSelector((state: RootState) => state.filesSlice.files);
@@ -13,7 +13,7 @@ export default function SolveButton() {
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    dispatch(nextPage());
+    dispatch(nextModalPage());
     dispatch(openModal());
 
     uploadFiles(event);

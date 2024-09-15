@@ -5,7 +5,7 @@ import { PDFDocument } from "pdf-lib";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import { reset, add } from "../../store/slices/FilesSlice";
-import { setPageNumber } from "../../store/slices/CheckoutSlice";
+import { setPageCount } from "../../store/slices/CheckoutSlice";
 
 function getCurrentDateTimeForFilename() {
   const now = new Date();
@@ -23,10 +23,6 @@ function getCurrentDateTimeForFilename() {
 
 export default function UploadButton() {
   const files = useSelector((state: RootState) => state.filesSlice.files);
-
-  const pageCount = useSelector(
-    (state: RootState) => state.checkoutSlice.pageCount
-  );
   
   const dispatch = useDispatch();
 
@@ -55,18 +51,18 @@ export default function UploadButton() {
           filenames: [filename],
         })
       );
-
-      dispatch(setPageNumber(pdfDoc.getPageCount()));
+      
+      dispatch(setPageCount(pdfDoc.getPageCount()));
     }
   };
 
   const handleCancelUpload = () => {
     dispatch(reset());
-    dispatch(setPageNumber(0));
+    dispatch(setPageCount(0));
   };
 
   return (
-    <Grid item direction="column" sx={{ mx: 1 }}>
+    <Grid item sx={{ mx: 1 }}>
       <Grid item>
         <input
           type="file"

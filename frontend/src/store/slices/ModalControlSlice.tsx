@@ -1,12 +1,12 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface ModalControlState {
-  page: number,
+  modalPage: number,
   open: boolean
 }
 
 const initialState: ModalControlState = {
-  page: 0,
+  modalPage: 0,
   open: false,
 };
 
@@ -22,15 +22,16 @@ const modalControlSlice = createSlice({
     closeModal: (state) => {
       state.open = false;
     },
-    nextPage: (state) => {
-      state.page += 1;
+    nextModalPage: (state) => {
+      state.modalPage += 1;
     },
-    resetPage: (state) => {
-      state.page = 0;
+    resetModalPage: (state) => {
+      state.modalPage = 0;
     },
   },
 });
 
-export const { openModal, closeModal, nextPage, resetPage } = modalControlSlice.actions;
+export const { openModal, closeModal, nextModalPage, resetModalPage } =
+  modalControlSlice.actions;
 
 export default modalControlSlice.reducer;
