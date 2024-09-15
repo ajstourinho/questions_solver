@@ -1,29 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { TextField, IconButton, InputAdornment, Tooltip } from "@mui/material";
 import CopyAllIcon from "@mui/icons-material/CopyAll";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 
 interface CopyTextFieldProps {
-  value: string;
   [key: string]: any; // To support additional props for TextField
 }
 
-const CopyTextField: React.FC<CopyTextFieldProps> = ({ value, ...props }) => {
+const CopyTextField: React.FC<CopyTextFieldProps> = ({ ...props }) => {
   const [copied, setCopied] = useState(false);
   const pixCopiaECola = useSelector(
     (state: RootState) => state.paymentModalSlice.pixCopiaECola
   );
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(value).then(() => {
+    navigator.clipboard.writeText(pixCopiaECola).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000); // Reset copy state after 2 seconds
     });
   };
-
-  // Update component when pixCopiaECola changes
-  useEffect(() => {}, [pixCopiaECola]);
 
   return (
     <TextField

@@ -6,6 +6,7 @@ import Footer from "./components/Footer/Footer";
 
 export default function App() {
   useEffect(() => {
+    // Adjust tab title (base it on the route)
     document.title = "iLoveProvaAntiga | Medicina";
   }, []);
 

@@ -123,16 +123,12 @@ export default function UploadButton() {
                     whiteSpace: "nowrap",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
-                    width: "150px", // Set the width to control when truncation occurs
-                    ml: "10px"
+                    width: "150px", // Set width for truncation
+                    ml: 3,
+                    textAlign: "left",
                   }}
                 >
                   {files[0].name}
-                </Typography>
-              </Grid>
-              <Grid item sx={{ mb: 3 }}>
-                <Typography variant="caption" color="textSecondary">
-                  (número de questões: {pageCount.valueOf()})
                 </Typography>
               </Grid>
             </Grid>
