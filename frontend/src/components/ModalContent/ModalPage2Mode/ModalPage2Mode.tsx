@@ -80,7 +80,8 @@ function ModalPage2Mode() {
                 ml: 4,
               }}
             >
-              Resultado em até 10min
+              {/* Resultado em até 10min */}
+              Resultado em poucos instantes
             </Typography>
             <Typography
               variant="caption"
@@ -104,7 +105,7 @@ function ModalPage2Mode() {
             }}
           >
             <FormControlLabel
-              // disabled
+              disabled
               value="with_human_revision"
               control={<Radio />}
               label={
@@ -118,9 +119,9 @@ function ModalPage2Mode() {
                 </>
               }
             />
-            {/* <Chip label="Em breve!" color="warning" size="small" /> */}
+            <Chip label="Em breve!" color="warning" size="small" />
             
-            <Typography
+            {/* <Typography
               variant="caption"
               sx={{
                 fontFamily: "Roboto Mono, monospace",
@@ -141,7 +142,7 @@ function ModalPage2Mode() {
               }}
             >
               Mais confiável
-            </Typography>
+            </Typography> */}
           </Box>
         </RadioGroup>
 

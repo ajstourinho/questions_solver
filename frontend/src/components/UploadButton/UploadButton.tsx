@@ -1,10 +1,10 @@
 import { Clear, UploadFile } from "@mui/icons-material";
 import { Box, Button, Grid, Typography } from "@mui/material";
-import { ChangeEvent } from "react";
+import { ChangeEvent, useEffect } from "react";
 import { PDFDocument } from "pdf-lib";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store";
-import { reset, add } from "../../store/slices/FilesSlice";
+import { resetFiles, addFiles } from "../../store/slices/FilesSlice";
 import { setPageCount } from "../../store/slices/CheckoutSlice";
 
 function getCurrentDateTimeForFilename() {
@@ -46,7 +46,7 @@ export default function UploadButton() {
       handleCancelUpload();
 
       dispatch(
-        add({
+        addFiles({
           files: Array.from(event.target.files),
           filenames: [filename],
         })
@@ -57,7 +57,7 @@ export default function UploadButton() {
   };
 
   const handleCancelUpload = () => {
-    dispatch(reset());
+    dispatch(resetFiles());
     dispatch(setPageCount(0));
   };
 

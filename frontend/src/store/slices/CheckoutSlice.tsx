@@ -3,7 +3,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 // dotenv.config({ path: '../../../.env' })
 // const reaisPerPage = Number(process.env.REAIS_PER_PAGE);
-const reaisPerQuestion = 8;
+const reaisPerQuestion = 8
 const humanRevisionExtra = 50;
 
 interface CheckoutState {

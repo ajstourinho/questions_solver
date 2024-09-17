@@ -23,6 +23,7 @@ function ModalPage1Email() {
 
       <TextField
         value={email}
+        type="email"
         sx={{ width: "80%", mb: 3, mt: 2 }}
         label="Digite seu e-mail..."
         variant="filled"

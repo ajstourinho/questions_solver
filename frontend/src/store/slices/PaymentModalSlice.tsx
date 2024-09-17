@@ -27,10 +27,15 @@ const paymentModalSlice = createSlice({
     setPaymentStatus: (state, action: PayloadAction<string>) => {
       state.paymentStatus = action.payload;
     },
+    resetPaymentModal: (state) => {
+      state.pixCopiaECola = "Carregando...";
+      state.txid = "";
+      state.paymentStatus = "";
+    },
   },
 });
 
-export const { setPixCopiaECola, setTxid, setPaymentStatus } =
+export const { setPixCopiaECola, setTxid, setPaymentStatus, resetPaymentModal } =
   paymentModalSlice.actions;
 
 export default paymentModalSlice.reducer;

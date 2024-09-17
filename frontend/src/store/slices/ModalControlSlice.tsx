@@ -1,8 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface ModalControlState {
-  modalPage: number,
-  open: boolean
+  modalPage: number;
+  open: boolean;
 }
 
 const initialState: ModalControlState = {

@@ -4,6 +4,7 @@ import { RootState } from "../../store/store";
 import axiosInstance from "../../axios/axiosInstance";
 import { Box, Grid, Typography } from "@mui/material";
 import { setPaymentStatus } from "../../store/slices/PaymentModalSlice";
+import { nextModalPage } from "../../store/slices/ModalControlSlice";
 
 function formatToCurrency(value: number): string {
   let formattedValue = value.toFixed(2);
@@ -14,16 +15,35 @@ function formatToCurrency(value: number): string {
 function PaymentData() {
   const txid = useSelector((state: RootState) => state.paymentModalSlice.txid);
   const files = useSelector((state: RootState) => state.filesSlice.files);
+  const filenames = useSelector((state: RootState) => state.filesSlice.filenames);
+  const pageCount = useSelector((state: RootState) => state.checkoutSlice.pageCount);
   const price = useSelector((state: RootState) => state.checkoutSlice.price);
-
-  useEffect(() => {
-    if (txid !== "") {
-      const intervalId = setInterval(consultarStatusPix, 5000);
-      return () => clearInterval(intervalId);
-    }
-  }, [txid]);
+  const paymentStatus = useSelector(
+    (state: RootState) => state.paymentModalSlice.paymentStatus
+  );
+  const userEmail = useSelector((state: RootState) => state.userSlice.email);
 
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (paymentStatus === "CONCLUIDA") {
+      // Confirm to backend that payment was sucessful, to then process order
+      axiosInstance
+        .post("/confirm_payment", { userEmail, filenames })
+        .then((response) => {
+          console.log(response);
+        })
+        .catch((error) => console.error(error));
+      
+      return;
+    } else {
+      if (txid !== "") {
+        const intervalId = setInterval(consultarStatusPix, 5000);
+        return () => clearInterval(intervalId);
+      }
+    }
+  }, [txid, paymentStatus]);
+
 
   const consultarStatusPix = () => {
     axiosInstance
@@ -34,11 +54,12 @@ function PaymentData() {
         console.log(response.data);
         if (response.data.status) {
           dispatch(setPaymentStatus(response.data.status));
+
+          if (response.data.status === "CONCLUIDA") dispatch(nextModalPage());
         }
       })
       .catch((error) => console.error("Erro ao consultar o status:", error));
   };
-
 
   return (
     <>

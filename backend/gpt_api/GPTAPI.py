@@ -7,6 +7,7 @@ from pdf2image import convert_from_path
 from fpdf import FPDF
 import re
 from .assistant_instructions import assistant_instructions
+from docx import Document
 
 load_dotenv()
 
@@ -151,7 +152,7 @@ class GPTAPI:
         pdf_instance.set_font("DejaVu", style='', size=11)
         if json_data['tipo'] == "Discursiva":
             pdf_instance.multi_cell(190, 7, txt=json_data['resposta'])
-        if json_data['tipo'] == "Objetiva":
+        elif json_data['tipo'] == "Objetiva":
             for key, value in json_data['resposta'].items():
                 if key != "alternativaCorreta":
                     textoExplicativo = key.upper() + ')  ' + value['textoExplicativo']
@@ -189,3 +190,97 @@ class GPTAPI:
         # Save PDF
         output_path_name = os.path.join(current_dir, 'output_2_pdfs', file_basename + "_resolvida.pdf")
         pdf_instance.output(output_path_name)
+
+    def insert_json_data_into_doc_instance(self, json_data, doc_instance, question_num):
+        # Display Question Number
+        doc_instance.add_paragraph().add_run(f"Questão {question_num})").bold = True
+        doc_instance.add_paragraph('\n')
+
+        # Display Question 'enunciado'
+        doc_instance.add_paragraph().add_run(json_data['enunciado'])
+        doc_instance.add_paragraph('\n')
+
+        if json_data['tipo'] == "Objetiva":
+            for key, value in json_data['resposta'].items():
+                if key != "alternativaCorreta":
+                    p1 = doc_instance.add_paragraph()
+                    p1.add_run(key.upper() + ')  ' + value['alternativa'])
+                    doc_instance.add_paragraph('\n')
+                    
+            doc_instance.add_paragraph('\n')
+
+        # Display Question 'resposta';
+        p2 = doc_instance.add_paragraph()
+        p2.add_run('Solução:').bold = True
+        doc_instance.add_paragraph('\n')
+
+        if json_data['tipo'] == "Discursiva":
+            doc_instance.add_paragraph().add_run(json_data['resposta'])
+        elif json_data['tipo'] == "Objetiva":
+            for key, value in json_data['resposta'].items():
+                if key != "alternativaCorreta":
+                    p3 = doc_instance.add_paragraph(key.upper() + ')  ')
+                    p3.add_run(value['textoExplicativo'])
+                    doc_instance.add_paragraph('\n')
+
+            doc_instance.add_paragraph('\n')
+
+            p4 = doc_instance.add_paragraph()
+            p4.add_run('Alternativa correta: ').bold = True
+
+            doc_instance.add_paragraph(json_data['resposta']['alternativaCorreta'].upper())
+
+    def generate_doc_from_jsons(self, file_basename):
+        # Define JSON files
+        json_directory = os.path.join(current_dir, 'output_1_jsons')
+        files_paths = self.find_matching_files(file_basename, json_directory)
+
+        # Create Doc instance
+        doc_instance = Document()
+
+        # Iterate over JSON files, and add content do PDF
+        for i, file_path in enumerate(files_paths):
+            with open(file_path, 'r') as file:
+                json_data = json.load(file)
+
+            question_num = i+1
+            self.insert_json_data_into_doc_instance(json_data, doc_instance, question_num)
+
+            # Add page break only if it is not the last one
+            if i != len(files_paths) - 1:
+                doc_instance.add_page_break()
+
+        # Save Doc
+        output_path_name = os.path.join(current_dir, 'output_2_pdfs', file_basename + "_resolvida.docx")
+        doc_instance.save(output_path_name)
+
+    def gpt_solver(self, pdf_filename):
+        """
+        Endpoint to activate GPT API on previously uploaded file, after having confirmed the payment.
+        """
+
+        # Define the path of uploaded PDF file, based on the filename
+        pdf_path = os.path.join(current_dir, "uploaded_files", pdf_filename)
+
+        # Define file basename (without extension)
+        file_basename, _ = os.path.splitext(pdf_filename)
+
+        # Generate iterable of PDF pages as images
+        pdf_pages_as_imgs = convert_from_path(pdf_path)
+
+        # Iterate images
+        for i, image in enumerate(pdf_pages_as_imgs):
+            # Define image basename (without extension)
+            image_basename = f"{file_basename}_page_{i+1}" # Without extension
+
+            # Save image as .png
+            self.save_img(image_basename, image)
+
+            # Call GPT API to generate JSON from processed image
+            self.generate_json(image_basename)
+
+        # Generate PDF from JSONs
+        self.generate_pdf_from_jsons(file_basename)
+        self.generate_doc_from_jsons(file_basename)
+
+        return

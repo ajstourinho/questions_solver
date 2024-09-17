@@ -6,12 +6,16 @@ import { Box, Grid, Modal } from "@mui/material";
 import fullLogo from "../../assets/full_logo_medicina.png";
 import ModalPage1Email from "../ModalContent/ModalPage1Email/ModalPage1Email";
 import ModalPage2Mode from "../ModalContent/ModalPage2Mode/ModalPage2Mode";
-import { closeModal } from "../../store/slices/ModalControlSlice";
+import { closeModal, resetModalPage } from "../../store/slices/ModalControlSlice";
 import ModalPage3Payment from "../ModalContent/ModalPage3Payment/ModalPage3Payment";
 import { resetCheckout } from "../../store/slices/CheckoutSlice";
 import { useEffect } from "react";
 import { PDFDocument } from "pdf-lib";
 import axiosInstance from "../../axios/axiosInstance";
+import ModalPage4Confirmation from "../ModalContent/ModalPage4Confirmation/ModalPage4Confirmation";
+import { resetFiles } from "../../store/slices/FilesSlice";
+import { resetPaymentModal } from "../../store/slices/PaymentModalSlice";
+import { resetUser } from "../../store/slices/UserSlice";
 
 const style = {
   position: "absolute" as const,
@@ -45,7 +49,11 @@ function ModalFrame() {
 
   const handleClose = () => {
     dispatch(closeModal());
+    dispatch(resetModalPage());
     dispatch(resetCheckout());
+    dispatch(resetFiles());
+    dispatch(resetPaymentModal());
+    dispatch(resetUser());
   };
 
   const renderContent = (modalPage: number) => {
@@ -56,6 +64,8 @@ function ModalFrame() {
         return <ModalPage2Mode />;
       case 3:
         return <ModalPage3Payment />;
+      case 4:
+        return <ModalPage4Confirmation />;
       default:
         return <p>Error rendering modal.</p>;
     }
@@ -106,6 +116,8 @@ function ModalFrame() {
     if (paymentStatus === "CONCLUIDA") {
       console.log("Pagamento realizado.");
       // callGptApi();
+
+      return;
     }
   }, [paymentStatus]);
 

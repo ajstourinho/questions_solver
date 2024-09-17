@@ -4,8 +4,11 @@ import gridfs
 import os
 from pix_api.PixAPI import PixAPI
 from gpt_api.GPTAPI import GPTAPI
+from mail_service.MailService import MailService
 import re
 from pdf2image import convert_from_path
+from flask_mail import Mail, Message
+import threading
 
 # Initialize app with CORS
 app = Flask(__name__)
@@ -13,7 +16,21 @@ CORS(app)
 
 # Initialize API for payment (Pix)
 pix_service = PixAPI(False) # True: Homolog |  False: Prod
+
+# Initialize API for GPT
 gpt_api = GPTAPI()
+
+# Configuring the Flask-Mail extension
+app.config['MAIL_SERVER'] = os.getenv("MAIL_SERVER")
+app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT'))
+app.config['MAIL_USE_TLS'] = True if (os.getenv('MAIL_USE_TLS')) == "True" else False 
+app.config['MAIL_USERNAME'] = os.getenv("MAIL_USERNAME")
+app.config['MAIL_PASSWORD'] = os.getenv("MAIL_PASSWORD")
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv("MAIL_DEFAULT_SENDER")
+mail = Mail(app)
+
+# Initialize Class Instance of Mail Services
+mail_service = MailService(mail)
 
 # Define current directory, for relative paths
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -65,7 +82,7 @@ def upload_file():
         return jsonify({'message': 'File uploaded successfully', 'file_path': file_path}), 200
     
 
-@app.route('/gpt_solver', methods=['POST'])
+# @app.route('/gpt_solver', methods=['POST'])
 def gpt_solver():
     """
     Endpoint to activate GPT API on previously uploaded file, after having confirmed the payment.
@@ -109,6 +126,7 @@ def gpt_solver():
         download_name="prova_resolvida.pdf"  # Set the filename for the download
     )
 
+
 @app.route('/cob', methods=['POST'])
 def pix_new_cob():
     """
@@ -143,6 +161,7 @@ def pix_new_cob():
     except Exception as e:
         return str(e), 500
     
+
 @app.route('/qrcode', methods=['POST'])
 def pix_qrcode():
     """
@@ -174,6 +193,7 @@ def pix_qrcode():
     except Exception as e:
         return str(e), 500
 
+
 @app.route('/status_pix/<txid>', methods=['GET'])
 def status_pix(txid):
     status_cobranca = pix_service.consultar_status_pix(txid)
@@ -182,6 +202,46 @@ def status_pix(txid):
         return jsonify({'status': 'CONCLUIDA', 'mensagem': 'Pagamento realizado com sucesso!'})
     else:
         return jsonify({'status': status_cobranca.get('status', 'N/A'), 'mensagem': 'Pagamento não concluído.'})
+
+
+@app.route('/confirm_payment', methods=['POST'])
+def confirm_payment():
+    data = request.json
+
+    userEmail = data["userEmail"].strip()
+    pdf_filename = data["filenames"][0]
+
+    # Função para rodar o processamento do pedido no contexto correto
+    def process_order(userEmail):
+        with app.app_context():
+            mail_service.notify_admin_and_user_payment_confirmation(userEmail)
+            gpt_api.gpt_solver(pdf_filename)
+            mail_service.send_admin_and_user_output_file(userEmail, pdf_filename)
+
+    # Iniciar uma thread para continuar o processamento em segundo plano
+    threading.Thread(target=process_order, args=(userEmail,)).start()
+
+    # Retorna a resposta para o frontend imediatamente
+    return jsonify({'message': "Pagamento confirmado. Processamento iniciado"}), 200
+
+# @app.route('/send_email', methods=['GET'])
+# def send_email():
+#     user_email = "ajstourinho@gmail.com"  # You can replace this with dynamic email from a form or session
+#     subject = "Hello from Flask with Attachment."
+#     body = "This email contains an attachment sent from a Flask route!"
+
+#     try:
+#         msg = Message(subject, recipients=[user_email])
+#         msg.body = body
+
+#         # Attach a file to the email
+#         with app.open_resource(os.path.join(current_dir, "gpt_api", "uploaded_files", "myfile_2024-09-15_03-01-55.pdf")) as fp:
+#             msg.attach("file.pdf", "application/pdf", fp.read())
+
+#         mail.send(msg)
+#         return f"Email with attachment successfully sent to {user_email}!"
+#     except Exception as e:
+#         return f"Failed to send email with attachment. Error: {str(e)}"
     
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
