@@ -271,7 +271,7 @@ class GPTAPI:
         # Iterate images
         for i, image in enumerate(pdf_pages_as_imgs):
             # Define image basename (without extension)
-            image_basename = f"{file_basename}_page_{i+1}" # Without extension
+            image_basename = f"{file_basename}_page_{str(i+1).zfill(4)}" # Without extension
 
             # Save image as .png
             self.save_img(image_basename, image)
