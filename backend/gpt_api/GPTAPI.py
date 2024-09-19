@@ -194,25 +194,21 @@ class GPTAPI:
     def insert_json_data_into_doc_instance(self, json_data, doc_instance, question_num):
         # Display Question Number
         doc_instance.add_paragraph().add_run(f"Questão {question_num})").bold = True
-        doc_instance.add_paragraph('\n')
 
         # Display Question 'enunciado'
         doc_instance.add_paragraph().add_run(json_data['enunciado'])
-        doc_instance.add_paragraph('\n')
 
         if json_data['tipo'] == "Objetiva":
             for key, value in json_data['resposta'].items():
                 if key != "alternativaCorreta":
                     p1 = doc_instance.add_paragraph()
                     p1.add_run(key.upper() + ')  ' + value['alternativa'])
-                    doc_instance.add_paragraph('\n')
                     
             doc_instance.add_paragraph('\n')
 
         # Display Question 'resposta';
         p2 = doc_instance.add_paragraph()
         p2.add_run('Solução:').bold = True
-        doc_instance.add_paragraph('\n')
 
         if json_data['tipo'] == "Discursiva":
             doc_instance.add_paragraph().add_run(json_data['resposta'])
@@ -221,7 +217,6 @@ class GPTAPI:
                 if key != "alternativaCorreta":
                     p3 = doc_instance.add_paragraph(key.upper() + ')  ')
                     p3.add_run(value['textoExplicativo'])
-                    doc_instance.add_paragraph('\n')
 
             doc_instance.add_paragraph('\n')
 
