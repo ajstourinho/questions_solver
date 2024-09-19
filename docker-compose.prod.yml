@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+  flask_app:
+    container_name: flask_app
+    restart: always
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    command: gunicorn --bind 0.0.0.0:8000 app:app
+    expose:
+      - "8000"
+    networks:
+      - mynetwork
+  frontend:
+    container_name: frontend
+    command: npm run build
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    volumes:
+      - react_build:/app/frontend/build
+  nginx:
+    container_name: nginx
+    restart: always
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx-setup.conf:/etc/nginx/conf.d/default.conf:ro
+      - react_build:/var/www/react
+    depends_on:
+      - flask_app
+      - frontend
+    networks:
+      - mynetwork
+
+volumes:
+  react_build:
+
+networks:
+  mynetwork:

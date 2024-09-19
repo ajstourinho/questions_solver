@@ -62,7 +62,7 @@ def index():
     return jsonify({"message": "Hello, world! This is the Flask backend."})
 
 
-@app.route('/upload', methods=['POST'])
+@app.route('/api/upload', methods=['POST'])
 def upload_file():
     """
     Endpoint to receive and save files (with custom filenames) uploaded from user.
@@ -82,7 +82,7 @@ def upload_file():
         return jsonify({'message': 'File uploaded successfully', 'file_path': file_path}), 200
     
 
-# @app.route('/gpt_solver', methods=['POST'])
+# @app.route('/api/gpt_solver', methods=['POST'])
 def gpt_solver():
     """
     Endpoint to activate GPT API on previously uploaded file, after having confirmed the payment.
@@ -127,7 +127,7 @@ def gpt_solver():
     )
 
 
-@app.route('/cob', methods=['POST'])
+@app.route('/api/cob', methods=['POST'])
 def pix_new_cob():
     """
     Endpoint to create a new PIX charge.
@@ -162,7 +162,7 @@ def pix_new_cob():
         return str(e), 500
     
 
-@app.route('/qrcode', methods=['POST'])
+@app.route('/api/qrcode', methods=['POST'])
 def pix_qrcode():
     """
     Endpoint to generate a Base64-encoded QR code for a given PIX charge.
@@ -194,7 +194,7 @@ def pix_qrcode():
         return str(e), 500
 
 
-@app.route('/status_pix/<txid>', methods=['GET'])
+@app.route('/api/status_pix/<txid>', methods=['GET'])
 def status_pix(txid):
     status_cobranca = pix_service.consultar_status_pix(txid)
     
@@ -204,7 +204,7 @@ def status_pix(txid):
         return jsonify({'status': status_cobranca.get('status', 'N/A'), 'mensagem': 'Pagamento não concluído.'})
 
 
-@app.route('/confirm_payment', methods=['POST'])
+@app.route('/api/confirm_payment', methods=['POST'])
 def confirm_payment():
     data = request.json
 
@@ -224,24 +224,12 @@ def confirm_payment():
     # Retorna a resposta para o frontend imediatamente
     return jsonify({'message': "Pagamento confirmado. Processamento iniciado"}), 200
 
-# @app.route('/send_email', methods=['GET'])
-# def send_email():
-#     user_email = "ajstourinho@gmail.com"  # You can replace this with dynamic email from a form or session
-#     subject = "Hello from Flask with Attachment."
-#     body = "This email contains an attachment sent from a Flask route!"
-
-#     try:
-#         msg = Message(subject, recipients=[user_email])
-#         msg.body = body
-
-#         # Attach a file to the email
-#         with app.open_resource(os.path.join(current_dir, "gpt_api", "uploaded_files", "myfile_2024-09-15_03-01-55.pdf")) as fp:
-#             msg.attach("file.pdf", "application/pdf", fp.read())
-
-#         mail.send(msg)
-#         return f"Email with attachment successfully sent to {user_email}!"
-#     except Exception as e:
-#         return f"Failed to send email with attachment. Error: {str(e)}"
-    
+   
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+
+    if (os.getenv("ENV") == "development"):
+        # DEV
+        app.run(debug=True, host='0.0.0.0')
+    elif (os.getenv("ENV") == "production"):
+        # PROD
+        app.run()

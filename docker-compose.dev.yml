@@ -3,7 +3,9 @@ version: '3.8'
 services:
   frontend:
     container_name: my-frontend
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
     volumes:
       - ./frontend:/usr/src/app # Bind-Mount mapping (for hot reload)
       - /usr/src/app/node_modules # Anonymous Volume for node_modules
@@ -13,7 +15,9 @@ services:
       - my-network
   backend:
     container_name: my-backend
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
     restart: always
     volumes:
       - ./backend:/usr/src/app
