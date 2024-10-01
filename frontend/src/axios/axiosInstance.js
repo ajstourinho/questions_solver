@@ -2,7 +2,7 @@ import axios from "axios";
 
 const BASE_URL =
   process.env.REACT_APP_ENV === "production"
-    ? "api.iloveprovaantiga.com.br/api/" //https
+    ? "https://api.iloveprovaantiga.com.br/api/" //https
     : "http://localhost:5000/api/";
 
 const axiosInstance = axios.create({  
