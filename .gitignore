@@ -1,5 +1,6 @@
 backend/pix_api/__pycache__/
 backend/gpt_api/__pycache__/
+backend/mail_service/__pycache__/
 .DS_Store
 /backend/venv
 /backend/gpt_api/uploaded_files
