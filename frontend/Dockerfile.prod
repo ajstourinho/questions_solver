@@ -1,9 +1,0 @@
-# PROD
-
-FROM node:21
-
-WORKDIR /app/frontend
-
-COPY . .
-
-RUN npm install
