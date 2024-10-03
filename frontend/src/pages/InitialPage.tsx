@@ -50,7 +50,7 @@ export default function InitialPage() {
           de uma <u>prova antiga </u> e deixe a IA{" "}
           <strong>resolvê-la automaticamente!</strong>
         </Typography>
-        <Typography
+        {/* <Typography
           variant="overline"
           color="textSecondary"
           sx={{ marginTop: "15px",}}
@@ -60,7 +60,7 @@ export default function InitialPage() {
             somente <br />
             uma 1 questão por página.
           </strong>
-        </Typography>
+        </Typography> */}
       </Grid>
 
       {/* Botões */}
