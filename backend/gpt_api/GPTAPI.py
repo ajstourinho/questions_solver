@@ -139,7 +139,7 @@ class GPTAPI:
             pdf_instance.cell(200, 5, txt="", ln=True)
             for key, value in json_data['resposta'].items():
                 if key != "alternativaCorreta":
-                    text_alternativa = key.upper() + ')  ' + value['alternativa']
+                    text_alternativa = key.lower() + ')  ' + value['alternativa']
                     pdf_instance.multi_cell(190, 7, txt=text_alternativa)
                     pdf_instance.cell(200, 4, txt="", ln=True)
 
@@ -155,7 +155,7 @@ class GPTAPI:
         elif json_data['tipo'] == "Objetiva":
             for key, value in json_data['resposta'].items():
                 if key != "alternativaCorreta":
-                    textoExplicativo = key.upper() + ')  ' + value['textoExplicativo']
+                    textoExplicativo = key.lower() + ')  ' + value['textoExplicativo']
                     pdf_instance.multi_cell(180, 7, txt=textoExplicativo)
                     pdf_instance.cell(200, 4, txt="", ln=True)
 
@@ -164,7 +164,7 @@ class GPTAPI:
             pdf_instance.cell(200, 7, txt='Alternativa correta: ', ln=True)
 
             pdf_instance.set_font("DejaVu", style='', size=11)
-            pdf_instance.cell(200, 7, txt=json_data['resposta']['alternativaCorreta'].upper(), ln=True)
+            pdf_instance.cell(200, 7, txt=json_data['resposta']['alternativaCorreta'].lower(), ln=True)
 
     def generate_pdf_from_jsons(self, file_basename):
 
@@ -202,7 +202,7 @@ class GPTAPI:
             for key, value in json_data['resposta'].items():
                 if key != "alternativaCorreta":
                     p1 = doc_instance.add_paragraph()
-                    p1.add_run(key.upper() + ')  ' + value['alternativa'])
+                    p1.add_run(key.lower() + ')  ' + value['alternativa'])
                     
             doc_instance.add_paragraph('\n')
 
@@ -215,7 +215,7 @@ class GPTAPI:
         elif json_data['tipo'] == "Objetiva":
             for key, value in json_data['resposta'].items():
                 if key != "alternativaCorreta":
-                    p3 = doc_instance.add_paragraph(key.upper() + ')  ')
+                    p3 = doc_instance.add_paragraph(key.lower() + ')  ')
                     p3.add_run(value['textoExplicativo'])
 
             doc_instance.add_paragraph('\n')
@@ -223,7 +223,7 @@ class GPTAPI:
             p4 = doc_instance.add_paragraph()
             p4.add_run('Alternativa correta: ').bold = True
 
-            doc_instance.add_paragraph(json_data['resposta']['alternativaCorreta'].upper())
+            doc_instance.add_paragraph(json_data['resposta']['alternativaCorreta'].lower())
 
     def generate_doc_from_jsons(self, file_basename):
         # Define JSON files
