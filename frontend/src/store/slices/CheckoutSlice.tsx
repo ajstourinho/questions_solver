@@ -1,18 +1,19 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-// import dotenv from "dotenv";
 
-// dotenv.config({ path: '../../../.env' })
-// const reaisPerPage = Number(process.env.REAIS_PER_PAGE);
-const reaisPerPage = 8;
+
+const reaisPerQuestion = Number(process.env.REACT_APP_REAIS_PER_PAGE);
+const humanRevisionExtra = Number(process.env.REACT_APP_HUMAN_REVISION_EXTRA);
 
 interface CheckoutState {
-  pageCount: Number;
-  price: Number;
+  pageCount: number;
+  price: number;
+  choice: string;
 }
 
 const initialState: CheckoutState = {
   pageCount: 0,
   price: 0,
+  choice: "",
 };
 
 // actions:
@@ -21,13 +22,28 @@ const checkoutSlice = createSlice({
   name: "checkout",
   initialState,
   reducers: {
-    setPageNumber: (state, action: PayloadAction<Number>) => {
+    setPageCount: (state, action: PayloadAction<number>) => {
       state.pageCount = action.payload;
-      state.price = state.pageCount.valueOf() * reaisPerPage.valueOf();
+      state.price = state.pageCount.valueOf() * reaisPerQuestion.valueOf();
+    },
+    changePriceBasedOnModeChoice: (state, action: PayloadAction<string>) => {
+      state.choice = action.payload;
+
+      if (action.payload === "with_human_revision") {
+        state.price += humanRevisionExtra;
+      } else {
+        state.price = state.pageCount.valueOf() * reaisPerQuestion.valueOf();
+      }
+    },
+    resetCheckout: (state) => {
+      state.pageCount = 0;
+      state.price = 0;
+      state.choice = "";
     },
   },
 });
 
-export const { setPageNumber } = checkoutSlice.actions;
+export const { setPageCount, changePriceBasedOnModeChoice, resetCheckout } =
+  checkoutSlice.actions;
 
 export default checkoutSlice.reducer;

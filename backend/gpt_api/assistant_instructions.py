@@ -54,4 +54,13 @@ Exemplo 2:
   "resposta": "Quem descobriu o Brasil foi o português Pedro Álvares Cabral em 1500."
 }
 ```
+
+Apenas no caso de não haver propriamente uma questão na imagem, retorne o seguinte JSON:
+```
+{
+  "enunciado": "Esse input não é uma questão."
+  "tipo": "Discursiva",
+  "resposta": "Não aplicável, pois o documento não é uma questão."
+}
+```
 """

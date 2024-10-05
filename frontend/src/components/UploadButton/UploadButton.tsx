@@ -1,11 +1,11 @@
 import { Clear, UploadFile } from "@mui/icons-material";
 import { Box, Button, Grid, Typography } from "@mui/material";
-import { ChangeEvent } from "react";
+import { ChangeEvent, useEffect } from "react";
 import { PDFDocument } from "pdf-lib";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store";
-import { reset, add } from "../../store/slices/FilesSlice";
-import { setPageNumber } from "../../store/slices/CheckoutSlice";
+import { resetFiles, addFiles } from "../../store/slices/FilesSlice";
+import { setPageCount } from "../../store/slices/CheckoutSlice";
 
 function getCurrentDateTimeForFilename() {
   const now = new Date();
@@ -23,10 +23,6 @@ function getCurrentDateTimeForFilename() {
 
 export default function UploadButton() {
   const files = useSelector((state: RootState) => state.filesSlice.files);
-
-  const pageCount = useSelector(
-    (state: RootState) => state.checkoutSlice.pageCount
-  );
   
   const dispatch = useDispatch();
 
@@ -46,24 +42,27 @@ export default function UploadButton() {
       // implement filename with datetime to save to store
       const filename = `myfile_${getCurrentDateTimeForFilename()}.pdf`;
 
+      // reset, considering upload of only 1 file
+      handleCancelUpload();
+
       dispatch(
-        add({
+        addFiles({
           files: Array.from(event.target.files),
           filenames: [filename],
         })
       );
-
-      dispatch(setPageNumber(pdfDoc.getPageCount()));
+      
+      dispatch(setPageCount(pdfDoc.getPageCount()));
     }
   };
 
   const handleCancelUpload = () => {
-    dispatch(reset());
-    dispatch(setPageNumber(0));
+    dispatch(resetFiles());
+    dispatch(setPageCount(0));
   };
 
   return (
-    <Grid item direction="column" sx={{ mx: 1 }}>
+    <Grid item sx={{ mx: 1 }}>
       <Grid item>
         <input
           type="file"
@@ -120,16 +119,12 @@ export default function UploadButton() {
                     whiteSpace: "nowrap",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
-                    width: "150px", // Set the width to control when truncation occurs
-                    ml: "10px"
+                    width: "150px", // Set width for truncation
+                    ml: 3,
+                    textAlign: "left",
                   }}
                 >
                   {files[0].name}
-                </Typography>
-              </Grid>
-              <Grid item sx={{ mb: 3 }}>
-                <Typography variant="caption" color="textSecondary">
-                  (número de questões: {pageCount.valueOf()})
                 </Typography>
               </Grid>
             </Grid>

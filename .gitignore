@@ -1,5 +1,6 @@
 backend/pix_api/__pycache__/
 backend/gpt_api/__pycache__/
+backend/mail_service/__pycache__/
 .DS_Store
 /backend/venv
 /backend/gpt_api/uploaded_files
@@ -9,3 +10,7 @@ backend/gpt_api/__pycache__/
 /backend/pix_api/keys
 /backend/.env
 /frontend/.env
+backend/mail_service/__pycache__
+backend/mail_service/__pycache__
+backend/uploads/*.pdf
+backend/gpt_api/dejavu_font/*

@@ -4,16 +4,33 @@ import gridfs
 import os
 from pix_api.PixAPI import PixAPI
 from gpt_api.GPTAPI import GPTAPI
+from mail_service.MailService import MailService
 import re
 from pdf2image import convert_from_path
-
+from flask_mail import Mail, Message
+import threading
+from dotenv import load_dotenv
 # Initialize app with CORS
 app = Flask(__name__)
 CORS(app)
-
+load_dotenv()
 # Initialize API for payment (Pix)
-pix_service = PixAPI(False) # True: Homolog |  False: Prod
+pix_service = PixAPI(sandBox= (os.getenv("ENV") == 'development')) # sandbox True: Homolog | sandbox False: Prod
+
+# Initialize API for GPT
 gpt_api = GPTAPI()
+
+# Configuring the Flask-Mail extension
+app.config['MAIL_SERVER'] = os.getenv("MAIL_SERVER")
+app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT'))
+app.config['MAIL_USE_TLS'] = True if (os.getenv('MAIL_USE_TLS')) == "True" else False 
+app.config['MAIL_USERNAME'] = os.getenv("MAIL_USERNAME")
+app.config['MAIL_PASSWORD'] = os.getenv("MAIL_PASSWORD")
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv("MAIL_DEFAULT_SENDER")
+mail = Mail(app)
+
+# Initialize Class Instance of Mail Services
+mail_service = MailService(mail)
 
 # Define current directory, for relative paths
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -45,7 +62,7 @@ def index():
     return jsonify({"message": "Hello, world! This is the Flask backend."})
 
 
-@app.route('/upload', methods=['POST'])
+@app.route('/api/upload', methods=['POST'])
 def upload_file():
     """
     Endpoint to receive and save files (with custom filenames) uploaded from user.
@@ -65,7 +82,7 @@ def upload_file():
         return jsonify({'message': 'File uploaded successfully', 'file_path': file_path}), 200
     
 
-@app.route('/gpt_solver', methods=['POST'])
+# @app.route('/api/gpt_solver', methods=['POST'])
 def gpt_solver():
     """
     Endpoint to activate GPT API on previously uploaded file, after having confirmed the payment.
@@ -109,7 +126,8 @@ def gpt_solver():
         download_name="prova_resolvida.pdf"  # Set the filename for the download
     )
 
-@app.route('/cob', methods=['POST'])
+
+@app.route('/api/cob', methods=['POST'])
 def pix_new_cob():
     """
     Endpoint to create a new PIX charge.
@@ -138,12 +156,13 @@ def pix_new_cob():
             pass #throw custom exception
         if not bool(re.match(r'^\d{1,10}\.\d{2}$', data['val'])):
             pass #throw custom exception
-        pix_response = pix_service.createCharge(value = data['val'])
+        pix_response = pix_service.createCharge(value = data['val'], txid = data['txid'])
         return jsonify({'locId': pix_response['locId'], "pixCopiaECola": pix_response["pixCopiaECola"]}), 200
     except Exception as e:
         return str(e), 500
+    
 
-@app.route('/qrcode', methods=['POST'])
+@app.route('/api/qrcode', methods=['POST'])
 def pix_qrcode():
     """
     Endpoint to generate a Base64-encoded QR code for a given PIX charge.
@@ -174,5 +193,45 @@ def pix_qrcode():
     except Exception as e:
         return str(e), 500
 
+
+@app.route('/api/status_pix/<txid>', methods=['GET'])
+def status_pix(txid):
+    
+    status_cobranca = pix_service.consultar_status_pix(txid)
+    if (os.getenv("ENV") == 'development'):
+        return jsonify({'status': 'CONCLUIDA', 'mensagem': 'Pagamento ignorado por ser um ambiente de testes!'})
+    if 'status' in status_cobranca and status_cobranca['status'] == 'CONCLUIDA':
+        return jsonify({'status': 'CONCLUIDA', 'mensagem': 'Pagamento realizado com sucesso!'})
+    else:
+        return jsonify({'status': status_cobranca.get('status', 'N/A'), 'mensagem': 'Pagamento não concluído.'})
+
+
+@app.route('/api/confirm_payment', methods=['POST'])
+def confirm_payment():
+    data = request.json
+
+    userEmail = data["userEmail"].strip()
+    pdf_filename = data["filenames"][0]
+
+    # Função para rodar o processamento do pedido no contexto correto
+    def process_order(userEmail):
+        with app.app_context():
+            mail_service.notify_admin_and_user_payment_confirmation(userEmail)
+            gpt_api.gpt_solver(pdf_filename)
+            mail_service.send_admin_and_user_output_file(userEmail, pdf_filename)
+
+    # Iniciar uma thread para continuar o processamento em segundo plano
+    threading.Thread(target=process_order, args=(userEmail,)).start()
+
+    # Retorna a resposta para o frontend imediatamente
+    return jsonify({'message': "Pagamento confirmado. Processamento iniciado"}), 200
+
+   
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+
+    if (os.getenv("ENV") == "development"):
+        # DEV
+        app.run(debug=True, host='0.0.0.0')
+    elif (os.getenv("ENV") == "production"):
+        # PROD
+        app.run()

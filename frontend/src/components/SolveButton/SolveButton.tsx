@@ -1,24 +1,29 @@
 import { Button } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../store/store";
-import { openPaymentModal } from "../../store/slices/PaymentModalSlice";
 
 import axiosInstance from "../../axios/axiosInstance";
+import { nextModalPage, openModal } from "../../store/slices/ModalControlSlice";
 
 export default function SolveButton() {
   const files = useSelector((state: RootState) => state.filesSlice.files);
   const filenames = useSelector((state: RootState) => state.filesSlice.filenames);
   const dispatch = useDispatch();
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
+    dispatch(nextModalPage());
+    dispatch(openModal());
+
+    uploadFiles(event);
+  };
+
+  const uploadFiles = async (event: React.FormEvent) => {
     if (files.length === 0) {
       alert("Por favor, selecione 1 arquivo PDF primeiro.");
       return;
     }
-
-    dispatch(openPaymentModal());
 
     const formData = new FormData();
     formData.append("file", files[0]);

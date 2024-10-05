@@ -1,13 +1,15 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface PaymentModalState {
-  open: boolean;
   pixCopiaECola: string;
+  txid: string;
+  paymentStatus: string;
 }
 
 const initialState: PaymentModalState = {
-  open: false,
   pixCopiaECola: "Carregando...",
+  txid: "",
+  paymentStatus: "",
 };
 
 // actions:
@@ -16,18 +18,24 @@ const paymentModalSlice = createSlice({
   name: "paymentModal",
   initialState,
   reducers: {
-    openPaymentModal: (state) => {
-      state.open = true;
-    },
-    closePaymentModal: (state) => {
-      state.open = false;
-    },
     setPixCopiaECola: (state, action: PayloadAction<string>) => {
       state.pixCopiaECola = action.payload;
+    },
+    setTxid: (state, action: PayloadAction<string>) => {
+      state.txid = action.payload;
+    },
+    setPaymentStatus: (state, action: PayloadAction<string>) => {
+      state.paymentStatus = action.payload;
+    },
+    resetPaymentModal: (state) => {
+      state.pixCopiaECola = "Carregando...";
+      state.txid = "";
+      state.paymentStatus = "";
     },
   },
 });
 
-export const { openPaymentModal, closePaymentModal, setPixCopiaECola } = paymentModalSlice.actions;
+export const { setPixCopiaECola, setTxid, setPaymentStatus, resetPaymentModal } =
+  paymentModalSlice.actions;
 
 export default paymentModalSlice.reducer;
