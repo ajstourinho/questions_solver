@@ -10,3 +10,6 @@ backend/mail_service/__pycache__/
 /backend/pix_api/keys
 /backend/.env
 /frontend/.env
+backend/mail_service/__pycache__
+backend/mail_service/__pycache__
+backend/uploads/*.pdf
