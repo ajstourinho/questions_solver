@@ -9,13 +9,13 @@ import re
 from pdf2image import convert_from_path
 from flask_mail import Mail, Message
 import threading
-
+from dotenv import load_dotenv
 # Initialize app with CORS
 app = Flask(__name__)
 CORS(app)
-
+load_dotenv()
 # Initialize API for payment (Pix)
-pix_service = PixAPI(False) # True: Homolog |  False: Prod
+pix_service = PixAPI(sandBox= (os.getenv("ENV") == 'development')) # sandbox True: Homolog | sandbox False: Prod
 
 # Initialize API for GPT
 gpt_api = GPTAPI()
@@ -196,8 +196,10 @@ def pix_qrcode():
 
 @app.route('/api/status_pix/<txid>', methods=['GET'])
 def status_pix(txid):
-    status_cobranca = pix_service.consultar_status_pix(txid)
     
+    status_cobranca = pix_service.consultar_status_pix(txid)
+    if (os.getenv("ENV") == 'development'):
+        return jsonify({'status': 'CONCLUIDA', 'mensagem': 'Pagamento ignorado por ser um ambiente de testes!'})
     if 'status' in status_cobranca and status_cobranca['status'] == 'CONCLUIDA':
         return jsonify({'status': 'CONCLUIDA', 'mensagem': 'Pagamento realizado com sucesso!'})
     else:

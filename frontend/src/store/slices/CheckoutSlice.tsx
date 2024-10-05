@@ -1,9 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-// import dotenv from "dotenv";
 
-// dotenv.config({path: "../../../.env"});
-const reaisPerQuestion = Number(process.env.REACT_APP_REAIS_PER_QUESTION);
-const humanRevisionExtra = 50;
+
+const reaisPerQuestion = Number(process.env.REACT_APP_REAIS_PER_PAGE);
+const humanRevisionExtra = Number(process.env.REACT_APP_HUMAN_REVISION_EXTRA);
 
 interface CheckoutState {
   pageCount: number;

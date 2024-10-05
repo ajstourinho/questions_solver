@@ -4,10 +4,6 @@ import SolveButton from "../components/SolveButton/SolveButton";
 import exampleImg from "../assets/exampleInitialPage_transp-min.png";
 import exampleImgMobile from "../assets/exampleInitialPage_vertical_transp-min.png";
 import ModalFrame from "../components/ModalFrame/ModalFrame";
-// import dotenv from 'dotenv'
-
-// dotenv.config({ path: '../../../.env' })
-// const reaisPerPage = Number(process.env.REAIS_PER_PAGE);
 
 export default function InitialPage() {
   const theme = useTheme();

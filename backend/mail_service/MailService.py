@@ -9,9 +9,12 @@ class MailService:
       self.admin_email = "iloveprovaantiga@gmail.com"
 
     def notify_admin_payment_confirmation(self, userEmail):
-      subject = "Confirmação de Pagamento"
-      body = f"O seguinte usuário efetuou o pagamento:\n{userEmail}"
-
+      if os.getenv("ENV") == 'production':
+        subject = "Confirmação de Pagamento"
+        body = f"O seguinte usuário efetuou o pagamento:\n{userEmail}"
+      else:
+        subject = "[TESTE] Confirmação de Pagamento"
+        body = "O seguinte usuário não pagou, porém terá sua prova resolvida por estar no ambiente de teste:"
       try:
           msg = Message(subject, recipients=[self.admin_email])
           msg.body = body
@@ -37,7 +40,8 @@ class MailService:
 
     def notify_admin_and_user_payment_confirmation(self, userEmail):
       self.notify_admin_payment_confirmation(userEmail)
-      self.notify_user_payment_confirmation(userEmail)
+      if (os.getenv("ENV") == 'production'):
+        self.notify_user_payment_confirmation(userEmail)
 
 
     def send_admin_output_file(self, userEmail, pdf_filename):

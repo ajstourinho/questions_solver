@@ -32,6 +32,7 @@ The frontend environment variables should be defined in a `.env` file located in
 
 - **REACT_APP_ENV**: This variable defines if the environment is `development` or `production`.
 - **REACT_APP_REAIS_PER_QUESTION**: This variable defines the amount charged for solving one question of the exam, in Reais (the Brazilian currency).
+- **REACT_APP_HUMAN_REVISION_EXTRA**: This variable defines the amount charged for solving with human revision, done by a real student of that subject.
 
 An example of this `.env` file can be found inside the `/frontend` directory, by the name `.env.example`.
 
@@ -52,6 +53,8 @@ The backend environment variables should be defined in a `.env` file located ins
   - **MAIL_USERNAME**: The username of the mail account in use.
   - **MAIL_PASSWORD**: The password of the mail account in use. 
   - **MAIL_DEFAULT_SENDER**: The e-mail of the sender account.
+  - **MAX_TOKENS_PER_API_CALL**: Maximum number of tokens (words, parts of words, punctuation, etc.) that can be used in a single API request.
+  - **API_KEY**: Chat GPT API key.
 
 An example of this `.env` file can be found inside the `/backend` directory, by the name `.env.example`.
 

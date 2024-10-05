@@ -1,8 +1,4 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-// import dotenv from "dotenv";
-
-// dotenv.config({ path: '../../../.env' })
-// const reaisPerPage = Number(process.env.REAIS_PER_PAGE);
 
 interface UserState {
   email: string,
