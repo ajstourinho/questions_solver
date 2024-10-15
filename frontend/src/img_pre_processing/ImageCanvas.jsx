@@ -96,7 +96,7 @@ const ImageCanvas = forwardRef(({ src }, ref) => {
     ctx.fillStyle = color;
     points.forEach((point) => {
       ctx.beginPath();
-      ctx.arc(point.x, point.y, 8, 0, 2 * Math.PI); // Raio de 8 para pontos maiores
+      ctx.arc(point.x, point.y, 5, 0, 2 * Math.PI); // Raio de 8 para pontos maiores
       ctx.fill();
     });
 
