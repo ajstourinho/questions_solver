@@ -4,13 +4,12 @@ import { Container, Typography, Button, Box } from "@mui/material";
 import ImageCanvas from "./ImageCanvas";
 import * as pdfjsLib from "pdfjs-dist/build/pdf";
 import "pdfjs-dist/web/pdf_viewer.css";
-import { jsPDF } from 'jspdf'; // Importação do jsPDF
+import { jsPDF } from "jspdf"; // Importação do jsPDF
 
 // Configura o worker do PDF.js
-// pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/pdf.worker.min.mjs";
 pdfjsLib.GlobalWorkerOptions.workerSrc = `${process.env.PUBLIC_URL}/pdf.worker.min.mjs`;
 
-function ImageProcessor() {
+function App() {
   const [pdfFile, setPdfFile] = useState(null);
   const [combinedImage, setCombinedImage] = useState(null);
   const [transformedImages, setTransformedImages] = useState([]);
@@ -32,11 +31,24 @@ function ImageProcessor() {
         const numPages = pdf.numPages;
         const pagesArray = [];
 
+        // Definir a escala com base no número de páginas
+        let scale;
+
+        if (numPages >= 1 && numPages <= 10) {
+          scale = 1.5; // Escala para documentos com entre 1 e 10 páginas
+        } else if (numPages > 10 && numPages <= 20) {
+          scale = 1; // Escala para documentos com entre 11 e 20 páginas
+        } else if (numPages > 20 && numPages <= 30) {
+          scale = 0.9; // Escala para documentos com entre 21 e 30 páginas
+        } else {
+          scale = 0.68; // Escala para documentos com mais de 30 páginas
+        }
+
         for (let pageNumber = 1; pageNumber <= numPages; pageNumber++) {
           const page = await pdf.getPage(pageNumber);
-          const viewport = page.getViewport({ scale: 1.5 });
-          const canvas = document.createElement('canvas');
-          const context = canvas.getContext('2d');
+          const viewport = page.getViewport({ scale });
+          const canvas = document.createElement("canvas");
+          const context = canvas.getContext("2d");
 
           canvas.width = viewport.width;
           canvas.height = viewport.height;
@@ -47,7 +59,7 @@ function ImageProcessor() {
           };
 
           await page.render(renderContext).promise;
-          const imgData = canvas.toDataURL('image/png');
+          const imgData = canvas.toDataURL("image/jpeg"); 
           pagesArray.push({
             imgData,
             width: canvas.width,
@@ -56,13 +68,16 @@ function ImageProcessor() {
         }
 
         // Combinar todas as imagens em uma única imagem contínua
-        const totalHeight = pagesArray.reduce((sum, page) => sum + page.height, 0);
+        const totalHeight = pagesArray.reduce(
+          (sum, page) => sum + page.height,
+          0
+        );
         const maxWidth = Math.max(...pagesArray.map((page) => page.width));
 
-        const combinedCanvas = document.createElement('canvas');
+        const combinedCanvas = document.createElement("canvas");
         combinedCanvas.width = maxWidth;
         combinedCanvas.height = totalHeight;
-        const ctx = combinedCanvas.getContext('2d');
+        const ctx = combinedCanvas.getContext("2d");
 
         let currentY = 0;
         for (let page of pagesArray) {
@@ -77,7 +92,7 @@ function ImageProcessor() {
           });
         }
 
-        const combinedImgData = combinedCanvas.toDataURL('image/png');
+        const combinedImgData = combinedCanvas.toDataURL("image/jpeg");
         setCombinedImage(combinedImgData);
       };
 
@@ -95,7 +110,7 @@ function ImageProcessor() {
   // Função para gerar e baixar o PDF
   const handleDownloadPDF = () => {
     if (transformedImages.length === 0) {
-      alert('Nenhuma imagem transformada para baixar.');
+      alert("Nenhuma imagem transformada para baixar.");
       return;
     }
 
@@ -106,14 +121,14 @@ function ImageProcessor() {
       img.src = imgSrc;
 
       // Adiciona a imagem ao PDF
-      doc.addImage(img, 'PNG', 10, 10, 190, 0); // Ajuste as dimensões conforme necessário
+      doc.addImage(img, "PNG", 10, 10, 190, 0); // Ajuste as dimensões conforme necessário
 
       if (index < transformedImages.length - 1) {
         doc.addPage();
       }
     });
 
-    doc.save('imagens_transformadas.pdf');
+    doc.save("imagens_transformadas.pdf");
   };
 
   return (
@@ -153,7 +168,7 @@ function ImageProcessor() {
           variant="contained"
           color="primary"
           onClick={handleProcessSelections}
-          style={{ marginTop: "20px",  }}
+          style={{ marginTop: "20px" }}
         >
           Processar Seleções
         </Button>
@@ -164,29 +179,6 @@ function ImageProcessor() {
           <Typography variant="h6" color="grey">
             Quantidade de imagens: {transformedImages.length}
           </Typography>
-
-          {/* Mostrar imagens */}
-          {/* {transformedImages.map((imgSrc, index) => (
-            <Box key={index} mt={2}>
-              <img
-                src={imgSrc}
-                alt={`Transformada ${index}`}
-                style={{ maxWidth: "100%" }}
-              />
-              <Button
-                variant="contained"
-                onClick={() => {
-                  const link = document.createElement("a");
-                  link.href = imgSrc;
-                  link.download = `transformada_${index}.png`;
-                  link.click();
-                }}
-                style={{ marginTop: "10px" }}
-              >
-                Baixar
-              </Button>
-            </Box>
-          ))} */}
 
           {/* Botão para baixar todas as imagens em um único PDF */}
           <Button
@@ -203,4 +195,4 @@ function ImageProcessor() {
   );
 }
 
-export default ImageProcessor;
+export default App;
