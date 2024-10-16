@@ -4,15 +4,15 @@ import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import { Box, Grid, Modal } from "@mui/material";
 import fullLogo from "../../assets/full_logo_medicina.png";
-import ModalPage1Email from "../ModalContent/ModalPage1Email/ModalPage1Email";
-import ModalPage2Mode from "../ModalContent/ModalPage2Mode/ModalPage2Mode";
 import { closeModal, resetModalPage } from "../../store/slices/ModalControlSlice";
-import ModalPage3Payment from "../ModalContent/ModalPage3Payment/ModalPage3Payment";
 import { resetCheckout } from "../../store/slices/CheckoutSlice";
 import { useEffect } from "react";
 import { PDFDocument } from "pdf-lib";
 import axiosInstance from "../../axios/axiosInstance";
-import ModalPage4Confirmation from "../ModalContent/ModalPage4Confirmation/ModalPage4Confirmation";
+import ModalPageEmail from "../ModalContent/ModalPageEmail/ModalPageEmail";
+import ModalPageMode from "../ModalContent/ModalPageMode/ModalPageMode";
+import ModalPagePayment from "../ModalContent/ModalPagePayment/ModalPagePayment";
+import ModalPageConfirmation from "../ModalContent/ModalPageConfirmation/ModalPageConfirmation";
 import { resetFiles } from "../../store/slices/FilesSlice";
 import { resetPaymentModal } from "../../store/slices/PaymentModalSlice";
 import { resetUser } from "../../store/slices/UserSlice";
@@ -59,13 +59,13 @@ function ModalFrame() {
   const renderContent = (modalPage: number) => {
     switch (modalPage) {
       case 1:
-        return <ModalPage1Email />;
+        return <ModalPageEmail />;
       case 2:
-        return <ModalPage2Mode />;
+        return <ModalPageMode />;
       case 3:
-        return <ModalPage3Payment />;
+        return <ModalPagePayment />;
       case 4:
-        return <ModalPage4Confirmation />;
+        return <ModalPageConfirmation />;
       default:
         return <p>Error rendering modal.</p>;
     }

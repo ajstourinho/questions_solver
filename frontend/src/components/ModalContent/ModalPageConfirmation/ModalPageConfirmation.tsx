@@ -7,7 +7,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 import PaymentData from "../../PaymentData/PaymentData";
 
-function ModalPage4Confirmation() {
+function ModalPageConfirmation() {
 
   return (
     <>
@@ -34,4 +34,4 @@ function ModalPage4Confirmation() {
   );
 }
 
-export default ModalPage4Confirmation;
+export default ModalPageConfirmation;

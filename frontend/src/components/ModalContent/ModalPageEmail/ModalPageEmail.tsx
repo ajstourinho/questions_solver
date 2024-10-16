@@ -5,7 +5,7 @@ import { nextModalPage } from "../../../store/slices/ModalControlSlice";
 import { useDispatch } from "react-redux";
 import { setUserEmail } from "../../../store/slices/UserSlice";
 
-function ModalPage1Email() {
+function ModalPageEmail() {
   const [email, setEmail] = React.useState("");
 
   const dispatch = useDispatch();
@@ -57,4 +57,4 @@ function ModalPage1Email() {
   );
 }
 
-export default ModalPage1Email;
+export default ModalPageEmail;

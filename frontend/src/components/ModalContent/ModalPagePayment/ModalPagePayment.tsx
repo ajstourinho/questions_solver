@@ -23,10 +23,10 @@ function getRandomString(size = 28) {
   return result;
 }
 
-function ModalPage3Payment() {  
+function ModalPagePayment() {
   const price = useSelector((state: RootState) => state.checkoutSlice.price);
   const open = useSelector((state: RootState) => state.modalControlSlice.open);
-  
+
   const [b64qrCode, setb64qrCode] = useState<string | null>(null);
 
   const dispatch = useDispatch();
@@ -66,7 +66,6 @@ function ModalPage3Payment() {
       getQrCodeAsync();
     }
   }, [open, price, dispatch]);
-
 
   return (
     <>
@@ -113,4 +112,4 @@ function ModalPage3Payment() {
   );
 }
 
-export default ModalPage3Payment;
+export default ModalPagePayment;

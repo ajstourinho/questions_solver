@@ -18,7 +18,7 @@ function formatToCurrency(value: number): string {
   return `${formattedValue}`;
 }
 
-function ModalPage2Mode() {
+function ModalPageMode() {
   const price = useSelector((state: RootState) => state.checkoutSlice.price);
 
   const [radioValue, setRadioValue] = React.useState("without_human_revision");
@@ -120,7 +120,7 @@ function ModalPage2Mode() {
               }
             />
             <Chip label="Em breve!" color="warning" size="small" />
-            
+
             {/* <Typography
               variant="caption"
               sx={{
@@ -185,4 +185,4 @@ function ModalPage2Mode() {
   );
 }
 
-export default ModalPage2Mode;
+export default ModalPageMode;
