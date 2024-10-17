@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 
-const reaisPerQuestion = Number(process.env.REACT_APP_REAIS_PER_PAGE);
+const reaisPerQuestion = Number(process.env.REACT_APP_REAIS_PER_QUESTION);
 const humanRevisionExtra = Number(process.env.REACT_APP_HUMAN_REVISION_EXTRA);
 
 interface CheckoutState {
