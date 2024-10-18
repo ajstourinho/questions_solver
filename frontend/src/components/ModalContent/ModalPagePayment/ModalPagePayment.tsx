@@ -93,7 +93,7 @@ function ModalPagePayment() {
         <Typography variant="subtitle2">
           Se preferir, copie e cole o código abaixo para pagar:
         </Typography>
-        <CopyTextField value="" />
+        <CopyTextField value=""/>
       </Box>
 
       {/* Divisor */}

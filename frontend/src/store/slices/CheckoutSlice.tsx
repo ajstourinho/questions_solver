@@ -6,12 +6,14 @@ const humanRevisionExtra = Number(process.env.REACT_APP_HUMAN_REVISION_EXTRA);
 
 interface CheckoutState {
   pageCount: number;
+  questionsCount: number;
   price: number;
   choice: string;
 }
 
 const initialState: CheckoutState = {
   pageCount: 0,
+  questionsCount: 0,
   price: 0,
   choice: "",
 };
@@ -25,6 +27,10 @@ const checkoutSlice = createSlice({
     setPageCount: (state, action: PayloadAction<number>) => {
       state.pageCount = action.payload;
       state.price = state.pageCount.valueOf() * reaisPerQuestion.valueOf();
+    },
+    setQuestionsCount: (state, action: PayloadAction<number>) => {
+      state.questionsCount = action.payload;
+      state.price = state.questionsCount.valueOf() * reaisPerQuestion.valueOf();
     },
     changePriceBasedOnModeChoice: (state, action: PayloadAction<string>) => {
       state.choice = action.payload;
@@ -43,7 +49,10 @@ const checkoutSlice = createSlice({
   },
 });
 
-export const { setPageCount, changePriceBasedOnModeChoice, resetCheckout } =
-  checkoutSlice.actions;
+export const {
+  setPageCount,
+  setQuestionsCount, changePriceBasedOnModeChoice,
+  resetCheckout,
+} = checkoutSlice.actions;
 
 export default checkoutSlice.reducer;

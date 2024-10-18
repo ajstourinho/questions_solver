@@ -4,25 +4,32 @@ import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import { Box, Grid, Modal } from "@mui/material";
 import fullLogo from "../../assets/full_logo_medicina.png";
-import { closeModal, resetModalPage } from "../../store/slices/ModalControlSlice";
+import {
+  closeModal,
+  resetModalPage,
+} from "../../store/slices/ModalControlSlice";
 import { resetCheckout } from "../../store/slices/CheckoutSlice";
 import { useEffect } from "react";
 import { PDFDocument } from "pdf-lib";
 import axiosInstance from "../../axios/axiosInstance";
+import { resetFiles } from "../../store/slices/FilesSlice";
+import { resetPaymentModal } from "../../store/slices/PaymentModalSlice";
+import { resetUser } from "../../store/slices/UserSlice";
 import ModalPageEmail from "../ModalContent/ModalPageEmail/ModalPageEmail";
 import ModalPageMode from "../ModalContent/ModalPageMode/ModalPageMode";
 import ModalPagePayment from "../ModalContent/ModalPagePayment/ModalPagePayment";
 import ModalPageConfirmation from "../ModalContent/ModalPageConfirmation/ModalPageConfirmation";
-import { resetFiles } from "../../store/slices/FilesSlice";
-import { resetPaymentModal } from "../../store/slices/PaymentModalSlice";
-import { resetUser } from "../../store/slices/UserSlice";
+import ModalPageProcessImage from "../ModalContent/ModalPageProcessImage/ModalPageProcessImage";
+import ModalPageEditor from "../ModalContent/ModalPageEditor/ModalPageEditor";
 
 const style = {
-  position: "absolute" as const,
-  top: "50%",
+  position: "fixed" as const,
+  top: "20px",
   left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: 360,
+  transform: "translateX(-50%)",
+  minWidth: 360,
+  maxHeight: "calc(100% - 80px)", // Leaves 20px margin at the top and bottom
+  overflowY: "auto", // Enables vertical scrolling when content is too long
   bgcolor: "background.paper",
   border: "2px solid #777",
   boxShadow: 24,
@@ -59,63 +66,25 @@ function ModalFrame() {
   const renderContent = (modalPage: number) => {
     switch (modalPage) {
       case 1:
-        return <ModalPageEmail />;
+        return <ModalPageProcessImage />;
       case 2:
-        return <ModalPageMode />;
+        return <ModalPageEditor />;
       case 3:
-        return <ModalPagePayment />;
+        return <ModalPageEmail />;
       case 4:
+        return <ModalPageMode />;
+      case 5:
+        return <ModalPagePayment />;
+      case 6:
         return <ModalPageConfirmation />;
       default:
         return <p>Error rendering modal.</p>;
     }
   };
 
-  // test of gpt api
-  async function callGptApi() {
-    const filename = filenames[0];
-
-    try {
-      // Step 1: Fetch the PDF as a binary blob
-      const response = await axiosInstance.post(
-        "/gpt_solver",
-        { filename, pageCount },
-        {
-          headers: { "Content-Type": "application/json" },
-          responseType: "arraybuffer", // PDF data as binary
-        }
-      );
-
-      // Step 2: Load the PDF into pdf-lib (optional if manipulation is needed)
-      const pdfDoc = await PDFDocument.load(response.data);
-
-      // Step 3: Save the modified or unmodified PDF back into bytes
-      const pdfBytes = await pdfDoc.save();
-
-      // Step 4: Create a Blob and trigger a download
-      const blob = new Blob([pdfBytes], { type: "application/pdf" });
-      const url = window.URL.createObjectURL(blob);
-
-      // Automatically trigger download
-      const link = document.createElement("a");
-      link.href = url;
-      const customFilename = `prova_resolvida_${files[0].name}`;
-      link.setAttribute("download", customFilename);
-      document.body.appendChild(link);
-      link.click();
-
-      // Clean up
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Error downloading PDF:", error);
-    }
-  }
-
   useEffect(() => {
     if (paymentStatus === "CONCLUIDA") {
       console.log("Pagamento realizado.");
-      // callGptApi();
 
       return;
     }
@@ -139,7 +108,7 @@ function ModalFrame() {
 
         <Box
           sx={{
-            maxWidth: 400,
+            minWidth: 400,
             p: 2,
             backgroundColor: "white",
             borderRadius: 2,
@@ -148,12 +117,12 @@ function ModalFrame() {
           }}
         >
           {/* Logo */}
-          <Grid container spacing={2} justifyContent="center">
+          <Grid container spacing={1} justifyContent="center">
             <Grid item>
               <img
                 src={fullLogo}
                 alt="logo"
-                style={{ maxWidth: "120px", height: "auto" }}
+                style={{ maxWidth: "100px", height: "auto" }}
               />{" "}
             </Grid>
           </Grid>

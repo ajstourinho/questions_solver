@@ -62,7 +62,7 @@ export default function UploadButton() {
   };
 
   return (
-    <Grid item sx={{ mx: 1 }}>
+    <Grid item sx={{ mx: 1, }}>
       <Grid item>
         <input
           type="file"
@@ -94,6 +94,7 @@ export default function UploadButton() {
           <Box
             sx={{
               display: "flex",
+              mb: 2,
             }}
           >
             <Grid container direction="column">

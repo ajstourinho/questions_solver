@@ -1,47 +1,57 @@
-// App.js
-import React, { useState, useRef } from "react";
-import { Container, Typography, Button, Box } from "@mui/material";
+// ImageProcessor.js
+import React, { useState, useRef, useEffect } from "react";
+import { Container, Typography, Divider, Button, Box } from "@mui/material";
 import ImageCanvas from "./ImageCanvas";
 import * as pdfjsLib from "pdfjs-dist/build/pdf";
 import "pdfjs-dist/web/pdf_viewer.css";
-import { jsPDF } from "jspdf"; // Importação do jsPDF
+import { jsPDF } from "jspdf";
+import { nextModalPage } from "../store/slices/ModalControlSlice";
+import { useDispatch, useSelector } from "react-redux";
+import axiosInstance from "../axios/axiosInstance";
+import { setQuestionsCount } from "../store/slices/CheckoutSlice";
 
-// Configura o worker do PDF.js
+// Configure the PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = `${process.env.PUBLIC_URL}/pdf.worker.min.mjs`;
 
-function App() {
-  const [pdfFile, setPdfFile] = useState(null);
+function ImageProcessor() {
+  const files = useSelector((state) => state.filesSlice.files);
+  const filenames = useSelector((state) => state.filesSlice.filenames);
+  const pdfFile = files[0]; // Use the PDF from Redux state
   const [combinedImage, setCombinedImage] = useState(null);
   const [transformedImages, setTransformedImages] = useState([]);
   const imageCanvasRef = useRef(null);
 
-  const handleFileChange = (event) => {
-    setPdfFile(event.target.files[0]);
+  const dispatch = useDispatch();
+
+  const handleClick = () => {
+    const images = handleProcessSelections(); // Get images directly
+    dispatch(setQuestionsCount(images.length));
+    handleUploadPDF(images); // Pass images to handleUploadPDF
+    dispatch(nextModalPage());
   };
 
-  const handleFileUpload = async () => {
-    if (pdfFile) {
-      const fileReader = new FileReader();
 
-      fileReader.onload = async function () {
-        const typedarray = new Uint8Array(this.result);
+  useEffect(() => {
+    const loadPDF = async () => {
+      if (pdfFile) {
+        const typedarray = new Uint8Array(await pdfFile.arrayBuffer());
 
         const loadingTask = pdfjsLib.getDocument(typedarray);
         const pdf = await loadingTask.promise;
         const numPages = pdf.numPages;
         const pagesArray = [];
 
-        // Definir a escala com base no número de páginas
+        // Set the scale based on the number of pages
         let scale;
 
         if (numPages >= 1 && numPages <= 10) {
-          scale = 1.5; // Escala para documentos com entre 1 e 10 páginas
+          scale = 1.5;
         } else if (numPages > 10 && numPages <= 20) {
-          scale = 1; // Escala para documentos com entre 11 e 20 páginas
+          scale = 1;
         } else if (numPages > 20 && numPages <= 30) {
-          scale = 0.9; // Escala para documentos com entre 21 e 30 páginas
+          scale = 0.9;
         } else {
-          scale = 0.68; // Escala para documentos com mais de 30 páginas
+          scale = 0.68;
         }
 
         for (let pageNumber = 1; pageNumber <= numPages; pageNumber++) {
@@ -59,7 +69,7 @@ function App() {
           };
 
           await page.render(renderContext).promise;
-          const imgData = canvas.toDataURL("image/jpeg"); 
+          const imgData = canvas.toDataURL("image/jpeg");
           pagesArray.push({
             imgData,
             width: canvas.width,
@@ -67,7 +77,7 @@ function App() {
           });
         }
 
-        // Combinar todas as imagens em uma única imagem contínua
+        // Combine all images into one continuous image
         const totalHeight = pagesArray.reduce(
           (sum, page) => sum + page.height,
           0
@@ -94,76 +104,122 @@ function App() {
 
         const combinedImgData = combinedCanvas.toDataURL("image/jpeg");
         setCombinedImage(combinedImgData);
-      };
+      }
+    };
 
-      fileReader.readAsArrayBuffer(pdfFile);
-    }
-  };
+    loadPDF();
+  }, [pdfFile]);
 
   const handleProcessSelections = () => {
     if (imageCanvasRef.current) {
       const images = imageCanvasRef.current.getTransformedImages();
       setTransformedImages(images);
+      return images; // Return the images directly
     }
+    return []; // Return an empty array if no images
   };
 
-  // Função para gerar e baixar o PDF
-  const handleDownloadPDF = () => {
-    if (transformedImages.length === 0) {
-      alert("Nenhuma imagem transformada para baixar.");
-      return;
+  // const handleProcessSelections = () => {
+  //   if (imageCanvasRef.current) {
+  //     const images = imageCanvasRef.current.getTransformedImages();
+  //     setTransformedImages(images);
+  //   }
+  // };
+
+
+const handleUploadPDF = async (images) => {
+  if (images.length === 0) {
+    alert("Nenhuma imagem transformada para baixar.");
+    return;
+  }
+
+  const doc = new jsPDF();
+
+  images.forEach((imgSrc, index) => {
+    const img = new Image();
+    img.src = imgSrc;
+
+    doc.addImage(img, "PNG", 10, 10, 190, 0);
+
+    if (index < images.length - 1) {
+      doc.addPage();
     }
+  });
 
-    const doc = new jsPDF();
+  // Get the PDF as a Blob
+  const pdfBlob = doc.output("blob");
 
-    transformedImages.forEach((imgSrc, index) => {
-      const img = new Image();
-      img.src = imgSrc;
+  // Create FormData and append the PDF Blob
+  const formData = new FormData();
+  formData.append("file", pdfBlob);
+  formData.append("filename", filenames[0]);
 
-      // Adiciona a imagem ao PDF
-      doc.addImage(img, "PNG", 10, 10, 190, 0); // Ajuste as dimensões conforme necessário
-
-      if (index < transformedImages.length - 1) {
-        doc.addPage();
-      }
+  // Upload via Axios
+  try {
+    const response = await axiosInstance.post("/upload", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
     });
+    console.log("File uploaded successfully", response.data);
+  } catch (error) {
+    console.error("There was an error uploading the file!", error);
+  }
+};
 
-    doc.save("imagens_transformadas.pdf");
-  };
+
+  // const handleDownloadPDF = () => {
+  //   if (transformedImages.length === 0) {
+  //     alert("Nenhuma imagem transformada para baixar.");
+  //     return;
+  //   }
+
+  //   const doc = new jsPDF();
+
+  //   transformedImages.forEach((imgSrc, index) => {
+  //     const img = new Image();
+  //     img.src = imgSrc;
+
+  //     doc.addImage(img, "PNG", 10, 10, 190, 0);
+
+  //     if (index < transformedImages.length - 1) {
+  //       doc.addPage();
+  //     }
+  //   });
+
+  //   doc.save("imagens_transformadas.pdf");
+  // };
 
   return (
     <Container>
-      <Typography variant="h4" gutterBottom>
-        Visualizador de PDF com Seleção de Áreas
-      </Typography>
-      <input
-        accept="application/pdf"
-        style={{ display: "none" }}
-        id="pdf-input"
-        type="file"
-        onChange={handleFileChange}
-      />
-      <label htmlFor="pdf-input">
-        <Button variant="contained" component="span">
-          Carregar PDF
-        </Button>
-      </label>
-      <Button
-        variant="contained"
-        onClick={handleFileUpload}
-        style={{ marginLeft: "10px" }}
-        disabled={!pdfFile}
-      >
-        Visualizar PDF
-      </Button>
+      {!combinedImage ? (
+        <Typography variant="h6" color="grey" sx={{ mt: 2, px: 4 }}>
+          Carregando...
+        </Typography>
+      ) : (
+        false
+      )}
+
       <div>
         {combinedImage && (
-          <Box mt={4} sx={{ border: "1px solid grey", width: "90%" }}>
+          <Box mt={1} sx={{ border: "1px solid grey", width: "90%" }}>
             <ImageCanvas ref={imageCanvasRef} src={combinedImage} />
           </Box>
         )}
       </div>
-      {combinedImage && (
+
+      <Divider sx={{ mt: 1 }} />
+
+      <Button
+        variant="contained"
+        color="primary"
+        sx={{ mt: 2, mb: 2, width: "80%" }}
+        onClick={handleClick}
+      >
+        SEGUIR
+      </Button>
+
+      {/* {combinedImage && (
         <Button
           variant="contained"
           color="primary"
@@ -174,13 +230,12 @@ function App() {
         </Button>
       )}
       {transformedImages.length > 0 && (
-        <Box mt={4} mb={4}>
+        <Box mt={4}>
           <Typography variant="h5">Imagens Transformadas</Typography>
           <Typography variant="h6" color="grey">
             Quantidade de imagens: {transformedImages.length}
           </Typography>
 
-          {/* Botão para baixar todas as imagens em um único PDF */}
           <Button
             variant="contained"
             color="primary"
@@ -190,9 +245,9 @@ function App() {
             Baixar Todas as Imagens em PDF
           </Button>
         </Box>
-      )}
+      )} */}
     </Container>
   );
 }
 
-export default App;
+export default ImageProcessor;

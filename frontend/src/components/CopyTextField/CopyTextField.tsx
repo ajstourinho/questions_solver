@@ -35,7 +35,7 @@ const CopyTextField: React.FC<CopyTextFieldProps> = ({ ...props }) => {
               <IconButton
                 onClick={handleCopy}
                 size="small"
-                sx={{ color: "grey" }}
+                color= "primary"
               >
                 <CopyAllIcon />
               </IconButton>

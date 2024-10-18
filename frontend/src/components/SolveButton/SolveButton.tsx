@@ -29,16 +29,18 @@ export default function SolveButton() {
     formData.append("file", files[0]);
     formData.append("filename", filenames[0]);
 
-    try {
-      const response = await axiosInstance.post("/upload", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      console.log("File uploaded successfully", response.data);
-    } catch (error) {
-      console.error("There was an error uploading the file!", error);
-    }
+    // Comment out, as file upload will now happen after Editor
+
+    // try {
+    //   const response = await axiosInstance.post("/upload", formData, {
+    //     headers: {
+    //       "Content-Type": "multipart/form-data",
+    //     },
+    //   });
+    //   console.log("File uploaded successfully", response.data);
+    // } catch (error) {
+    //   console.error("There was an error uploading the file!", error);
+    // }
   };
 
   return (
