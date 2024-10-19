@@ -53,14 +53,15 @@ function ModalPageProcessImage() {
       >
         SEGUIR
       </Button>
+      
       {/* Divisor */}
-      <Divider sx={{ mt: 1 }} />
+      {/* <Divider sx={{ mt: 1 }} /> */}
 
       {/* Texto de ressalva */}
-      <Typography variant="caption" color="grey" sx={{ mt: 2, px: 4 }}>
+      {/* <Typography variant="caption" color="grey" sx={{ mt: 2, px: 4 }}>
         Este site funciona melhor com textos simples e não é otimizado para
         imagens complexas ou questões que envolvam cálculos matemáticos.
-      </Typography>
+      </Typography> */}
     </>
   );
 }

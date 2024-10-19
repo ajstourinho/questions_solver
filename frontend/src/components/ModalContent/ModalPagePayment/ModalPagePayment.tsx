@@ -6,11 +6,12 @@ import {
   setTxid,
 } from "../../../store/slices/PaymentModalSlice";
 import axiosInstance from "../../../axios/axiosInstance";
-import { Box, Typography, Divider } from "@mui/material";
+import { Box, Typography, Divider, Grid } from "@mui/material";
 import QRCodeImage from "../../QRCodeImage/QRCodeImage";
 import Skeleton from "@mui/material/Skeleton";
 import CopyTextField from "../../CopyTextField/CopyTextField";
 import PaymentData from "../../PaymentData/PaymentData"
+import fullLogo from "../../../assets/full_logo_medicina.png";
 
 
 function getRandomString(size = 28) {
@@ -69,6 +70,17 @@ function ModalPagePayment() {
 
   return (
     <>
+      {/* Logo */}
+      <Grid container spacing={1} justifyContent="center">
+        <Grid item>
+          <img
+            src={fullLogo}
+            alt="logo"
+            style={{ maxWidth: "100px", height: "auto" }}
+          />{" "}
+        </Grid>
+      </Grid>
+
       <Typography variant="h6" component="h2" sx={{ mt: 1, mb: 1 }}>
         Fazer pagamento Pix
       </Typography>
@@ -93,7 +105,7 @@ function ModalPagePayment() {
         <Typography variant="subtitle2">
           Se preferir, copie e cole o código abaixo para pagar:
         </Typography>
-        <CopyTextField value=""/>
+        <CopyTextField value="" />
       </Box>
 
       {/* Divisor */}

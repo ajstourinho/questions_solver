@@ -28,7 +28,7 @@ const style = {
   left: "50%",
   transform: "translateX(-50%)",
   minWidth: 360,
-  maxHeight: "calc(100% - 80px)", // Leaves 20px margin at the top and bottom
+  maxHeight: "calc(100% - 60px)", // Leaves 20px margin at the top and bottom
   overflowY: "auto", // Enables vertical scrolling when content is too long
   bgcolor: "background.paper",
   border: "2px solid #777",
@@ -109,7 +109,7 @@ function ModalFrame() {
         <Box
           sx={{
             minWidth: 400,
-            p: 2,
+            p: 1,
             backgroundColor: "white",
             borderRadius: 2,
             textAlign: "center",
@@ -117,7 +117,7 @@ function ModalFrame() {
           }}
         >
           {/* Logo */}
-          <Grid container spacing={1} justifyContent="center">
+          {/* <Grid container spacing={1} justifyContent="center">
             <Grid item>
               <img
                 src={fullLogo}
@@ -125,7 +125,7 @@ function ModalFrame() {
                 style={{ maxWidth: "100px", height: "auto" }}
               />{" "}
             </Grid>
-          </Grid>
+          </Grid> */}
 
           {renderContent(modalPage)}
         </Box>

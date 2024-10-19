@@ -25,6 +25,10 @@ function ImageProcessor() {
 
   const handleClick = () => {
     const images = handleProcessSelections(); // Get images directly
+    if (images.length === 0) {
+      alert("Nenhuma questão selecionada.");
+      return;
+    }
     dispatch(setQuestionsCount(images.length));
     handleUploadPDF(images); // Pass images to handleUploadPDF
     dispatch(nextModalPage());
@@ -45,7 +49,8 @@ function ImageProcessor() {
         let scale;
 
         if (numPages >= 1 && numPages <= 10) {
-          scale = 1.5;
+          // scale = 1.5;
+          scale = 1.3;
         } else if (numPages > 10 && numPages <= 20) {
           scale = 1;
         } else if (numPages > 20 && numPages <= 30) {
@@ -128,10 +133,10 @@ function ImageProcessor() {
 
 
 const handleUploadPDF = async (images) => {
-  if (images.length === 0) {
-    alert("Nenhuma imagem transformada para baixar.");
-    return;
-  }
+  // if (images.length === 0) {
+  //   alert("Nenhuma imagem transformada para baixar.");
+  //   return;
+  // }
 
   const doc = new jsPDF();
 
@@ -202,7 +207,7 @@ const handleUploadPDF = async (images) => {
 
       <div>
         {combinedImage && (
-          <Box mt={1} sx={{ border: "1px solid grey", width: "90%" }}>
+          <Box mt={1} sx={{ border: "1px solid grey", width: "100%" }}>
             <ImageCanvas ref={imageCanvasRef} src={combinedImage} />
           </Box>
         )}
@@ -213,7 +218,7 @@ const handleUploadPDF = async (images) => {
       <Button
         variant="contained"
         color="primary"
-        sx={{ mt: 2, mb: 2, width: "80%" }}
+        sx={{ mt: 2, mb: 1, width: "80%" }}
         onClick={handleClick}
       >
         SEGUIR

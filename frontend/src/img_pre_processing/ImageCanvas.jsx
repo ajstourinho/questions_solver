@@ -331,7 +331,7 @@ const ImageCanvas = forwardRef(({ src }, ref) => {
       pb={4}
       style={{
         overflow: "auto",
-        maxHeight: "70vh",
+        maxHeight: "60vh",
         backgroundColor: "lightgrey",
         display: "flex",
         justifyContent: "center", // Centraliza horizontalmente

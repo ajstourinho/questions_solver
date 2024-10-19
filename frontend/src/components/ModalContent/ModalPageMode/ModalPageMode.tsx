@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Typography, Button, Divider, Chip } from "@mui/material";
+import { Box, Typography, Button, Divider, Chip, Grid } from "@mui/material";
 import { nextModalPage } from "../../../store/slices/ModalControlSlice";
 import { useDispatch } from "react-redux";
 import Radio from "@mui/material/Radio";
@@ -11,6 +11,7 @@ import pixIcon from "../../../assets/pix_icon.webp";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../store/store";
 import { changePriceBasedOnModeChoice } from "../../../store/slices/CheckoutSlice";
+import fullLogo from "../../../assets/full_logo_medicina.png";
 
 const reaisPerQuestion = Number(process.env.REACT_APP_REAIS_PER_QUESTION);
 
@@ -40,6 +41,17 @@ function ModalPageMode() {
 
   return (
     <>
+      {/* Logo */}
+      <Grid container spacing={1} justifyContent="center">
+        <Grid item>
+          <img
+            src={fullLogo}
+            alt="logo"
+            style={{ maxWidth: "100px", height: "auto" }}
+          />{" "}
+        </Grid>
+      </Grid>
+      
       <Typography variant="h6" component="h2" sx={{ mt: 1, mb: 1 }}>
         Escolha um modo:
       </Typography>

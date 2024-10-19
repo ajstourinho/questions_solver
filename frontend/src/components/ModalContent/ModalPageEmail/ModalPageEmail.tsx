@@ -1,5 +1,5 @@
 import React from "react";
-import { Typography, Button, Box, Divider } from "@mui/material";
+import { Typography, Button, Box, Grid, Divider } from "@mui/material";
 import TextField from "@mui/material/TextField";
 import { nextModalPage } from "../../../store/slices/ModalControlSlice";
 import { useDispatch } from "react-redux";
@@ -8,6 +8,7 @@ import pixIcon from "../../../assets/pix_icon.webp";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../store/store";
 import { ShoppingCart } from "@mui/icons-material";
+import fullLogo from "../../../assets/full_logo_medicina.png";
 
 const reaisPerQuestion = Number(process.env.REACT_APP_REAIS_PER_QUESTION);
 
@@ -24,14 +25,25 @@ function ModalPageEmail() {
   const price = useSelector((state: RootState) => state.checkoutSlice.price);
 
   const dispatch = useDispatch();
-  
+
   const handleClick = () => {
     dispatch(setUserEmail(email));
     dispatch(nextModalPage());
-  }
+  };
 
   return (
     <>
+      {/* Logo */}
+      <Grid container spacing={1} justifyContent="center">
+        <Grid item>
+          <img
+            src={fullLogo}
+            alt="logo"
+            style={{ maxWidth: "100px", height: "auto" }}
+          />{" "}
+        </Grid>
+      </Grid>
+      
       <Typography variant="h6" component="h2" sx={{ mt: 2 }}>
         Receba sua <br />
         prova resolvida por e-mail!

@@ -20,11 +20,19 @@ function ModalPageEditor() {
 
   return (
     <>
-      <Typography variant="h6" component="h2" sx={{ mt: 1 }}>
+      <Typography variant="h6" component="h2" sx={{ mt: 0 }}>
         Seletor de questões
       </Typography>
+      <Typography variant="body1" component="h2" sx={{ mt: 1 }} color="grey">
+        Arraste e solte para selecionar <u>um retângulo por questão</u>.
+      </Typography>
 
-      <Box sx={{ height: "80%", width: "80vw"}}>
+      <Box
+        sx={{
+          width: "80vw",
+          display: "flex",
+        }}
+      >
         <ImageProcessor />
       </Box>
 

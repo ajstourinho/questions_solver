@@ -1,16 +1,54 @@
+import { useEffect, useState } from "react";
 import { Grid, Typography, useMediaQuery, useTheme } from "@mui/material";
 import UploadButton from "../components/UploadButton/UploadButton";
 import SolveButton from "../components/SolveButton/SolveButton";
 import exampleImg from "../assets/exampleInitialPage_transp-min.png";
 import exampleImgMobile from "../assets/exampleInitialPage_vertical_transp-min.png";
 import ModalFrame from "../components/ModalFrame/ModalFrame";
+import Snackbar, { SnackbarCloseReason } from "@mui/material/Snackbar";
+import { RootState } from "../store/store";
+import { useDispatch, useSelector } from "react-redux";
+import Alert from "@mui/material/Alert";
 
 export default function InitialPage() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const paymentStatus = useSelector(
+    (state: RootState) => state.paymentModalSlice.paymentStatus
+  );
 
+  useEffect(() => {
+    if (paymentStatus === "CONCLUIDA") {
+      setOpenSnackbar(true);
+    }
+  }, [paymentStatus]);
+
+  const handleCloseSnackbar = (
+    event: React.SyntheticEvent | Event,
+    reason?: SnackbarCloseReason
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setOpenSnackbar(false);
+  };
   return (
     <>
+      {/* Payment confirmation snackbar */}
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={15000}
+        onClose={handleCloseSnackbar}
+        message="Note archived"
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert severity="success" variant="filled" sx={{ width: "100%" }}>
+          Pagamento confirmado! Sua prova será resolvida e enviada por e-mail.
+        </Alert>
+      </Snackbar>
+
       {/* Modal */}
       <ModalFrame />
 
@@ -23,18 +61,30 @@ export default function InitialPage() {
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          textAlign: "center", // Ensures the text inside is centered
         }}
       >
-        {" "}
+        {/* Título */}
         <Typography
           variant="h4"
-          sx={{ fontFamily: "Roboto Mono, monospace", fontWeight: "bold" }}
+          sx={{
+            fontFamily: "Roboto Mono, monospace",
+            fontWeight: "bold",
+            textAlign: "center", // Ensures the text inside is centered
+          }}
         >
-          Resolva provas antigas com IA 🤖
+          Resolva sua Prova Antiga <br /> de Medicina! 🧑‍🏫
         </Typography>
-        <Typography variant="h5" sx={{ mt: 3, maxWidth: "400px" }}>
-          Faça upload de{" "}
+
+        {/* Subtítulo */}
+        <Typography
+          variant="h5"
+          sx={{
+            mt: 3,
+            maxWidth: "420px",
+            textAlign: "center",
+          }}
+        >
+          Selecione{" "}
           <Typography
             component="span"
             variant="h5"
@@ -43,9 +93,14 @@ export default function InitialPage() {
           >
             1 arquivo PDF
           </Typography>{" "}
-          de uma <u>prova antiga </u> e deixe a IA{" "}
-          <strong>resolvê-la automaticamente!</strong>
+          de uma{" "}
+          <u>
+            <i>prova antiga</i>{" "}
+          </u>
+          e deixe nossa ferramenta <strong>resolvê-la em instantes!</strong>{" "}
         </Typography>
+
+        {/* Texto adicional */}
         {/* <Typography
           variant="overline"
           color="textSecondary"

@@ -1,10 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import axiosInstance from "../../axios/axiosInstance";
-import { Box, Grid, Typography } from "@mui/material";
+import { Box, Button, Grid, Typography } from "@mui/material";
 import { setPaymentStatus } from "../../store/slices/PaymentModalSlice";
 import { nextModalPage } from "../../store/slices/ModalControlSlice";
+import Snackbar, { SnackbarCloseReason } from "@mui/material/Snackbar";
 
 function formatToCurrency(value: number): string {
   let formattedValue = value.toFixed(2);
@@ -15,8 +16,12 @@ function formatToCurrency(value: number): string {
 function PaymentData() {
   const txid = useSelector((state: RootState) => state.paymentModalSlice.txid);
   const files = useSelector((state: RootState) => state.filesSlice.files);
-  const filenames = useSelector((state: RootState) => state.filesSlice.filenames);
-  const pageCount = useSelector((state: RootState) => state.checkoutSlice.pageCount);
+  const filenames = useSelector(
+    (state: RootState) => state.filesSlice.filenames
+  );
+  const pageCount = useSelector(
+    (state: RootState) => state.checkoutSlice.pageCount
+  );
   const price = useSelector((state: RootState) => state.checkoutSlice.price);
   const paymentStatus = useSelector(
     (state: RootState) => state.paymentModalSlice.paymentStatus
@@ -34,7 +39,7 @@ function PaymentData() {
           console.log(response);
         })
         .catch((error) => console.error(error));
-      
+
       return;
     } else {
       if (txid !== "") {
@@ -43,7 +48,6 @@ function PaymentData() {
       }
     }
   }, [txid, paymentStatus]);
-
 
   const consultarStatusPix = () => {
     axiosInstance
@@ -63,69 +67,71 @@ function PaymentData() {
 
   return (
     <>
-      <Grid container spacing={2} sx={{ mt: 0, textAlign: "left" }}>
-        {/* Arquivo PDF */}
-        <Grid item xs={12}>
-          <Box display="flex" alignItems="center">
-            <Typography
-              variant="body2"
-              component="span"
-              sx={{ fontWeight: "bold", textDecoration: "underline" }}
-            >
-              Arquivo PDF:
-            </Typography>
+      <Box sx={{ width: "400px" }}>
+        <Grid container spacing={2} sx={{ mt: 0, textAlign: "left" }}>
+          {/* Arquivo PDF */}
+          <Grid item xs={12}>
+            <Box display="flex" alignItems="center">
+              <Typography
+                variant="body2"
+                component="span"
+                sx={{ fontWeight: "bold", textDecoration: "underline" }}
+              >
+                Arquivo PDF:
+              </Typography>
 
-            <Typography
-              variant="body2"
-              color="grey"
-              sx={{
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                width: "180px", // Set width for truncation
-                ml: 1,
-              }}
-            >
-              {files[0] && files[0].name}
-            </Typography>
-          </Box>
-        </Grid>
+              <Typography
+                variant="body2"
+                color="grey"
+                sx={{
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  width: "200px", // Set width for truncation
+                  ml: 1,
+                }}
+              >
+                {files[0] && files[0].name}
+              </Typography>
+            </Box>
+          </Grid>
 
-        {/* Valor */}
-        <Grid item xs={12}>
-          <Box display="flex" alignItems="center">
-            <Typography
-              variant="body2"
-              sx={{ fontWeight: "bold", textDecoration: "underline" }}
-            >
-              Valor:
-            </Typography>
-            <Typography variant="body2" sx={{ ml: 1 }} color="grey">
-              R$ {formatToCurrency(price.valueOf())}
-            </Typography>
-          </Box>
-        </Grid>
+          {/* Valor */}
+          <Grid item xs={12}>
+            <Box display="flex" alignItems="center">
+              <Typography
+                variant="body2"
+                sx={{ fontWeight: "bold", textDecoration: "underline" }}
+              >
+                Valor:
+              </Typography>
+              <Typography variant="body2" sx={{ ml: 1 }} color="grey">
+                R$ {formatToCurrency(price.valueOf())}
+              </Typography>
+            </Box>
+          </Grid>
 
-        <Grid item xs={12}>
-          <Box display="flex" alignItems="center">
-            <Typography
-              variant="body2"
-              component="span"
-              sx={{ fontWeight: "bold", textDecoration: "underline" }}
-            >
-              Status:
-            </Typography>
-            <Typography
-              variant="body2"
-              component="span"
-              color="#BF6900"
-              sx={{ ml: 1 }}
-            >
-              Aguardando pagamento...
-            </Typography>
-          </Box>
+          <Grid item xs={12}>
+            <Box display="flex" alignItems="center">
+              <Typography
+                variant="body2"
+                component="span"
+                sx={{ fontWeight: "bold", textDecoration: "underline" }}
+              >
+                Status:
+              </Typography>
+              <Typography
+                variant="body2"
+                component="span"
+                color="#BF6900"
+                sx={{ ml: 1 }}
+              >
+                Aguardando pagamento...
+              </Typography>
+            </Box>
+          </Grid>
         </Grid>
-      </Grid>
+      </Box>
     </>
   );
 }
