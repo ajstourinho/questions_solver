@@ -49,7 +49,7 @@ class MailService:
       try:
           msg_to_admin = Message(subject, recipients=[self.admin_email])
           body_to_admin = f"O seguinte usuário recebeu a prova resolvida em anexo:\n{userEmail}"
-          if (google_docs_url != ""):
+          if (google_docs_url != "" and google_docs_url != None):
               body_to_admin += f"\nEsse é o link do Google Docs criado: {google_docs_url}"
           msg_to_admin.body = body_to_admin
 
@@ -77,7 +77,7 @@ class MailService:
       try:
           msg_to_user = Message(subject, recipients=[userEmail])
           body_to_user = f"Olá {userEmail_basename}!\n\nSua prova foi resolvida com sucesso e já está pronta. Confira os arquivos em anexo!"
-          if (google_docs_url != ""):
+          if (google_docs_url != "" and google_docs_url != None):
               body_to_user += f"\n\nConfira também o Google Docs criado no link: {google_docs_url}"
           body_to_user += "\n\nObrigado por confiar em nosso serviço!"
           msg_to_user.body = body_to_user
