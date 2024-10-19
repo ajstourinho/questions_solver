@@ -93,11 +93,9 @@ export default function InitialPage() {
           >
             1 arquivo PDF
           </Typography>{" "}
-          de uma{" "}
-          <u>
-            <i>prova antiga</i>{" "}
-          </u>
-          e deixe nossa ferramenta <strong>resolvê-la em instantes!</strong>{" "}
+          de uma <u>prova antiga</u>{" "}e deixa que{" "}
+          <strong>a nossa ferramenta resolve!</strong>{" "}
+          {/* e deixe nossa ferramenta <strong>resolvê-la em instantes!</strong>{" "} */}
         </Typography>
 
         {/* Texto adicional */}

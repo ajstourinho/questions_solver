@@ -16,6 +16,9 @@ function formatToCurrency(value: number): string {
 function PaymentData() {
   const txid = useSelector((state: RootState) => state.paymentModalSlice.txid);
   const files = useSelector((state: RootState) => state.filesSlice.files);
+  const originalFilename = useSelector(
+    (state: RootState) => state.filesSlice.originalFilename
+  );
   const filenames = useSelector(
     (state: RootState) => state.filesSlice.filenames
   );
@@ -34,7 +37,7 @@ function PaymentData() {
     if (paymentStatus === "CONCLUIDA") {
       // Confirm to backend that payment was sucessful, to then process order
       axiosInstance
-        .post("/confirm_payment", { userEmail, filenames })
+        .post("/confirm_payment", { userEmail, filenames, originalFilename })
         .then((response) => {
           console.log(response);
         })

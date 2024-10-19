@@ -7,7 +7,6 @@ class MailService:
     def __init__(self, mail):
       self.mail = mail
       self.admin_email = "iloveprovaantiga@gmail.com"
-
     def notify_admin_payment_confirmation(self, userEmail):
       if os.getenv("ENV") == 'production':
         subject = "Confirmação de Pagamento"
@@ -44,12 +43,14 @@ class MailService:
         self.notify_user_payment_confirmation(userEmail)
 
 
-    def send_admin_output_file(self, userEmail, pdf_filename):
+    def send_admin_output_file(self, userEmail, pdf_filename, original_pdf_filename, google_docs_url):
       subject = "Prova Resolvida! - iLoveProvaAntiga"
 
       try:
           msg_to_admin = Message(subject, recipients=[self.admin_email])
           body_to_admin = f"O seguinte usuário recebeu a prova resolvida em anexo:\n{userEmail}"
+          if (google_docs_url != ""):
+              body_to_admin += f"\nEsse é o link do Google Docs criado: {google_docs_url}"
           msg_to_admin.body = body_to_admin
 
           # Attach the files using standard Python file handling
@@ -58,10 +59,10 @@ class MailService:
           output2_file_path = os.path.join(current_dir, "..", "gpt_api", "output_2_pdfs", file_basename + "_resolvida.docx")
 
           with open(output1_file_path, 'rb') as fp:
-              msg_to_admin.attach("prova_resolvida.pdf", "application/pdf", fp.read())
+              msg_to_admin.attach(f'{original_pdf_filename.rsplit(".", 1)[0]} - Resolvida.pdf', "application/pdf", fp.read())
 
           with open(output2_file_path, 'rb') as fp:
-              msg_to_admin.attach("prova_resolvida.docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", fp.read())
+              msg_to_admin.attach(f'{original_pdf_filename.rsplit(".", 1)[0]} - Resolvida.docx', "application/vnd.openxmlformats-officedocument.wordprocessingml.document", fp.read())
 
           self.mail.send(msg_to_admin)
 
@@ -69,13 +70,16 @@ class MailService:
       except Exception as e:
           return f"Failed to send email with attachment. Error: {str(e)}"
 
-    def send_user_output_file(self, userEmail, pdf_filename):
+    def send_user_output_file(self, userEmail, pdf_filename, original_pdf_filename, google_docs_url):
       subject = "Prova Resolvida! - iLoveProvaAntiga"
       userEmail_basename = userEmail.split("@")[0]
 
       try:
           msg_to_user = Message(subject, recipients=[userEmail])
-          body_to_user = f"Olá {userEmail_basename}!\n\nSua prova foi resolvida com sucesso e já está pronta. Confira o arquivo em anexo!\n\nObrigado por confiar em nosso serviço!"
+          body_to_user = f"Olá {userEmail_basename}!\n\nSua prova foi resolvida com sucesso e já está pronta. Confira os arquivos em anexo!"
+          if (google_docs_url != ""):
+              body_to_user += f"\n\nConfira também o Google Docs criado no link: {google_docs_url}"
+          body_to_user += "\n\nObrigado por confiar em nosso serviço!"
           msg_to_user.body = body_to_user
 
           # Attach the files using standard Python file handling
@@ -84,10 +88,10 @@ class MailService:
           output2_file_path = os.path.join(current_dir, "..", "gpt_api", "output_2_pdfs", file_basename + "_resolvida.docx")
 
           with open(output1_file_path, 'rb') as fp:
-              msg_to_user.attach("prova_resolvida.pdf", "application/pdf", fp.read())
+              msg_to_user.attach(f'{original_pdf_filename.rsplit(".", 1)[0]} - Resolvida.pdf', "application/pdf", fp.read())
 
           with open(output2_file_path, 'rb') as fp:
-              msg_to_user.attach("prova_resolvida.docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", fp.read())
+              msg_to_user.attach(f'{original_pdf_filename.rsplit(".", 1)[0]} - Resolvida.docx', "application/vnd.openxmlformats-officedocument.wordprocessingml.document", fp.read())
 
           self.mail.send(msg_to_user)
 
@@ -95,6 +99,6 @@ class MailService:
       except Exception as e:
           return f"Failed to send email with attachment. Error: {str(e)}"
           
-    def send_admin_and_user_output_file(self, userEmail, pdf_filename):
-      self.send_admin_output_file(userEmail, pdf_filename)
-      self.send_user_output_file(userEmail, pdf_filename)
+    def send_admin_and_user_output_file(self, userEmail, pdf_filename, original_pdf_filename, google_docs_url):
+      self.send_admin_output_file(userEmail, pdf_filename, original_pdf_filename, google_docs_url)
+      self.send_user_output_file(userEmail, pdf_filename, original_pdf_filename, google_docs_url)

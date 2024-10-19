@@ -83,48 +83,48 @@ def upload_file():
     
 
 # @app.route('/api/gpt_solver', methods=['POST'])
-def gpt_solver():
-    """
-    Endpoint to activate GPT API on previously uploaded file, after having confirmed the payment.
-    """
+# def gpt_solver():
+#     """
+#     Endpoint to activate GPT API on previously uploaded file, after having confirmed the payment.
+#     """
 
-    # Consider the filename and pageCount are being sent in the request body
-    data = request.get_json()
-    pdf_filename = data.get('filename')
-    pdf_pageCount = int(data.get('pageCount'))
+#     # Consider the filename and pageCount are being sent in the request body
+#     data = request.get_json()
+#     pdf_filename = data.get('filename')
+#     pdf_pageCount = int(data.get('pageCount'))
 
-    # Define the path of uploaded PDF file, based on the filename
-    pdf_directory = FOLDER_UPLOADED_FILES
-    pdf_path = os.path.join(pdf_directory, pdf_filename)
+#     # Define the path of uploaded PDF file, based on the filename
+#     pdf_directory = FOLDER_UPLOADED_FILES
+#     pdf_path = os.path.join(pdf_directory, pdf_filename)
 
-    # Define file basename (without extension)
-    file_basename, _ = os.path.splitext(pdf_filename)
+#     # Define file basename (without extension)
+#     file_basename, _ = os.path.splitext(pdf_filename)
 
-    # Generate iterable of PDF pages as images
-    pdf_pages_as_imgs = convert_from_path(pdf_path)
+#     # Generate iterable of PDF pages as images
+#     pdf_pages_as_imgs = convert_from_path(pdf_path)
 
-    # Iterate images
-    for i, image in enumerate(pdf_pages_as_imgs):
-        # Define image basename (without extension)
-        image_basename = f"{file_basename}_page_{i+1}" # Without extension
+#     # Iterate images
+#     for i, image in enumerate(pdf_pages_as_imgs):
+#         # Define image basename (without extension)
+#         image_basename = f"{file_basename}_page_{i+1}" # Without extension
 
-        # Save image as .png
-        gpt_api.save_img(image_basename, image)
+#         # Save image as .png
+#         gpt_api.save_img(image_basename, image)
 
-        # Call GPT API to generate JSON from processed image
-        gpt_api.generate_json(image_basename)
+#         # Call GPT API to generate JSON from processed image
+#         gpt_api.generate_json(image_basename)
 
-    # Generate PDF from JSONs
-    gpt_api.generate_pdf_from_jsons(file_basename)
+#     # Generate PDF from JSONs
+#     gpt_api.generate_pdf_from_jsons(file_basename)
 
-    # Send the PDF file as a downloadable response
-    pdf_path_temp = os.path.join(FOLDER_OUTPUT_2_PDFS, file_basename + "_resolvida.pdf") 
-    return send_file(
-        pdf_path_temp,
-        mimetype='application/pdf',  # Specify the MIME type as PDF
-        as_attachment=True,  # Force the download
-        download_name="prova_resolvida.pdf"  # Set the filename for the download
-    )
+#     # Send the PDF file as a downloadable response
+#     pdf_path_temp = os.path.join(FOLDER_OUTPUT_2_PDFS, file_basename + "_resolvida.pdf") 
+#     return send_file(
+#         pdf_path_temp,
+#         mimetype='application/pdf',  # Specify the MIME type as PDF
+#         as_attachment=True,  # Force the download
+#         download_name="prova_resolvida.pdf"  # Set the filename for the download
+#     )
 
 
 @app.route('/api/cob', methods=['POST'])
@@ -212,13 +212,14 @@ def confirm_payment():
 
     userEmail = data["userEmail"].strip()
     pdf_filename = data["filenames"][0]
+    original_pdf_filename = data["originalFilename"]
 
     # Função para rodar o processamento do pedido no contexto correto
     def process_order(userEmail):
         with app.app_context():
             mail_service.notify_admin_and_user_payment_confirmation(userEmail)
-            gpt_api.gpt_solver(pdf_filename)
-            mail_service.send_admin_and_user_output_file(userEmail, pdf_filename)
+            google_docs_url = gpt_api.gpt_solver(pdf_filename, original_pdf_filename)
+            mail_service.send_admin_and_user_output_file(userEmail, pdf_filename, original_pdf_filename, google_docs_url)
 
     # Iniciar uma thread para continuar o processamento em segundo plano
     threading.Thread(target=process_order, args=(userEmail,)).start()
@@ -234,4 +235,5 @@ if __name__ == '__main__':
         app.run(debug=True, host='0.0.0.0')
     elif (os.getenv("ENV") == "production"):
         # PROD
+        app.run(debug=True, host='0.0.0.0')
         app.run()

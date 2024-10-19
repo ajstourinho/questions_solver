@@ -4,7 +4,10 @@ import { ChangeEvent, useEffect } from "react";
 import { PDFDocument } from "pdf-lib";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store";
-import { resetFiles, addFiles } from "../../store/slices/FilesSlice";
+import {
+  resetFiles,
+  addFiles
+} from "../../store/slices/FilesSlice";
 import { setPageCount } from "../../store/slices/CheckoutSlice";
 
 function getCurrentDateTimeForFilename() {
@@ -23,7 +26,7 @@ function getCurrentDateTimeForFilename() {
 
 export default function UploadButton() {
   const files = useSelector((state: RootState) => state.filesSlice.files);
-  
+
   const dispatch = useDispatch();
 
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -34,24 +37,27 @@ export default function UploadButton() {
           return;
         }
       });
-
+      
       const pdfDoc = await PDFDocument.load(
         await event.target.files[0].arrayBuffer()
       );
-
+      
       // implement filename with datetime to save to store
       const filename = `myfile_${getCurrentDateTimeForFilename()}.pdf`;
-
+      
       // reset, considering upload of only 1 file
       handleCancelUpload();
+      
+      const originalFilename = event.target.files[0].name;
 
       dispatch(
         addFiles({
           files: Array.from(event.target.files),
           filenames: [filename],
+          originalFilename: originalFilename,
         })
       );
-      
+
       dispatch(setPageCount(pdfDoc.getPageCount()));
     }
   };
@@ -62,7 +68,7 @@ export default function UploadButton() {
   };
 
   return (
-    <Grid item sx={{ mx: 1, }}>
+    <Grid item sx={{ mx: 1 }}>
       <Grid item>
         <input
           type="file"
