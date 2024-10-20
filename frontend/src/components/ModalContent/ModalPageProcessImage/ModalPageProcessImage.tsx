@@ -8,7 +8,7 @@ import gif from "../../../assets/gif_video_editor.gif";
 
 function ModalPageProcessImage() {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const dispatch = useDispatch();
 

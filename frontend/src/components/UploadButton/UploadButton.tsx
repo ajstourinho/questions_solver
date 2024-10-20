@@ -33,7 +33,7 @@ function getCurrentDateTimeForFilename() {
 
 export default function UploadButton() {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const files = useSelector((state: RootState) => state.filesSlice.files);
 
   const dispatch = useDispatch();

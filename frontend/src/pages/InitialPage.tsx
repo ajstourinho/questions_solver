@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Grid, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Grid, Typography, useMediaQuery, useTheme } from "@mui/material";
 import UploadButton from "../components/UploadButton/UploadButton";
 import SolveButton from "../components/SolveButton/SolveButton";
 import exampleImg from "../assets/exampleInitialPage_transp-min.png";
@@ -9,10 +9,11 @@ import Snackbar, { SnackbarCloseReason } from "@mui/material/Snackbar";
 import { RootState } from "../store/store";
 import { useDispatch, useSelector } from "react-redux";
 import Alert from "@mui/material/Alert";
+import bannerImage from "../assets/medical_computer_banner-min.png";
 
 export default function InitialPage() {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const paymentStatus = useSelector(
     (state: RootState) => state.paymentModalSlice.paymentStatus
@@ -52,24 +53,26 @@ export default function InitialPage() {
       {/* Modal */}
       <ModalFrame />
 
+      {/* Bloco Principal: Metade da tela para o texto e botões */}
       <Grid
         item
-        xs={12}
+        xs={isMobile ? 12 : 6}
         sx={{
-          marginTop: "25px",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
+          justifyContent: "left",
         }}
       >
         {/* Título */}
         <Typography
-          variant="h4"
+          variant="h1"
           sx={{
-            fontFamily: "Roboto Mono, monospace",
-            fontWeight: "bold",
-            textAlign: "center", // Ensures the text inside is centered
+            fontFamily: "Poppins, Arial, sans-serif",
+            fontWeight: 900,
+            fontSize: 40,
+            pl: isMobile ? 1 : 12,
+            pt: isMobile ? 1 : 8,
+            textAlign: "left",
           }}
         >
           Resolva sua Prova Antiga <br /> de Medicina! 🧑‍🏫
@@ -80,8 +83,11 @@ export default function InitialPage() {
           variant="h5"
           sx={{
             mt: 3,
+            px: isMobile ? 1 : 12,
             maxWidth: "420px",
-            textAlign: "center",
+            textAlign: "left",
+            color: "#555",
+            fontSize: isMobile ? 18 : 23,
           }}
         >
           Selecione{" "}
@@ -89,52 +95,87 @@ export default function InitialPage() {
             component="span"
             variant="h5"
             style={{ color: "#0098BA" }}
-            sx={{ fontFamily: "Roboto Mono, monospace", fontWeight: "bold" }}
+            sx={{
+              fontWeight: "bold",
+              fontSize: isMobile ? 18 : 23,
+            }}
           >
             1 arquivo PDF
           </Typography>{" "}
-          de uma <u>prova antiga</u>{" "}e deixa que{" "}
-          <strong>a nossa ferramenta resolve!</strong>{" "}
-          {/* e deixe nossa ferramenta <strong>resolvê-la em instantes!</strong>{" "} */}
+          de uma <u>prova antiga</u> e deixe a nossa ferramenta{" "}
+          <strong>resolvê-la automaticamente!</strong>
         </Typography>
 
-        {/* Texto adicional */}
-        {/* <Typography
-          variant="overline"
-          color="textSecondary"
-          sx={{ marginTop: "15px",}}
+        {/* Alerta para Mobile */}
+        {isMobile ? (
+          <Alert severity="warning" sx={{ mt: 2, textAlign: "left" }}>
+            <b>Atenção: Use no Desktop 💻</b>
+            <br />
+            <br />
+            Para melhor desempenho, acesse via computador. <br />
+            <br />
+            Versão mobile chegando em breve!
+          </Alert>
+        ) : (
+          <>
+            {/* Botões */}
+            <Grid
+              container
+              style={{ textAlign: "center" }}
+              sx={{ mt: 4, pl: isMobile ? 0 : 12 }}
+            >
+              {/* Botão de upload */}
+              <Grid item sx={{ mx: 1 }}>
+                <UploadButton />
+              </Grid>
+
+              {/* Botão de resolver */}
+              <Grid item sx={{ mx: 1 }}>
+                <SolveButton />
+              </Grid>
+            </Grid>
+          </>
+        )}
+      </Grid>
+
+      {/* Bloco para a Imagem: Metade da tela para a imagem */}
+      {isMobile ? (
+        false
+      ) : (
+        <Grid
+          item
+          xs={6}
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            pt: 10,
+          }}
         >
-          Certifique-se que há{" "}
-          <strong>
-            somente <br />
-            uma 1 questão por página.
-          </strong>
-        </Typography> */}
-      </Grid>
-
-      {/* Botões */}
-      <Grid
-        item
-        container
-        justifyContent="center"
-        style={{ textAlign: "center" }}
-        xs={12}
-        sx={{ mt: 2 }}
-      >
-        {/* Botão de upload */}
-        <Grid item sx={{ mx: 1 }}>
-          <UploadButton />
+          <Box
+            component="img"
+            src={bannerImage}
+            alt="Imagem Descritiva"
+            sx={{
+              width: "80%", // Set the image width to 80%
+              height: "auto", // Automatically adjust height to keep the aspect ratio
+              pr: 7,
+            }}
+            style={{ objectFit: "contain" }} // Ensures the image scales properly without distortion
+          />
         </Grid>
-
-        {/* Botão de resolver */}
-        <Grid item sx={{ mx: 1 }}>
-          <SolveButton />
-        </Grid>
-      </Grid>
+      )}
 
       {/* Seção de exemplo */}
-      <Grid item xs={12} sx={{ marginTop: 8 }}>
-        <Typography variant="h5" sx={{ fontFamily: "Roboto Mono, monospace" }}>
+      <Grid item xs={12} sx={{ mt: isMobile ? 5 : 0 }}>
+        <Typography
+          variant="h2"
+          sx={{
+            fontFamily: "Poppins, Arial, sans-serif",
+            fontWeight: 900,
+            fontSize: isMobile ? 25 : 35,
+            textAlign: "center",
+          }}
+        >
           <strong>Confira um exemplo!</strong>
         </Typography>
       </Grid>
@@ -145,13 +186,14 @@ export default function InitialPage() {
         sx={{
           backgroundColor: "#C5E3E9",
           marginTop: 1,
-          width: "100%",
+          width: "80vw",
         }}
       >
-        <img
+        <Box
+          component="img"
           src={isMobile ? exampleImgMobile : exampleImg}
           alt="exampleImg"
-          style={{ maxWidth: "90%", marginBottom: 20 }}
+          style={{ width: "80vw", marginBottom: 20 }}
         />
       </Grid>
     </>
