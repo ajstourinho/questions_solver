@@ -15,7 +15,6 @@ export default function App() {
       container
       spacing={1}
       justifyContent="center"
-      alignItems="center"
       style={{ textAlign: "center" }}
     >
       <Header />

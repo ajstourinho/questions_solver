@@ -1,5 +1,12 @@
 import { Clear, UploadFile } from "@mui/icons-material";
-import { Box, Button, Grid, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Grid,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import { ChangeEvent, useEffect } from "react";
 import { PDFDocument } from "pdf-lib";
 import { useDispatch, useSelector } from "react-redux";
@@ -25,6 +32,8 @@ function getCurrentDateTimeForFilename() {
 }
 
 export default function UploadButton() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const files = useSelector((state: RootState) => state.filesSlice.files);
 
   const dispatch = useDispatch();
@@ -79,7 +88,8 @@ export default function UploadButton() {
           onClick={(event) => {
             event.currentTarget.value = "";
           }}
-        />
+          disabled={isMobile}
+          />
         <label htmlFor="upload-button-file">
           <Button
             variant="contained"
@@ -88,8 +98,9 @@ export default function UploadButton() {
             style={{
               marginBottom: 15,
               backgroundColor: "#E0E0E0",
-              color: "#000",
+              color: isMobile ? "#999" : "#000",
             }}
+            disabled={isMobile}
           >
             SELECIONE ARQUIVO PDF
           </Button>

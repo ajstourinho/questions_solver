@@ -50,7 +50,7 @@ function ImageProcessor() {
 
         if (numPages >= 1 && numPages <= 10) {
           // scale = 1.5;
-          scale = 1.3;
+          scale = 1.2;
         } else if (numPages > 10 && numPages <= 20) {
           scale = 1;
         } else if (numPages > 20 && numPages <= 30) {
