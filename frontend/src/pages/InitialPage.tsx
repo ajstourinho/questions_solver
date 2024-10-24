@@ -10,6 +10,7 @@ import { RootState } from "../store/store";
 import { useDispatch, useSelector } from "react-redux";
 import Alert from "@mui/material/Alert";
 import bannerImage from "../assets/medical_computer_banner-min.png";
+import { hideSnackbar, showSnackbar } from "../store/slices/SnackbarSlice";
 
 export default function InitialPage() {
   const theme = useTheme();
@@ -19,9 +20,11 @@ export default function InitialPage() {
     (state: RootState) => state.paymentModalSlice.paymentStatus
   );
 
+  const dispatch = useDispatch();
+
   useEffect(() => {
     if (paymentStatus === "CONCLUIDA") {
-      setOpenSnackbar(true);
+      dispatch(showSnackbar({ status: 'success', message: 'Pagamento confirmado! Sua prova será resolvida e enviada por e-mail.' }));
     }
   }, [paymentStatus]);
 
@@ -39,14 +42,17 @@ export default function InitialPage() {
     <>
       {/* Payment confirmation snackbar */}
       <Snackbar
-        open={openSnackbar}
+        open={useSelector((state: RootState) => state.snackbarSlice.open)}
         autoHideDuration={15000}
-        onClose={handleCloseSnackbar}
-        message="Note archived"
+        onClose={(event, reason) => {
+          if (reason !== "clickaway") {
+            dispatch(hideSnackbar());
+          }
+        }}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert severity="success" variant="filled" sx={{ width: "100%" }}>
-          Pagamento confirmado! Sua prova será resolvida e enviada por e-mail.
+        <Alert severity={useSelector((state: RootState) => state.snackbarSlice.status)} variant="filled" sx={{ width: "100%" }}>
+          {useSelector((state: RootState) => state.snackbarSlice.message)}
         </Alert>
       </Snackbar>
 

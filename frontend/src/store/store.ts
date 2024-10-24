@@ -4,7 +4,7 @@ import CheckoutSlice from "./slices/CheckoutSlice";
 import PaymentModalSlice from "./slices/PaymentModalSlice";
 import ModalControlSlice from "./slices/ModalControlSlice";
 import UserSlice from "./slices/UserSlice";
-
+import SnackbarSlice from "./slices/SnackbarSlice";
 export const store = configureStore({
   reducer: {
     filesSlice: FilesSlice,
@@ -12,6 +12,7 @@ export const store = configureStore({
     paymentModalSlice: PaymentModalSlice,
     modalControlSlice: ModalControlSlice,
     userSlice: UserSlice,
+    snackbarSlice: SnackbarSlice, 
   },
 });
 

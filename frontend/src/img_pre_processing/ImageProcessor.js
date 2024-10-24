@@ -5,10 +5,11 @@ import ImageCanvas from "./ImageCanvas";
 import * as pdfjsLib from "pdfjs-dist/build/pdf";
 import "pdfjs-dist/web/pdf_viewer.css";
 import { jsPDF } from "jspdf";
-import { nextModalPage } from "../store/slices/ModalControlSlice";
+import { nextModalPage, closeModal } from "../store/slices/ModalControlSlice";
 import { useDispatch, useSelector } from "react-redux";
 import axiosInstance from "../axios/axiosInstance";
 import { setQuestionsCount } from "../store/slices/CheckoutSlice";
+import { showSnackbar } from "../store/slices/SnackbarSlice";
 
 // Configure the PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = `${process.env.PUBLIC_URL}/pdf.worker.min.mjs`;
@@ -168,6 +169,8 @@ const handleUploadPDF = async (images) => {
     });
     console.log("File uploaded successfully", response.data);
   } catch (error) {
+    dispatch(showSnackbar({ status: 'error', message: 'Houve um erro no upload do arquivo!' }));
+    dispatch(closeModal());
     console.error("There was an error uploading the file!", error);
   }
 };
