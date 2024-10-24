@@ -16,9 +16,10 @@ QuestionsSolver is a complete website to help students solve old exams using AI.
   - [DEV: Build and run the containers](#dev-build-and-run-the-containers)
   - [DEV: Install new React dependencies](#dev-install-new-react-dependencies)
 - [Production Environment](#production-environment)
-  - [PROD: Environment Configuration](#prod-environment-configuration)
-  - [PROD: Build and run the containers](#prod-build-and-run-the-containers)
-
+  - [PROD: Steps for Flask Backend Deployment on AWS EC2](#prod-steps-for-flask-backend-deployment-on-aws-ec2)
+  - [PROD: Stop Services inside instance](#prod-stop-services-inside-instance)
+  - [PROD: Start Services inside instance](#prod-start-services-inside-instance)
+  - [PROD: Follow logs](#prod-follow-logs)
 ---
 
 ## Development Environment
@@ -101,38 +102,157 @@ docker exec -it <container_name_or_id> npm install <name_of_dependence>
 
 ## Production Environment
 
-### PROD: Environment Configuration
+### PROD: Steps for Flask Backend Deployment on AWS EC2
 
-To run the application properly, you need to set up environment variables in the exact same way as in the [Development Environment](#development-environment).
-The main change is to set the `REACT_APP_ENV` and `ENV` variables to `production`, on the `.env` files of the `/frontend` and `/backend` respectively.
+- **Create EC2 Instance (check region)**
+  - Recommended Ubuntu
+  - Allow HTTP and HTTPS
 
-### PROD: Build and run the containers
+- **Create Elastic IP**
+  - Associate to EC2 Instance
 
-To build the containers via the ```docker-compose.prod.yml``` file, use the command:
+- **Configure Route 53 record to point to the EC2 instance Elastic IP**
 
+- **Connect to EC2 Instance**
+
+- **Configure the instance**
+
+  - **Update and Install Dependencies**
+    - `sudo apt-get update && sudo apt-get upgrade -y`
+    - `sudo apt install python3-pip python3-venv nginx git -y`
+
+  - **Clone Repository and Set Up Backend**
+    - `git clone <your-repo-url> && cd <your-repo-directory>`
+    - `git checkout <branch-name> && cd backend`
+    - Create `.env`: `sudo nano .env`
+    - Set up virtual environment:
+      ```bash
+      python3 -m venv venv
+      source venv/bin/activate
+      pip install -r requirements_prod.txt
+      ```
+
+  - **Install Gunicorn and Configure Systemd Service**
+    - `pip install gunicorn`
+    - Create Gunicorn service: `sudo nano /etc/systemd/system/gunicorn.service`
+      ```ini
+      [Unit]
+      Description=Gunicorn to serve Flask app
+      After=network.target
+
+      [Service]
+      User=ubuntu
+      Group=www-data
+      WorkingDirectory=/home/ubuntu/questions_solver/backend
+      Environment="PATH=/home/ubuntu/questions_solver/backend/venv/bin"
+      ExecStart=/home/ubuntu/questions_solver/backend/venv/bin/gunicorn --workers 3 --bind 127.0.0.1:8000 app:app
+
+      [Install]
+      WantedBy=multi-user.target
+      ```
+    - `sudo systemctl daemon-reload && sudo systemctl start gunicorn && sudo systemctl enable gunicorn`
+
+  - **Configure Nginx**
+    - `sudo nano /etc/nginx/sites-available/flask_app`
+      ```nginx
+      server {
+          listen 80;
+          server_name api.iloveprovaantiga.com.br;
+
+          location / {
+              proxy_pass http://127.0.0.1:8000;
+              proxy_set_header Host $host;
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto $scheme;
+          }
+
+          client_max_body_size 10M;
+      }
+      ```
+    - `sudo ln -s /etc/nginx/sites-available/flask_app /etc/nginx/sites-enabled`
+    - `sudo rm /etc/nginx/sites-enabled/default`
+    - Test and reload Nginx:
+      ```bash
+      sudo nginx -t
+      sudo systemctl reload nginx
+      ```
+
+  - **Enable SSL with Certbot**
+    - `sudo apt-get install certbot python3-certbot-nginx`
+    - `sudo certbot --nginx -d api.iloveprovaantiga.com.br`
+
+  - **Verify Services**
+    - `sudo systemctl status gunicorn`
+    - `sudo systemctl status nginx`
+
+### PROD: Stop Services inside instance
+
+1. **Stop Gunicorn Service**
+```bash
+sudo systemctl stop gunicorn
 ```
-docker compose -f docker-compose.prod.yml build --no-cache
-```
-> The `--no-cache` is recommended to ensure a clear build of the image.
 
-After building, you can start and run the containers with the command:
-
-```
-docker-compose -f docker-compose.prod.yml up
+2. **Stop Nginx Service**
+```bash
+sudo systemctl stop nginx
 ```
 
----
+3. **Check the Status of Both Services**
+```bash
+sudo systemctl status gunicorn
+sudo systemctl status nginx
+```
 
-### Legacy README
+### PROD: Start Services inside instance
 
-#### Accessing MongoDB
+1. **Start Nginx Service**
+```bash
+sudo systemctl start nginx
+```
 
-For development purposes, you might want to access MongoDB directly:
+2. **Start Gunicorn Service**
+```bash
+sudo systemctl start gunicorn
+```
 
-*   **MongoDB Shell**: Run `docker exec -it <mongo-container-name> mongosh` to access the MongoDB shell within the container.
-*   **GUI Tools**: Connect GUI tools like MongoDB Compass to `localhost:27017` for local development.
+### PROD: Follow logs
 
-> MongoDB Compass can be installed (on the [MongoDB official site](https://www.mongodb.com/try/download/shell)) and used in the host, as the ```docker-compose``` file maps the ```27017``` ports of the container and the host to reflect changes.
+1. **View Gunicorn Logs**
 
-> It is important to note that the ```mongo-data``` volume defined in the ```docker-compose``` is the one that stores and persists the MongoDB data (even if the container stops or is removed).
+Using journalctl for Gunicorn:
 
+```bash
+sudo journalctl -u gunicorn
+```
+
+This command will show all the logs for the Gunicorn service. You can also use flags like `-f` to follow the logs in real-time:
+
+```bash
+sudo journalctl -u gunicorn -f
+```
+
+2. **View Nginx Logs**
+
+Nginx logs are typically stored in the following default directories:
+
+- Access Logs (records requests to the server):
+  ```bash
+  cat /var/log/nginx/access.log
+  ```
+- Error Logs (records any errors):
+  ```bash
+  cat /var/log/nginx/error.log
+  ```
+
+To follow the Nginx logs in real-time, use:
+
+- For access logs:
+```bash
+tail -f /var/log/nginx/access.log
+```
+
+- For error logs:
+```bash
+tail -f /var/log/nginx/error.log
+```
