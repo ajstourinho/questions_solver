@@ -4,10 +4,9 @@ import {
   Button,
   Grid,
   Typography,
-  useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { ChangeEvent, useEffect } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { PDFDocument } from "pdf-lib";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store";
@@ -33,10 +32,24 @@ function getCurrentDateTimeForFilename() {
 
 export default function UploadButton() {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const [isDesktop, setIsDesktop] = useState(false);
   const files = useSelector((state: RootState) => state.filesSlice.files);
 
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    const checkIfDesktop = () => {
+      // You can adjust this condition based on your definition of a desktop device
+      setIsDesktop(!/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+    };
+
+    checkIfDesktop();
+    window.addEventListener('resize', checkIfDesktop);
+
+    return () => {
+      window.removeEventListener('resize', checkIfDesktop);
+    };
+  }, []);
 
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -88,8 +101,8 @@ export default function UploadButton() {
           onClick={(event) => {
             event.currentTarget.value = "";
           }}
-          disabled={isMobile}
-          />
+          disabled={!isDesktop}
+        />
         <label htmlFor="upload-button-file">
           <Button
             variant="contained"
@@ -98,9 +111,9 @@ export default function UploadButton() {
             style={{
               marginBottom: 15,
               backgroundColor: "#E0E0E0",
-              color: isMobile ? "#999" : "#000",
+              color: isDesktop ? "#000" : "#999",
             }}
-            disabled={isMobile}
+            disabled={!isDesktop}
           >
             SELECIONE ARQUIVO PDF
           </Button>

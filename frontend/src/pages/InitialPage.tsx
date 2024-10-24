@@ -1,57 +1,63 @@
-import { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Box, Grid, Typography, useMediaQuery, useTheme } from "@mui/material";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../store/store";
+import { hideSnackbar, showSnackbar } from "../store/slices/SnackbarSlice";
 import UploadButton from "../components/UploadButton/UploadButton";
 import SolveButton from "../components/SolveButton/SolveButton";
+import ModalFrame from "../components/ModalFrame/ModalFrame";
+import bannerImage from "../assets/medical_computer_banner-min.png";
 import exampleImg from "../assets/exampleInitialPage_transp-min.png";
 import exampleImgMobile from "../assets/exampleInitialPage_vertical_transp-min.png";
-import ModalFrame from "../components/ModalFrame/ModalFrame";
-import Snackbar, { SnackbarCloseReason } from "@mui/material/Snackbar";
-import { RootState } from "../store/store";
-import { useDispatch, useSelector } from "react-redux";
-import Alert from "@mui/material/Alert";
-import bannerImage from "../assets/medical_computer_banner-min.png";
-import { hideSnackbar, showSnackbar } from "../store/slices/SnackbarSlice";
 
 export default function InitialPage() {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const deviceType = useSelector(
+    (state: RootState) => state.deviceSlice.deviceType
+  ) as "mobile" | "tablet" | "desktop";
+  const dispatch = useDispatch();
   const paymentStatus = useSelector(
     (state: RootState) => state.paymentModalSlice.paymentStatus
   );
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
 
-  const dispatch = useDispatch();
-
-  useEffect(() => {
+  console.log(deviceType);
+  React.useEffect(() => {
     if (paymentStatus === "CONCLUIDA") {
-      dispatch(showSnackbar({ status: 'success', message: 'Pagamento confirmado! Sua prova será resolvida e enviada por e-mail.' }));
+      dispatch(
+        showSnackbar({
+          status: "success",
+          message:
+            "Pagamento confirmado! Sua prova será resolvida e enviada por e-mail.",
+        })
+      );
     }
-  }, [paymentStatus]);
+  }, [paymentStatus, dispatch]);
 
-  const handleCloseSnackbar = (
-    event: React.SyntheticEvent | Event,
-    reason?: SnackbarCloseReason
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
-
-    setOpenSnackbar(false);
-  };
   return (
     <>
-      {/* Payment confirmation snackbar */}
+      {/* Snackbar with Alert */}
       <Snackbar
         open={useSelector((state: RootState) => state.snackbarSlice.open)}
         autoHideDuration={15000}
-        onClose={(event, reason) => {
-          if (reason !== "clickaway") {
-            dispatch(hideSnackbar());
-          }
+        onClose={() => dispatch(hideSnackbar())}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
         }}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert severity={useSelector((state: RootState) => state.snackbarSlice.status)} variant="filled" sx={{ width: "100%" }}>
+        <Alert
+          severity={useSelector(
+            (state: RootState) => state.snackbarSlice.status
+          )}
+          variant="filled"
+          sx={{
+            width: "100%",
+            fontSize: deviceType === "mobile" ? "0.8rem" : "1rem",
+          }}
+        >
           {useSelector((state: RootState) => state.snackbarSlice.message)}
         </Alert>
       </Snackbar>
@@ -62,7 +68,8 @@ export default function InitialPage() {
       {/* Bloco Principal: Metade da tela para o texto e botões */}
       <Grid
         item
-        xs={isMobile ? 12 : 6}
+        xs={12}
+        md={isSmallScreen ? 12 : 6}
         sx={{
           display: "flex",
           flexDirection: "column",
@@ -76,8 +83,8 @@ export default function InitialPage() {
             fontFamily: "Poppins, Arial, sans-serif",
             fontWeight: 900,
             fontSize: 40,
-            pl: isMobile ? 1 : 12,
-            pt: isMobile ? 1 : 8,
+            pl: deviceType === "mobile" ? 1 : 12,
+            pt: deviceType === "mobile" ? 1 : 8,
             textAlign: "left",
           }}
         >
@@ -89,11 +96,11 @@ export default function InitialPage() {
           variant="h5"
           sx={{
             mt: 3,
-            px: isMobile ? 1 : 12,
+            px: deviceType === "mobile" ? 1 : 12,
             maxWidth: "420px",
             textAlign: "left",
             color: "#555",
-            fontSize: isMobile ? 18 : 23,
+            fontSize: deviceType === "mobile" ? 18 : 23,
           }}
         >
           Selecione{" "}
@@ -103,7 +110,7 @@ export default function InitialPage() {
             style={{ color: "#0098BA" }}
             sx={{
               fontWeight: "bold",
-              fontSize: isMobile ? 18 : 23,
+              fontSize: deviceType === "mobile" ? 18 : 23,
             }}
           >
             1 arquivo PDF
@@ -112,8 +119,29 @@ export default function InitialPage() {
           <strong>resolvê-la automaticamente!</strong>
         </Typography>
 
-        {/* Alerta para Mobile */}
-        {isMobile ? (
+        {/* Alerta para Mobile ou Tablet*/}
+        {deviceType === "desktop" ? (
+          <>
+            {/* Botões */}
+            <Grid
+              container
+              style={{ textAlign: "center" }}
+              sx={{ mt: 4, pl: 12 }}
+            >
+              <>
+                {/* Botão de upload */}
+                <Grid item sx={{ mx: 1 }}>
+                  <UploadButton />
+                </Grid>
+
+                {/* Botão de resolver */}
+                <Grid item sx={{ mx: 1 }}>
+                  <SolveButton />
+                </Grid>
+              </>
+            </Grid>
+          </>
+        ) : (
           <Alert severity="warning" sx={{ mt: 2, textAlign: "left" }}>
             <b>Atenção: Use no Desktop 💻</b>
             <br />
@@ -122,32 +150,11 @@ export default function InitialPage() {
             <br />
             Versão mobile chegando em breve!
           </Alert>
-        ) : (
-          <>
-            {/* Botões */}
-            <Grid
-              container
-              style={{ textAlign: "center" }}
-              sx={{ mt: 4, pl: isMobile ? 0 : 12 }}
-            >
-              {/* Botão de upload */}
-              <Grid item sx={{ mx: 1 }}>
-                <UploadButton />
-              </Grid>
-
-              {/* Botão de resolver */}
-              <Grid item sx={{ mx: 1 }}>
-                <SolveButton />
-              </Grid>
-            </Grid>
-          </>
         )}
       </Grid>
 
       {/* Bloco para a Imagem: Metade da tela para a imagem */}
-      {isMobile ? (
-        false
-      ) : (
+      {deviceType !== "mobile" && !isSmallScreen && (
         <Grid
           item
           xs={6}
@@ -162,23 +169,23 @@ export default function InitialPage() {
             src={bannerImage}
             alt="Imagem Descritiva"
             sx={{
-              width: "80%", // Set the image width to 80%
-              height: "auto", // Automatically adjust height to keep the aspect ratio
+              width: "80%",
+              height: "auto",
               pr: 7,
             }}
-            style={{ objectFit: "contain" }} // Ensures the image scales properly without distortion
+            style={{ objectFit: "contain" }}
           />
         </Grid>
       )}
 
       {/* Seção de exemplo */}
-      <Grid item xs={12} sx={{ mt: isMobile ? 5 : 0 }}>
+      <Grid item xs={12} sx={{ mt: deviceType === "mobile" ? 5 : 0 }}>
         <Typography
           variant="h2"
           sx={{
             fontFamily: "Poppins, Arial, sans-serif",
             fontWeight: 900,
-            fontSize: isMobile ? 25 : 35,
+            fontSize: deviceType === "mobile" ? 25 : 35,
             textAlign: "center",
           }}
         >
@@ -197,7 +204,7 @@ export default function InitialPage() {
       >
         <Box
           component="img"
-          src={isMobile ? exampleImgMobile : exampleImg}
+          src={deviceType === "mobile" ? exampleImgMobile : exampleImg}
           alt="exampleImg"
           style={{ width: "80vw", marginBottom: 20 }}
         />

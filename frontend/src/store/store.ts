@@ -5,6 +5,8 @@ import PaymentModalSlice from "./slices/PaymentModalSlice";
 import ModalControlSlice from "./slices/ModalControlSlice";
 import UserSlice from "./slices/UserSlice";
 import SnackbarSlice from "./slices/SnackbarSlice";
+import DeviceSlice from "./slices/deviceSlice";
+
 export const store = configureStore({
   reducer: {
     filesSlice: FilesSlice,
@@ -13,6 +15,7 @@ export const store = configureStore({
     modalControlSlice: ModalControlSlice,
     userSlice: UserSlice,
     snackbarSlice: SnackbarSlice, 
+    deviceSlice: DeviceSlice,
   },
 });
 
