@@ -23,7 +23,6 @@ export default function InitialPage() {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
 
-  console.log(deviceType);
   React.useEffect(() => {
     if (paymentStatus === "CONCLUIDA") {
       dispatch(
