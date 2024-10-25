@@ -106,6 +106,7 @@ docker exec -it <container_name_or_id> npm install <name_of_dependence>
 
 - **Create EC2 Instance (check region)**
   - Recommended Ubuntu
+  - Check keys
   - Allow HTTP and HTTPS
 
 - **Create Elastic IP**
@@ -131,6 +132,21 @@ docker exec -it <container_name_or_id> npm install <name_of_dependence>
       source venv/bin/activate
       pip install -r requirements_prod.txt
       ```
+
+  - **Move local files to the instance**
+    - The necessary files are:
+      - `credentials.json`, `token.pickle`, both located in `/backend/gpt_api/`
+      - `certificate.pem`, located in `/backend/pix_api/keys/`
+    - Make sure to create the `/keys/` directory in the instance, with `mkdir keys`.
+    - Move the files to the instance:
+      ```bash
+      scp -i /localpath/key.pem /localpath/file ubuntu@ec2-instance-public-ip:/home/ubuntu/questions_solver/backend/
+      ```
+      > Change for the correct path to the key file and the file to be moved.
+
+    > Note that it may be needed to run `chmod 400 /localpath/key.pem` to ensure the file has the correct permissions.
+
+    > If the followig alert appear "WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED", solve it by running `ssh-keygen -R [ec2-instance-public-ip]`
 
   - **Install Gunicorn and Configure Systemd Service**
     - `pip install gunicorn`
@@ -181,6 +197,7 @@ docker exec -it <container_name_or_id> npm install <name_of_dependence>
   - **Enable SSL with Certbot**
     - `sudo apt-get install certbot python3-certbot-nginx`
     - `sudo certbot --nginx -d api.iloveprovaantiga.com.br`
+    > It will be asked for an email and to agree to the terms of service.
 
   - **Verify Services**
     - `sudo systemctl status gunicorn`
