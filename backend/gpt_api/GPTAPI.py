@@ -322,31 +322,26 @@ class GPTAPI:
                 creds = pickle.load(token_file)
                 logger.info("Loaded credentials from token.pickle.")
 
-        # If there are no valid credentials, let the user log in.
+        # If there are no valid credentials, or if they're expired
         if not creds or not creds.valid:
             if creds and creds.expired and creds.refresh_token:
                 try:
                     logger.info("Attempting to refresh expired credentials...")
                     creds.refresh(Request())
                     logger.info("Credentials refreshed successfully.")
+                    
+                    # Save the refreshed credentials
+                    with open(token_path, 'wb') as token_file:
+                        pickle.dump(creds, token_file)
+                        logger.info(f"Saved refreshed credentials to {token_path}.")
                 except RefreshError:
-                    logger.error("Failed to refresh credentials. Token may have been revoked or expired.")
-                    os.remove(token_path)
-                    logger.info(f"Deleted invalid token file: {token_path}")
-                    # Initiate a new authentication flow
-                    flow = InstalledAppFlow.from_client_secrets_file(credentials_path, SCOPES)
-                    creds = flow.run_local_server(port=0)
-                    logger.info("Authentication successful. New credentials obtained.")
+                    logger.warning("Unable to refresh token automatically. Manual reauthorization required.")
+                    # Here you might want to implement your preferred way of handling this situation,
+                    # such as sending a notification to an admin or falling back to a service account
+                    raise Exception("Google authentication token needs manual refresh. Please contact administrator.")
             else:
-                logger.info("No valid credentials available. Initiating authentication flow...")
-                flow = InstalledAppFlow.from_client_secrets_file(credentials_path, SCOPES)
-                creds = flow.run_local_server(port=0)
-                logger.info("Authentication successful. Credentials obtained.")
-
-            # Save the credentials for the next run
-            with open(token_path, 'wb') as token_file:
-                pickle.dump(creds, token_file)
-                logger.info(f"Saved new credentials to {token_path}.")
+                logger.warning("No valid credentials available. Manual authorization required.")
+                raise Exception("No valid Google credentials available. Please contact administrator.")
 
         # Build the Google Docs and Drive services
         docs_service = build('docs', 'v1', credentials=creds)
