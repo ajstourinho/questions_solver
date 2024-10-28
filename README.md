@@ -121,6 +121,7 @@ docker exec -it <container_name_or_id> npm install <name_of_dependence>
   - **Update and Install Dependencies**
     - `sudo apt-get update && sudo apt-get upgrade -y`
     - `sudo apt install python3-pip python3-venv nginx git -y`
+    - `sudo apt-get install -y poppler-utils`
 
   - **Clone Repository and Set Up Backend**
     - `git clone <your-repo-url> && cd <your-repo-directory>`
