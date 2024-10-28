@@ -161,7 +161,7 @@ docker exec -it <container_name_or_id> npm install <name_of_dependence>
       User=ubuntu
       Group=www-data
       WorkingDirectory=/home/ubuntu/questions_solver/backend
-      Environment="PATH=/home/ubuntu/questions_solver/backend/venv/bin"
+      Environment="PATH=/home/ubuntu/questions_solver/backend/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
       ExecStart=/home/ubuntu/questions_solver/backend/venv/bin/gunicorn --workers 3 --bind 127.0.0.1:8000 app:app
 
       [Install]
@@ -205,6 +205,8 @@ docker exec -it <container_name_or_id> npm install <name_of_dependence>
     - `sudo systemctl status nginx`
 
 ### PROD: Stop Services inside instance
+
+Sometimes, it may be needed to run `systemctl daemon-reload` before stopping the services.
 
 1. **Stop Gunicorn Service**
 ```bash
