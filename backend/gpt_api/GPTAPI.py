@@ -13,9 +13,7 @@ import logging
 import pickle
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
-from google.auth.exceptions import RefreshError
+from google.oauth2 import service_account
 
 load_dotenv()
 
@@ -32,9 +30,7 @@ logger = logging.getLogger(__name__)
 # Constants
 SCOPES = ['https://www.googleapis.com/auth/documents',
           'https://www.googleapis.com/auth/drive']
-SERVICE_ACCOUNT_FILE = os.path.join(current_dir, "credentials.json")
-CREDENTIALS_PATH = os.path.join(current_dir, "credentials.json")
-TOKEN_PICKLE_PATH = os.path.join(current_dir, "token.pickle")
+SERVICE_ACCOUNT_FILE = os.path.join(current_dir, "service-account.json")
 
 # Function to encode the image
 def encode_image(image_path):
@@ -311,44 +307,24 @@ class GPTAPI:
     # Google Docs methods
 
     def authenticate_google_services(self):
-        """Authenticates the user and returns both Docs and Drive service objects."""
-        creds = None
-        token_path = TOKEN_PICKLE_PATH
-        credentials_path = CREDENTIALS_PATH
-
-        # Load existing credentials
-        if os.path.exists(token_path):
-            with open(token_path, 'rb') as token_file:
-                creds = pickle.load(token_file)
-                logger.info("Loaded credentials from token.pickle.")
-
-        # If there are no valid credentials, or if they're expired
-        if not creds or not creds.valid:
-            if creds and creds.expired and creds.refresh_token:
-                try:
-                    logger.info("Attempting to refresh expired credentials...")
-                    creds.refresh(Request())
-                    logger.info("Credentials refreshed successfully.")
-                    
-                    # Save the refreshed credentials
-                    with open(token_path, 'wb') as token_file:
-                        pickle.dump(creds, token_file)
-                        logger.info(f"Saved refreshed credentials to {token_path}.")
-                except RefreshError:
-                    logger.warning("Unable to refresh token automatically. Manual reauthorization required.")
-                    # Here you might want to implement your preferred way of handling this situation,
-                    # such as sending a notification to an admin or falling back to a service account
-                    raise Exception("Google authentication token needs manual refresh. Please contact administrator.")
-            else:
-                logger.warning("No valid credentials available. Manual authorization required.")
-                raise Exception("No valid Google credentials available. Please contact administrator.")
-
-        # Build the Google Docs and Drive services
-        docs_service = build('docs', 'v1', credentials=creds)
-        drive_service = build('drive', 'v3', credentials=creds)
-        logger.info("Built Google Docs and Drive service objects.")
-
-        return docs_service, drive_service
+        """Authenticates using service account and returns both Docs and Drive service objects."""
+        try:
+            # Load credentials from service account file
+            credentials = service_account.Credentials.from_service_account_file(
+                SERVICE_ACCOUNT_FILE,
+                scopes=SCOPES
+            )
+            
+            # Build the Google Docs and Drive services
+            docs_service = build('docs', 'v1', credentials=credentials)
+            drive_service = build('drive', 'v3', credentials=credentials)
+            logger.info("Successfully authenticated using service account")
+            
+            return docs_service, drive_service
+        
+        except Exception as e:
+            logger.error(f"Failed to authenticate using service account: {str(e)}")
+            raise Exception("Failed to authenticate with Google services. Please check service account configuration.")
 
     def create_google_document(self, docs_service, title="New Document"):
         """
