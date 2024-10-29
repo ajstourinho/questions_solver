@@ -257,13 +257,13 @@ sudo journalctl -u gunicorn -f
 Nginx logs are typically stored in the following default directories:
 
 - Access Logs (records requests to the server):
-  ```bash
-  cat /var/log/nginx/access.log
-  ```
+```bash
+cat /var/log/nginx/access.log
+```
 - Error Logs (records any errors):
-  ```bash
-  cat /var/log/nginx/error.log
-  ```
+```bash
+cat /var/log/nginx/error.log
+```
 
 To follow the Nginx logs in real-time, use:
 
