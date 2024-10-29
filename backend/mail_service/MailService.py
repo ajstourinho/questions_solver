@@ -26,7 +26,7 @@ class MailService:
     def notify_user_payment_confirmation(self, userEmail):
       userEmail_basename = userEmail.split("@")[0]
       subject = "Pagamento confirmado! - iLoveProvaAntiga"
-      body = f"Olá {userEmail_basename},\n\nSeu pagamento foi confirmado com sucesso!\n\nEstamos resolvendo a sua prova, que será enviada para o seu e-mail em poucos instantes.\n\nObrigado pela confiança!"
+      body = f"Olá {userEmail_basename},\n\nSeu pagamento foi confirmado com sucesso!\n\nEstamos resolvendo a sua prova, que será enviada para o seu e-mail em poucos instantes.\n\nSe não receber nossa resposta ou tiver algum problema, responda a este e-mail. Estamos aqui para ajudar!\n\nObrigado pela confiança!"
 
       try:
           msg = Message(subject, recipients=[userEmail])
