@@ -136,7 +136,7 @@ docker exec -it <container_name_or_id> npm install <name_of_dependence>
 
   - **Move local files to the instance**
     - The necessary files are:
-      - `credentials.json`, `token.pickle`, both located in `/backend/gpt_api/`
+      - `service-account`, located in `/backend/gpt_api/`
       - `certificate.pem`, located in `/backend/pix_api/keys/`
     - Make sure to create the `/keys/` directory in the instance, with `mkdir keys`.
     - Move the files to the instance:
