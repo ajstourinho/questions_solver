@@ -641,7 +641,7 @@ class GPTAPI:
                     if key != "alternativaCorreta":
                         json_content.append({
                             "type": "paragraph",
-                            "text": key.upper() + ')  ' + value['textoExplicativo'],
+                            "text": key.lower() + ')  ' + value['textoExplicativo'],
                             "font_size": 12,
                         })
                         json_content.append({
@@ -658,7 +658,7 @@ class GPTAPI:
 
                 json_content.append({
                     "type": "paragraph",
-                    "text": 'Alternativa correta: ' + json_data['resposta']['alternativaCorreta'].upper(),
+                    "text": 'Alternativa correta: ' + json_data['resposta']['alternativaCorreta'].lower(),
                     "font_size": 12,
                     "bold": True
                 })
