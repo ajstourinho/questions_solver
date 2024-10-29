@@ -658,9 +658,15 @@ class GPTAPI:
 
                 json_content.append({
                     "type": "paragraph",
-                    "text": 'Alternativa correta: ' + json_data['resposta']['alternativaCorreta'].lower(),
+                    "text": 'Alternativa correta: ',
                     "font_size": 12,
                     "bold": True
+                })
+
+                json_content.append({
+                    "type": "paragraph",
+                    "text": json_data['resposta']['alternativaCorreta'].lower(),
+                    "font_size": 12,
                 })
 
             # Break page if not the last question
