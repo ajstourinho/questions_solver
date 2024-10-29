@@ -23,6 +23,8 @@ export default function InitialPage() {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
 
+  const snackbarStatus = useSelector((state: RootState) => state.snackbarSlice.status);
+
   React.useEffect(() => {
     if (paymentStatus === "CONCLUIDA") {
       dispatch(
@@ -35,13 +37,23 @@ export default function InitialPage() {
     }
   }, [paymentStatus, dispatch]);
 
+  const handleSnackbarClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    
+    if (snackbarStatus !== 'success') {
+      dispatch(hideSnackbar());
+    }
+  };
+
   return (
     <>
       {/* Snackbar with Alert */}
       <Snackbar
         open={useSelector((state: RootState) => state.snackbarSlice.open)}
-        autoHideDuration={15000}
-        onClose={() => dispatch(hideSnackbar())}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
         anchorOrigin={{
           vertical: "bottom",
           horizontal: "center",
