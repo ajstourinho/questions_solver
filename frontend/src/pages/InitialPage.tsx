@@ -37,23 +37,13 @@ export default function InitialPage() {
     }
   }, [paymentStatus, dispatch]);
 
-  const handleSnackbarClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    
-    if (snackbarStatus !== 'success') {
-      dispatch(hideSnackbar());
-    }
-  };
-
   return (
     <>
       {/* Snackbar with Alert */}
       <Snackbar
         open={useSelector((state: RootState) => state.snackbarSlice.open)}
         autoHideDuration={6000}
-        onClose={handleSnackbarClose}
+        onClose={(_, reason) => reason === 'timeout' && dispatch(hideSnackbar())}
         anchorOrigin={{
           vertical: "bottom",
           horizontal: "center",
