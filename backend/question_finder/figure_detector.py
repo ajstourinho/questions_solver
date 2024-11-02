@@ -42,29 +42,36 @@ def get_bounding_rect(rects):
     
     return (x1, y1, x2 - x1, y2 - y1)
 
-def is_likely_text(roi):
+def is_likely_text(image, minimumChars = 15):
+    """Says if a image contains a question text"""
     # Convert to grayscale if not already
-    if len(roi.shape) == 3:
-        roi_gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
+    if len(image.shape) == 3:
+        image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     else:
-        roi_gray = roi
+        image_gray = image
         
     # Get text confidence
-    text = pytesseract.image_to_string(roi_gray, config='--psm 6')
-    conf = pytesseract.image_to_data(roi_gray, config='--psm 6', output_type=pytesseract.Output.DICT)
+    text = pytesseract.image_to_string(image_gray, config='--psm 6')
+    conf = pytesseract.image_to_data(image_gray, config='--psm 6', output_type=pytesseract.Output.DICT)
     
     # If there's significant text with good confidence, it's likely text
     confidences = [int(x) for x in conf['conf'] if x != '-1']
-    if confidences and len(text.strip()) > 50 and sum(confidences)/len(confidences) > 60:
+    if confidences and len(text.strip()) > minimumChars and sum(confidences)/len(confidences) > 60:
         return True
     return False
 
-def is_too_large_portion(roi, original_img):
-    roi_area = roi.shape[0] * roi.shape[1]
+def is_too_large_portion(selection, original_img, limit=0.15):
+    """ Says if a image is greater than certain limit (default 15%)"""
+    selection_area = selection.shape[0] * selection.shape[1]
     img_area = original_img.shape[0] * original_img.shape[1]
-    return roi_area > (img_area * 0.15)  # If region is more than 15% of page
+    return selection_area > (img_area * limit)  # If region is more than 15% of page
 
-def should_merge_figures(rect1, rect2, max_distance=20):
+def should_merge_figures(rect1, rect2, max_distance=20, limit_size_ratio=3):
+    """ Sometimes when two figures are too close and one of them are much smaller than other, it is best merge then.
+        
+        max_distance: distance in pixels from each image center (default 20px)
+        limit_size_ratio: how much the greater area is in comparison with the smaller area in reason to merge (default 3x)
+    """
     x1, y1, w1, h1 = rect1
     x2, y2, w2, h2 = rect2
     
@@ -80,7 +87,7 @@ def should_merge_figures(rect1, rect2, max_distance=20):
     # Check if rectangles are close and similar in size
     size_ratio = max(w1*h1, w2*h2) / min(w1*h1, w2*h2)
     
-    return distance < max_distance and size_ratio < 3
+    return distance < max_distance and size_ratio < limit_size_ratio
 
 def merge_rectangles(rect1, rect2):
     x1, y1, w1, h1, area1 = rect1
@@ -100,12 +107,12 @@ def get_figure_score(roi):
     Calculate a score for how likely this is to be a complete figure.
     Higher score = better figure
     """
-    if len(roi.shape) == 3:
-        gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
-    else:
-        gray = roi
+
+    # Converting to gray
+    gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY) if (len(roi.shape) == 3) else  roi
         
     # Get ratio of dark pixels
+     # inverse mask: less than 127: become black (0), > 127: becomes white (255)
     _, binary = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY_INV)
     dark_pixels = np.sum(binary == 255)
     total_pixels = binary.size
@@ -129,6 +136,7 @@ def get_figure_score(roi):
     return ratio_score * density
 
 def extract_figures_from_pdf(pdf_path, output_folder):
+    output_coordinates = []
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
@@ -155,7 +163,7 @@ def extract_figures_from_pdf(pdf_path, output_folder):
             
             _, sheet_mask = cv2.threshold(photo_gray, 127, 255, cv2.THRESH_BINARY)
             sheet_contours, _ = cv2.findContours(sheet_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-            
+             
             if sheet_contours:
                 sheet_contour = max(sheet_contours, key=cv2.contourArea)
                 x_sheet, y_sheet, w_sheet, h_sheet = cv2.boundingRect(sheet_contour)
@@ -292,6 +300,8 @@ def extract_figures_from_pdf(pdf_path, output_folder):
         groups.sort(key=lambda rect: rect[1])  # sort by y-coordinate
 
         # Save the grouped figures in top-to-bottom order
+        
+        height, width = img.shape[:2]
         for x, y, w, h in groups:
             if is_too_large_portion(img[y:y+h, x:x+w], img):
                 continue
@@ -301,16 +311,45 @@ def extract_figures_from_pdf(pdf_path, output_folder):
             y_start = max(0, y - padding)
             x_end = min(img.shape[1], x + w + padding)
             y_end = min(img.shape[0], y + h + padding)
-            
+            output_coordinates.append((x_start/width, x_end/width, y_start/height, y_end/height))
             roi = img[y_start:y_end, x_start:x_end]
-            
+            # draw_quadrilateral(img, x_start, y_start, x_end, y_end)
             figure_count += 1
             figure_path = os.path.join(output_folder, f'figure_{page_num}_{figure_count}.png')
             cv2.imwrite(figure_path, roi)
 
         os.remove(page_image_path)
+    return output_coordinates
+
+def draw_quadrilateral(image, xstart, ystart, xend, yend):
+    """
+    Draw a quadrilateral on the image using the specified corner coordinates.
+    
+    Parameters:
+    image: The image on which to draw the quadrilateral.
+    xstart (int): The x-coordinate of the starting point.
+    ystart (int): The y-coordinate of the starting point.
+    xend (int): The x-coordinate of the ending point.
+    yend (int): The y-coordinate of the ending point.
+    """
+    # Define the four corners of the quadrilateral
+    top_left = (xstart, ystart)
+    top_right = (xend, ystart)
+    bottom_right = (xend, yend)
+    bottom_left = (xstart, yend)
+    
+    # Create an array of points
+    points = np.array([top_left, top_right, bottom_right, bottom_left], np.int32)
+    points = points.reshape((-1, 1, 2))  # Reshape for polylines
+    
+    # Draw the quadrilateral outline
+    cv2.polylines(image, [points], isClosed=True, color=(0, 255, 0), thickness=2)
+    
+    cv2.imshow("Image with Quadrilateral", image)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
 if __name__ == '__main__':
     pdf_path = 'your_exam_pdf.pdf'
     output_folder = 'extracted_figures'
-    extract_figures_from_pdf(pdf_path, output_folder)
+    print(len(extract_figures_from_pdf(pdf_path, output_folder)))
