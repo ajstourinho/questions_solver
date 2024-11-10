@@ -6,6 +6,7 @@ import ModalControlSlice from "./slices/ModalControlSlice";
 import UserSlice from "./slices/UserSlice";
 import SnackbarSlice from "./slices/SnackbarSlice";
 import DeviceSlice from "./slices/deviceSlice";
+import CouponSlice from "./slices/CouponSlice"
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
     userSlice: UserSlice,
     snackbarSlice: SnackbarSlice, 
     deviceSlice: DeviceSlice,
+    couponSlice: CouponSlice
   },
 });
 
