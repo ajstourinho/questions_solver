@@ -1,16 +1,16 @@
 import React from "react";
 import { Typography, Button, Box, Grid, Divider } from "@mui/material";
 import TextField from "@mui/material/TextField";
+
 import { nextModalPage } from "../../../store/slices/ModalControlSlice";
 import { useDispatch } from "react-redux";
 import { setUserEmail } from "../../../store/slices/UserSlice";
-import { setCupom } from "../../../store/slices/CupomSlice";
 import pixIcon from "../../../assets/pix_icon.webp";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../store/store";
 import { ShoppingCart } from "@mui/icons-material";
 import fullLogo from "../../../assets/full_logo_medicina.png";
-
+import  CouponInput from "./CouponInput"
 const reaisPerQuestion = Number(process.env.REACT_APP_REAIS_PER_QUESTION);
 
 function formatToCurrency(value: number): string {
@@ -61,19 +61,7 @@ function ModalPageEmail() {
         }}
       />
 
-      <Typography variant="subtitle1" component="p" sx={{ mt: 2 }}>
-        Cupom de desconto
-      </Typography>
-
-      <TextField
-        type="text"
-        sx={{ width: "80%", mb: 3, mt: 1 }}
-        label="Digite seu cupom..."
-        variant="filled"
-        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-          dispatch(setCupom(event.target.value));
-        }}
-      />
+      <CouponInput/>
 
       {/* Divisor */}
       <Divider sx={{ mt: 1, mb: 1 }} />

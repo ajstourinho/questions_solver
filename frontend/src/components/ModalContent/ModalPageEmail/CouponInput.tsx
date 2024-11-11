@@ -3,6 +3,8 @@ import { TextField, Typography } from '@mui/material';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { setCouponString, setCouponValidity } from "../../../store/slices/CouponSlice";
+import { changePriceBasedOnCoupon } from "../../../store/slices/CheckoutSlice";
+
 import React from "react";
 import { RootState } from '../../../store/store';
 import axiosInstance from "../../../axios/axiosInstance";
@@ -10,22 +12,26 @@ import axiosInstance from "../../../axios/axiosInstance";
 const CouponInput = () => {
   const dispatch = useDispatch();
   const coupon = useSelector((state: RootState) => state.couponSlice);
-  const [isCouponValid, setIsCouponValid] = React.useState<Boolean | null>(null);
 
   useEffect(() => {
     const validateCoupon = async () => {
       if (coupon.couponString) {
         try {
           const getCouponResponse = await axiosInstance.get(
-            "/coupon/" + coupon, //strip spaces later
+            "/coupon/" + coupon.couponString, //strip spaces later
             { headers: { "Content-Type": "application/json" } }
           );
           let isValid = getCouponResponse.data.isValid
           if (isValid){
-            dispatch(setCouponValidity({validity: true, multiplier: getCouponResponse.data.multiplier}))
+            dispatch(setCouponValidity({validity: isValid, multiplier: getCouponResponse.data.multiplier}))
+            dispatch(changePriceBasedOnCoupon(getCouponResponse.data.multiplier))
+          }
+          else{
+            dispatch(setCouponValidity({validity: isValid}))
+            dispatch(changePriceBasedOnCoupon(1))
           }
         } catch (error) {
-          dispatch(setCouponValidity({validity: false}))
+          dispatch(setCouponValidity({validity: null}))
         }
       } else {
         dispatch(setCouponValidity({validity: null}))
@@ -47,16 +53,21 @@ const CouponInput = () => {
           width: "80%",
           mb: 3,
           mt: 1,
-          backgroundColor: isCouponValid === true ? 'lightgreen' : coupon.couponString === '' ? 'white' : 'lightred',
+          backgroundColor: coupon.isValid === true ? 'lightgreen' : coupon.couponString === '' ? 'white' : 'lightred',
         }}
         label="Digite seu cupom..."
         variant="filled"
-        value={coupon}
+        value={coupon.couponString}
         onChange={handleInputChange}
       />
-      {isCouponValid === false && (
+      { (coupon.isValid === false && coupon.couponString != '') && (
         <Typography color="error">Cupom inválido. Por favor, verifique o código.</Typography>
+      )}
+      { (coupon.isValid === true) && (
+        <Typography color="lightgreen">Esse cupom fornece 95% de desconto!.</Typography> // TODO: Calcule it latter
       )}
     </div>
   );
 };
+
+export default CouponInput

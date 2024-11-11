@@ -10,6 +10,7 @@ from pdf2image import convert_from_path
 from flask_mail import Mail, Message
 import threading
 from dotenv import load_dotenv
+from coupons.couponsFile import coupons 
 # Initialize app with CORS
 app = Flask(__name__)
 CORS(app)
@@ -190,6 +191,18 @@ def pix_qrcode():
             pass #throw custom exception
         pix_response = pix_service.getB64QRCode(locId = data['locId'])
         return jsonify({'qrcode': pix_response['b64Img']}), 200
+    except Exception as e:
+        return str(e), 500
+    
+@app.route('/api/coupon/<couponKey>', methods=['GET'])
+def coupon(couponKey):
+    """
+    """
+    try:
+        if coupons.get(couponKey, False):
+            return jsonify({'isValid': True, 'multiplier': coupons[couponKey]})
+        else:
+            return jsonify({'isValid': False})
     except Exception as e:
         return str(e), 500
 
