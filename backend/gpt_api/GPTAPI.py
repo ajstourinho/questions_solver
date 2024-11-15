@@ -137,6 +137,9 @@ class GPTAPI:
         # Filter files that match the pattern (list their path containing directory)
         matching_files = [os.path.join(directory, file) for file in files if pattern.match(file)]
 
+        # Sort the matching files to ensure correct order
+        matching_files.sort()  # Ensure files are sorted correctly
+
         return matching_files
 
     def insert_json_data_into_pdf_instance(self, json_data, pdf_instance, question_num):
