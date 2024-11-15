@@ -8,6 +8,7 @@ import { changePriceBasedOnCoupon } from "../../../store/slices/CheckoutSlice";
 import React from "react";
 import { RootState } from '../../../store/store';
 import axiosInstance from "../../../axios/axiosInstance";
+import { Divider } from '@mui/material';
 
 const CouponInput = () => {
   const dispatch = useDispatch();
@@ -35,6 +36,7 @@ const CouponInput = () => {
         }
       } else {
         dispatch(setCouponValidity({validity: null}))
+        dispatch(changePriceBasedOnCoupon(1))
       }
     };
     validateCoupon();
@@ -47,15 +49,19 @@ const CouponInput = () => {
 
   return (
     <div>
+      <Divider/>
+        <Typography variant="body1" sx={{textAlign: "left", ml: 5, mt: 1, fontWeight: "bold"}}>
+        Possui um cupom de desconto?
+      </Typography>
       <TextField
         type="text"
         sx={{
           width: "80%",
-          mb: 3,
+          mb: 2,
           mt: 1,
           backgroundColor: coupon.isValid === true ? 'lightgreen' : coupon.couponString === '' ? 'white' : 'lightred',
         }}
-        label="Digite seu cupom..."
+        label="Digite seu cupom aqui!"
         variant="filled"
         value={coupon.couponString}
         onChange={handleInputChange}
@@ -64,7 +70,7 @@ const CouponInput = () => {
         <Typography color="error">Cupom inválido. Por favor, verifique o código.</Typography>
       )}
       { (coupon.isValid === true) && (
-        <Typography color="lightgreen">Esse cupom fornece 95% de desconto!.</Typography> // TODO: Calcule it latter
+        <Typography color="green">Desconto de 95% aplicado!</Typography> // TODO: Calcule it latter
       )}
     </div>
   );
