@@ -184,7 +184,7 @@ docker exec -it <container_name_or_id> npm install <name_of_dependence>
               proxy_set_header X-Forwarded-Proto $scheme;
           }
 
-          client_max_body_size 10M;
+          client_max_body_size 1000M;
       }
       ```
     - `sudo ln -s /etc/nginx/sites-available/flask_app /etc/nginx/sites-enabled`
