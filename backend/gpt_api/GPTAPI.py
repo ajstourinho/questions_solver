@@ -144,13 +144,13 @@ class GPTAPI:
         pdf_instance.add_page()
 
         # Display Question Number
-        pdf_instance.set_font("DejaVu", style='B', size=12)
+        pdf_instance.set_font("DejaVu", style='B', size=11)
         pdf_instance.cell(200, 7, txt=f"Questão {question_num})", ln=True)
         pdf_instance.cell(200, 7, txt="", ln=True)
 
         # Display Question 'enunciado'
         question_enunciado = json_data["enunciado"]
-        pdf_instance.set_font("DejaVu", style='', size=11)
+        pdf_instance.set_font("DejaVu", style='', size=10)
         pdf_instance.multi_cell(190, 7, txt=question_enunciado)
 
         if json_data['tipo'] == "Objetiva":
@@ -163,11 +163,11 @@ class GPTAPI:
 
         # Display Question 'resposta';
         pdf_instance.cell(190, 10, txt="", ln=True)
-        pdf_instance.set_font("DejaVu", style='B', size=12)
+        pdf_instance.set_font("DejaVu", style='B', size=11)
         pdf_instance.cell(200, 7, txt="Solução:", ln=True)
         pdf_instance.cell(200, 7, txt="", ln=True)
 
-        pdf_instance.set_font("DejaVu", style='', size=11)
+        pdf_instance.set_font("DejaVu", style='', size=10)
         if json_data['tipo'] == "Discursiva":
             pdf_instance.multi_cell(190, 7, txt=json_data['resposta'])
         elif json_data['tipo'] == "Objetiva":
@@ -178,10 +178,10 @@ class GPTAPI:
                     pdf_instance.cell(200, 4, txt="", ln=True)
 
             pdf_instance.cell(190, 10, txt="", ln=True)
-            pdf_instance.set_font("DejaVu", style='B', size=12)
+            pdf_instance.set_font("DejaVu", style='B', size=11)
             pdf_instance.cell(200, 7, txt='Alternativa correta: ', ln=True)
 
-            pdf_instance.set_font("DejaVu", style='', size=11)
+            pdf_instance.set_font("DejaVu", style='', size=10)
             pdf_instance.cell(200, 7, txt=json_data['resposta']['alternativaCorreta'].lower(), ln=True)
 
     def generate_pdf_from_jsons(self, file_basename):
