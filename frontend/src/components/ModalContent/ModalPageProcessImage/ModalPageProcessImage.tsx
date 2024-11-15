@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Typography, Button, Box, Divider } from "@mui/material";
 import { nextModalPage } from "../../../store/slices/ModalControlSlice";
 import { useDispatch } from "react-redux";
-import gif from "../../../assets/gif_video_example_with_questions.gif";
+import gif from "../../../assets/gif_video_example_with_questions_speed.gif";
 
 function ModalPageProcessImage() {
   const dispatch = useDispatch();
@@ -35,7 +35,7 @@ function ModalPageProcessImage() {
       />
 
       <Typography variant="subtitle1" sx={{ mt: 2 }}>
-        Inclua apenas uma questão por área selecionada.
+        Ajuste os cantos para incluir apenas uma questão por área selecionada.
       </Typography>
 
       <Divider sx={{ mt: 1 }} />
