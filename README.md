@@ -162,12 +162,14 @@ docker exec -it <container_name_or_id> npm install <name_of_dependence>
       Group=www-data
       WorkingDirectory=/home/ubuntu/questions_solver/backend
       Environment="PATH=/home/ubuntu/questions_solver/backend/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-      ExecStart=/home/ubuntu/questions_solver/backend/venv/bin/gunicorn --workers 3 --worker-class gevent --bind 127.0.0.1:8000 --timeout 120 --limit-request-line 8190 --limit-request-field_size 8190 app:app
+      ExecStart=/home/ubuntu/questions_solver/backend/venv/bin/gunicorn --workers 2 --worker-class gevent --bind 127.0.0.1:8000 --timeout 180 --limit-request-line 8190 --limit-request-field_size 8190 app:app
 
       [Install]
       WantedBy=multi-user.target
       ```
     - `sudo systemctl daemon-reload && sudo systemctl start gunicorn && sudo systemctl enable gunicorn`
+
+  > pip install --upgrade gevent
 
   - **Configure Nginx**
     - `sudo nano /etc/nginx/sites-available/flask_app`
