@@ -8,6 +8,8 @@ import React, {
 } from "react";
 import { Box, Avatar } from "@mui/material";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import { useDispatch } from 'react-redux';
+import { setQuestionsCount } from '../store/slices/CheckoutSlice';
 
 import cv from "@techstark/opencv-js";
 
@@ -29,6 +31,8 @@ const ImageCanvas = forwardRef(({ src }, ref) => {
     height: 0,
   });
   const [cursorStyle, setCursorStyle] = useState("crosshair");
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     setAreas([]);
@@ -197,6 +201,8 @@ const ImageCanvas = forwardRef(({ src }, ref) => {
         if (distance > 5) {
           // Inicia uma nova área
           setIsDrawing(true);
+          
+          dispatch(setQuestionsCount(areas.length + 1));
 
           const minX = Math.min(mouseDownPos.x, pos.x);
           const maxX = Math.max(mouseDownPos.x, pos.x);
@@ -248,7 +254,11 @@ const ImageCanvas = forwardRef(({ src }, ref) => {
   };
 
   const handleDeleteArea = (index) => {
-    setAreas((prevAreas) => prevAreas.filter((_, i) => i !== index));
+    setAreas((prevAreas) => {
+      const updatedAreas = prevAreas.filter((_, i) => i !== index);
+      dispatch(setQuestionsCount(updatedAreas.length)); // Update questions count after deletion
+      return updatedAreas;
+    });
   };
 
   // Expondo o método para obter as imagens transformadas

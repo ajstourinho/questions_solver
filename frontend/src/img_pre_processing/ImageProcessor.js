@@ -24,6 +24,10 @@ function ImageProcessor() {
 
   const dispatch = useDispatch();
 
+  const questionsCount = useSelector(
+    (state) => state.checkoutSlice.questionsCount
+  );
+
   const handleClick = () => {
     const images = handleProcessSelections(); // Get images directly
     if (images.length === 0) {
@@ -216,17 +220,25 @@ const handleUploadPDF = async (images) => {
         )}
       </div>
 
+
       <Divider sx={{ mt: 1 }} />
 
       <Button
         variant="contained"
         color="primary"
-        sx={{ mt: 2, mb: 1, width: "80%" }}
+        sx={{ mt: 1, mb: 1, width: "80%" }}
         onClick={handleClick}
+        disabled={questionsCount > 20} // Disable button if questionsCount is greater than 25
       >
-        SEGUIR
+        SEGUIR (Máx: 20 questões)
       </Button>
 
+      <Divider sx={{ mt: 1 }} />
+
+      <Typography variant="body2">
+        Quer mais questões? Entre em contato pelo e-mail:{" "}
+        <u>iloveprovaantiga@gmail.com</u>
+      </Typography>
       {/* {combinedImage && (
         <Button
           variant="contained"
