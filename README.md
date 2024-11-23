@@ -126,12 +126,12 @@ docker exec -it <container_name_or_id> npm install <name_of_dependence>
   - **Clone Repository and Set Up Backend**
     - `git clone <your-repo-url> && cd <your-repo-directory>`
     - `git checkout <branch-name> && cd backend`
-    - Create `.env`: `sudo nano .env`
+    - Create `.env`: `sudo nano .env` (check and paste env data, especially the payment certificate configuration)
     - Set up virtual environment:
       ```bash
       python3 -m venv venv
       source venv/bin/activate
-      pip install -r requirements_prod.txt
+      pip install -r requirements.txt
       ```
 
   - **Move local files to the instance**
@@ -162,7 +162,7 @@ docker exec -it <container_name_or_id> npm install <name_of_dependence>
       Group=www-data
       WorkingDirectory=/home/ubuntu/questions_solver/backend
       Environment="PATH=/home/ubuntu/questions_solver/backend/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-      ExecStart=/home/ubuntu/questions_solver/backend/venv/bin/gunicorn --workers 2 --worker-class gevent --bind 127.0.0.1:8000 --timeout 180 --limit-request-line 8190 --limit-request-field_size 8190 app:app
+      ExecStart=/home/ubuntu/questions_solver/backend/venv/bin/gunicorn --workers 2 --worker-class gevent --bind 127.0.0.1:8000 --timeout 300 --limit-request-line 8190 --limit-request-field_size 8190 app:app
 
       [Install]
       WantedBy=multi-user.target
@@ -208,7 +208,7 @@ docker exec -it <container_name_or_id> npm install <name_of_dependence>
 
 ### PROD: Stop Services inside instance
 
-Sometimes, it may be needed to run `systemctl daemon-reload` before stopping the services.
+Sometimes, it may be needed to run `sudo systemctl daemon-reload` before stopping the services.
 
 1. **Stop Gunicorn Service**
 ```bash
