@@ -89,6 +89,12 @@ class GPTAPI:
     def generate_json(self, image_basename):
         # Make GPT API call for respective image
         response = self.gpt_get_response(image_basename)
+        
+        # Check if response is valid
+        if response.status_code != 200:
+            print(f"Error in GPT API response: {response.status_code} - {response.text}")
+            return  # Early exit on error
+
         response_data = response.json()
         self.save_response_data_as_json(image_basename, response_data)
 
@@ -99,8 +105,15 @@ class GPTAPI:
     def save_response_data_as_json(self, image_basename, response_data) -> None:
         print(f"Saving data as JSON: {image_basename}")
 
+        # Initialize parsed_json
+        parsed_json = None
+
         # Extract the 'choices' field from the response
-        choices_data = response_data['choices']
+        choices_data = response_data.get('choices', [])
+
+        if not choices_data:
+            print("No choices found in response data.")
+            return  # Early exit if no choices
 
         # Define the content string
         content = choices_data[0]['message']['content']
@@ -116,6 +129,7 @@ class GPTAPI:
             parsed_json = json.loads(content, strict=False)
         except json.JSONDecodeError as e:
             print(f"Error decoding JSON: {e}")
+            return  # Early exit on error
 
         # Specify the filename you want to write to
         filepath = os.path.join(current_dir, 'output_1_jsons', f'{image_basename}.json')
@@ -302,7 +316,6 @@ class GPTAPI:
         self.generate_doc_from_jsons(file_basename)
 
         # Generate Google Docs from JSONs
-        google_docs_url = ""
         google_docs_url = self.create_google_docs_with_jsons_contents(file_basename, [], original_pdf_filename)
         
         return google_docs_url
