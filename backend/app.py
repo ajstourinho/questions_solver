@@ -230,7 +230,7 @@ def confirm_payment():
     # Função para rodar o processamento do pedido no contexto correto
     def process_order(userEmail):
         with app.app_context():
-            mail_service.notify_admin_and_user_payment_confirmation(userEmail)
+            mail_service.notify_admin_and_user_payment_confirmation(userEmail, pdf_filename)
             google_docs_url = gpt_api.gpt_solver(pdf_filename, original_pdf_filename)
             mail_service.send_admin_and_user_output_file(userEmail, pdf_filename, original_pdf_filename, google_docs_url)
 
@@ -248,5 +248,4 @@ if __name__ == '__main__':
         app.run(debug=True, host='0.0.0.0')
     elif (os.getenv("ENV") == "production"):
         # PROD
-        app.run(debug=True, host='0.0.0.0')
         app.run()

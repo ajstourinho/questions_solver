@@ -7,7 +7,8 @@ class MailService:
     def __init__(self, mail):
       self.mail = mail
       self.admin_email = "iloveprovaantiga@gmail.com"
-    def notify_admin_payment_confirmation(self, userEmail):
+      
+    def notify_admin_payment_confirmation(self, userEmail, pdf_filename):
       if os.getenv("ENV") == 'production':
         subject = "Confirmação de Pagamento"
         body = f"O seguinte usuário efetuou o pagamento:\n{userEmail}"
@@ -17,6 +18,11 @@ class MailService:
       try:
           msg = Message(subject, recipients=[self.admin_email])
           msg.body = body
+
+          original_pdf_path = os.path.join(current_dir, "..", "gpt_api", "uploaded_files", pdf_filename)
+      
+          with open(original_pdf_path, 'rb') as fp:
+            msg.attach(pdf_filename, "application/pdf", fp.read())
 
           self.mail.send(msg)
           return f"Email successfully sent to admin!"
@@ -37,8 +43,8 @@ class MailService:
       except Exception as e:
           return f"Failed to send email. Error: {str(e)}"
 
-    def notify_admin_and_user_payment_confirmation(self, userEmail):
-      self.notify_admin_payment_confirmation(userEmail)
+    def notify_admin_and_user_payment_confirmation(self, userEmail, pdf_filename):
+      self.notify_admin_payment_confirmation(userEmail, pdf_filename)
       if (os.getenv("ENV") == 'production'):
         self.notify_user_payment_confirmation(userEmail)
 
