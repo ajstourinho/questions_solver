@@ -1,6 +1,6 @@
 // ImageProcessor.js
 import React, { useState, useRef, useEffect } from "react";
-import { Container, Typography, Divider, Button, Box } from "@mui/material";
+import { Container, Typography, Divider, Button, Box, CircularProgress } from "@mui/material";
 import ImageCanvas from "./ImageCanvas";
 import * as pdfjsLib from "pdfjs-dist/build/pdf";
 import "pdfjs-dist/web/pdf_viewer.css";
@@ -205,9 +205,12 @@ const handleUploadPDF = async (images) => {
   return (
     <Container>
       {!combinedImage ? (
-        <Typography variant="h6" color="grey" sx={{ mt: 2, px: 4 }}>
-          Carregando...
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 2, px: 4 }}>
+          <Typography variant="h6" color="grey">
+            Carregando...
+          </Typography>
+          <CircularProgress size={24} sx={{ mr: 1 }} />
+        </Box>
       ) : (
         false
       )}
