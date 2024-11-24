@@ -25,6 +25,7 @@ function ModalPageEditor() {
       </Typography>
       <Typography variant="body1" component="h2" sx={{ mt: 1 }} color="grey">
         Arraste e solte para selecionar <u>um retângulo por questão</u>.
+        Lembre de ajustar os cantos quando necessário.
       </Typography>
 
       <Box

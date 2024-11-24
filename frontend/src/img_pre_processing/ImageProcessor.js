@@ -205,7 +205,15 @@ const handleUploadPDF = async (images) => {
   return (
     <Container>
       {!combinedImage ? (
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 2, px: 4 }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            mt: 2,
+            px: 4,
+          }}
+        >
           <Typography variant="h6" color="grey">
             Carregando...
           </Typography>
@@ -223,8 +231,21 @@ const handleUploadPDF = async (images) => {
         )}
       </div>
 
-
       <Divider sx={{ mt: 1 }} />
+
+      <Box display="flex" alignItems="center">
+        <Typography
+          variant="body2"
+          sx={{ fontWeight: "bold", textDecoration: "none" }}
+        >
+          Questões selecionadas:
+        </Typography>
+        <Typography variant="body1" sx={{ ml: 2 }} color="grey">
+          {questionsCount}
+        </Typography>
+      </Box>
+
+      <Divider sx={{ mt: 0 }} />
 
       <Button
         variant="contained"
@@ -236,7 +257,7 @@ const handleUploadPDF = async (images) => {
         SEGUIR (Máx: 20 questões)
       </Button>
 
-      <Divider sx={{ mt: 1 }} />
+      <Divider sx={{ mt: 0 }} />
 
       <Typography variant="body2">
         Quer mais questões? Entre em contato pelo e-mail:{" "}
