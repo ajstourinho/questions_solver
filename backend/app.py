@@ -10,7 +10,7 @@ from pdf2image import convert_from_path
 from flask_mail import Mail, Message
 import threading
 from dotenv import load_dotenv
-from coupons.couponsFile import coupons 
+from coupons.couponsHandler import loadCoupons 
 # Initialize app with CORS
 app = Flask(__name__)
 CORS(app)
@@ -49,7 +49,7 @@ folders_list = [
     FOLDER_OUTPUT_1_JSONS,
     FOLDER_OUTPUT_2_PDFS
 ]
-
+coupons = {}
 # Create folders if they do not yet exist
 for folder in folders_list:
     if not os.path.exists(folder):
@@ -195,7 +195,7 @@ def pix_qrcode():
         return str(e), 500
     
 @app.route('/api/coupon/<couponKey>', methods=['GET'])
-def coupon(couponKey):
+def checkCoupon(couponKey):
     """
     """
     try:
@@ -242,7 +242,7 @@ def confirm_payment():
 
    
 if __name__ == '__main__':
-
+    loadCoupons(coupons)
     if (os.getenv("ENV") == "development"):
         # DEV
         app.run(debug=True, host='0.0.0.0')
