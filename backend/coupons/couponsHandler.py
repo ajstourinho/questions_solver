@@ -1,8 +1,9 @@
 import csv
+import os
 
 def loadCoupons(emptyDict):
   try:
-    with open('coupons.csv', 'r') as file:
+    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'coupons.csv'), 'r') as file:
       csv_reader = csv.DictReader(file)
       for row in csv_reader:
          emptyDict[row['COUPON']] = float(row['MULTIPLIER'])
