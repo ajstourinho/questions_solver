@@ -9,6 +9,7 @@ import {
   resetModalPage,
 } from "../../store/slices/ModalControlSlice";
 import { resetCheckout, setQuestionsCount } from "../../store/slices/CheckoutSlice";
+import { resetCoupon } from "../../store/slices/CouponSlice";
 import { useEffect } from "react";
 import { PDFDocument } from "pdf-lib";
 import axiosInstance from "../../axios/axiosInstance";
@@ -62,6 +63,7 @@ function ModalFrame() {
     dispatch(resetPaymentModal());
     dispatch(resetUser());
     dispatch(setQuestionsCount(0));
+    dispatch(resetCoupon())
   };
 
   const renderContent = (modalPage: number) => {

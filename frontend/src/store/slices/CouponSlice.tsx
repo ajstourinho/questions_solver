@@ -34,11 +34,16 @@ const couponSlice = createSlice({
         state.isValid = false
         state.multiplier = undefined
       }
+    },
+    resetCoupon: (state) =>{
+      state.couponString = initialState.couponString
+      state.isValid = initialState.isValid
+      state.multiplier = undefined
     }
     },
   },
 );
 
-export const { setCouponString, setCouponValidity } = couponSlice.actions;
+export const { setCouponString, setCouponValidity, resetCoupon } = couponSlice.actions;
 
 export default couponSlice.reducer;
