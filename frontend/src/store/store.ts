@@ -1,4 +1,4 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { configureStore, combineReducers  } from "@reduxjs/toolkit";
 import FilesSlice from "./slices/FilesSlice";
 import CheckoutSlice from "./slices/CheckoutSlice";
 import PaymentModalSlice from "./slices/PaymentModalSlice";
@@ -6,16 +6,20 @@ import ModalControlSlice from "./slices/ModalControlSlice";
 import UserSlice from "./slices/UserSlice";
 import SnackbarSlice from "./slices/SnackbarSlice";
 import DeviceSlice from "./slices/deviceSlice";
+import CouponSlice from "./slices/CouponSlice"
+
+
 
 export const store = configureStore({
   reducer: {
     filesSlice: FilesSlice,
-    checkoutSlice: CheckoutSlice,
     paymentModalSlice: PaymentModalSlice,
     modalControlSlice: ModalControlSlice,
     userSlice: UserSlice,
     snackbarSlice: SnackbarSlice, 
     deviceSlice: DeviceSlice,
+    checkoutSlice: CheckoutSlice,
+    couponSlice: CouponSlice
   },
 });
 

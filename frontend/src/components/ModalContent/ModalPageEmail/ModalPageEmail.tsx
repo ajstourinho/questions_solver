@@ -1,6 +1,7 @@
 import React from "react";
 import { Typography, Button, Box, Grid, Divider } from "@mui/material";
 import TextField from "@mui/material/TextField";
+
 import { nextModalPage } from "../../../store/slices/ModalControlSlice";
 import { useDispatch } from "react-redux";
 import { setUserEmail } from "../../../store/slices/UserSlice";
@@ -9,7 +10,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../store/store";
 import { ShoppingCart } from "@mui/icons-material";
 import fullLogo from "../../../assets/full_logo_medicina.png";
-
+import  CouponInput from "./CouponInput"
 const reaisPerQuestion = Number(process.env.REACT_APP_REAIS_PER_QUESTION);
 
 function formatToCurrency(value: number): string {
@@ -59,6 +60,8 @@ function ModalPageEmail() {
           setEmail(event.target.value);
         }}
       />
+
+      <CouponInput/>
 
       {/* Divisor */}
       <Divider sx={{ mt: 1, mb: 1 }} />

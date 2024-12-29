@@ -9,9 +9,9 @@ Gere como output somente um JSON no seguinte formato:
 ```
 
 Esse JSON deve seguir o seguinte padrão:
-- O campo "enunciado" deve ser uma string cujo valor é toda a transcrição completa de toda a parte do enunciado completo da questão que foi extraído da imagem de input.
+- O campo "enunciado" deve ser uma string cujo valor é toda a transcrição completa de toda a parte do enunciado completo da questão que foi extraído da imagem de input (com exceção das alternativas, que constarão em outros campos, para o caso de questão do tipo Objetiva).
 - O valor do campo "tipo" deve ser uma string com dois possíveis valores: "Discursiva" ou "Objetiva"; a depender se a questão da imagem de input requer respectivamente uma resposta textual discursiva ou a escolha de uma das alternativas presentes.
-- O valor do campo "resposta" dependerá do valor do "tipo" no seguinte sentido: se a questão for "Discursiva", será uma string com uma resposta textual que solucione exatamente o que foi perguntado pelo enunciado; se a questão for "Objetiva", será um objeto contendo todas as alternativas de resposta acompanhadas de uma string explicando suas veracidades ou falsidades (concisa, sucinta), e contendo também um caractere para indicar a alternativa correta (na sequência alfabética, a começar por A).
+- O valor do campo "resposta" dependerá do valor do "tipo" no seguinte sentido: se a questão for "Discursiva", será uma string com uma resposta textual que solucione exatamente o que foi perguntado pelo enunciado; se a questão for "Objetiva", será um objeto contendo todas as alternativas de resposta acompanhadas de uma string explicando suas veracidades ou falsidades, e contendo também um caractere para indicar a alternativa correta (na sequência alfabética, a começar por A).
 
 Considere que, caso o enunciado ou as alternativas possuam imagens no meio, transcreva a descrição detalhada de tais imagens e embuta tal descrição textual no output.
 Para isso, use o seguinte formato: [imagem](Descrição: texto descritivo).

@@ -5,9 +5,13 @@ import Header from "./components/Header/Header";
 import Links from "./Links";
 import Footer from "./components/Footer/Footer";
 import { setDeviceType } from "./store/slices/deviceSlice";
+import ReactGA from "react-ga4";
 
 export default function App() {
   const dispatch = useDispatch();
+
+  ReactGA.initialize("G-B67LKBSV79"); // Replace with your Measurement ID
+  ReactGA.send("pageview"); // Tracks initial page load
 
   useEffect(() => {
     // Adjust tab title (base it on the route)
@@ -16,13 +20,20 @@ export default function App() {
     // Detect device type
     const detectDeviceType = () => {
       const userAgent = navigator.userAgent.toLowerCase();
-      if (/android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent)) {
-        if (/ipad/i.test(userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
-          return 'tablet';
+      if (
+        /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
+          userAgent
+        )
+      ) {
+        if (
+          /ipad/i.test(userAgent) ||
+          (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
+        ) {
+          return "tablet";
         }
-        return 'mobile';
+        return "mobile";
       }
-      return 'desktop';
+      return "desktop";
     };
 
     const deviceType = detectDeviceType();

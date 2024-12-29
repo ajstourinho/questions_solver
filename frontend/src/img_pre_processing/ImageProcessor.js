@@ -1,6 +1,6 @@
 // ImageProcessor.js
 import React, { useState, useRef, useEffect } from "react";
-import { Container, Typography, Divider, Button, Box } from "@mui/material";
+import { Container, Typography, Divider, Button, Box, CircularProgress } from "@mui/material";
 import ImageCanvas from "./ImageCanvas";
 import * as pdfjsLib from "pdfjs-dist/build/pdf";
 import "pdfjs-dist/web/pdf_viewer.css";
@@ -23,6 +23,10 @@ function ImageProcessor() {
   const imageCanvasRef = useRef(null);
 
   const dispatch = useDispatch();
+
+  const questionsCount = useSelector(
+    (state) => state.checkoutSlice.questionsCount
+  );
 
   const handleClick = () => {
     const images = handleProcessSelections(); // Get images directly
@@ -201,9 +205,20 @@ const handleUploadPDF = async (images) => {
   return (
     <Container>
       {!combinedImage ? (
-        <Typography variant="h6" color="grey" sx={{ mt: 2, px: 4 }}>
-          Carregando...
-        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            mt: 2,
+            px: 4,
+          }}
+        >
+          <Typography variant="h6" color="grey">
+            Carregando...
+          </Typography>
+          <CircularProgress size={24} sx={{ mr: 1 }} />
+        </Box>
       ) : (
         false
       )}
@@ -218,15 +233,36 @@ const handleUploadPDF = async (images) => {
 
       <Divider sx={{ mt: 1 }} />
 
+      <Box display="flex" alignItems="center">
+        <Typography
+          variant="body2"
+          sx={{ fontWeight: "bold", textDecoration: "none" }}
+        >
+          Questões selecionadas:
+        </Typography>
+        <Typography variant="body1" sx={{ ml: 2 }} color="grey">
+          {questionsCount}
+        </Typography>
+      </Box>
+
+      <Divider sx={{ mt: 0 }} />
+
       <Button
         variant="contained"
         color="primary"
-        sx={{ mt: 2, mb: 1, width: "80%" }}
+        sx={{ mt: 1, mb: 1, width: "80%" }}
         onClick={handleClick}
+        disabled={questionsCount > 20} // Disable button if questionsCount is greater than 25
       >
-        SEGUIR
+        SEGUIR (Máx: 20 questões)
       </Button>
 
+      <Divider sx={{ mt: 0 }} />
+
+      <Typography variant="body2">
+        Quer mais questões? Entre em contato pelo e-mail:{" "}
+        <u>iloveprovaantiga@gmail.com</u>
+      </Typography>
       {/* {combinedImage && (
         <Button
           variant="contained"

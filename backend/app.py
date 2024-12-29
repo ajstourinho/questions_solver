@@ -10,6 +10,7 @@ from pdf2image import convert_from_path
 from flask_mail import Mail, Message
 import threading
 from dotenv import load_dotenv
+from coupons.couponsHandler import loadCoupons 
 # Initialize app with CORS
 app = Flask(__name__)
 CORS(app)
@@ -48,7 +49,7 @@ folders_list = [
     FOLDER_OUTPUT_1_JSONS,
     FOLDER_OUTPUT_2_PDFS
 ]
-
+coupons = {}
 # Create folders if they do not yet exist
 for folder in folders_list:
     if not os.path.exists(folder):
@@ -192,6 +193,18 @@ def pix_qrcode():
         return jsonify({'qrcode': pix_response['b64Img']}), 200
     except Exception as e:
         return str(e), 500
+    
+@app.route('/api/coupon/<couponKey>', methods=['GET'])
+def checkCoupon(couponKey):
+    """
+    """
+    try:
+        if coupons.get(couponKey, False):
+            return jsonify({'isValid': True, 'multiplier': coupons[couponKey]})
+        else:
+            return jsonify({'isValid': False})
+    except Exception as e:
+        return str(e), 500
 
 
 @app.route('/api/status_pix/<txid>', methods=['GET'])
@@ -217,7 +230,7 @@ def confirm_payment():
     # Função para rodar o processamento do pedido no contexto correto
     def process_order(userEmail):
         with app.app_context():
-            mail_service.notify_admin_and_user_payment_confirmation(userEmail)
+            mail_service.notify_admin_and_user_payment_confirmation(userEmail, pdf_filename)
             google_docs_url = gpt_api.gpt_solver(pdf_filename, original_pdf_filename)
             mail_service.send_admin_and_user_output_file(userEmail, pdf_filename, original_pdf_filename, google_docs_url)
 
@@ -229,11 +242,10 @@ def confirm_payment():
 
    
 if __name__ == '__main__':
-
+    loadCoupons(coupons)
     if (os.getenv("ENV") == "development"):
         # DEV
         app.run(debug=True, host='0.0.0.0')
     elif (os.getenv("ENV") == "production"):
         # PROD
-        app.run(debug=True, host='0.0.0.0')
         app.run()

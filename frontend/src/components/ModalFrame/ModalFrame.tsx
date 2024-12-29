@@ -8,7 +8,8 @@ import {
   closeModal,
   resetModalPage,
 } from "../../store/slices/ModalControlSlice";
-import { resetCheckout } from "../../store/slices/CheckoutSlice";
+import { resetCheckout, setQuestionsCount } from "../../store/slices/CheckoutSlice";
+import { resetCoupon } from "../../store/slices/CouponSlice";
 import { useEffect } from "react";
 import { PDFDocument } from "pdf-lib";
 import axiosInstance from "../../axios/axiosInstance";
@@ -24,7 +25,7 @@ import ModalPageEditor from "../ModalContent/ModalPageEditor/ModalPageEditor";
 
 const style = {
   position: "fixed" as const,
-  top: "20px",
+  top: "18px",
   left: "50%",
   transform: "translateX(-50%)",
   minWidth: 360,
@@ -61,6 +62,8 @@ function ModalFrame() {
     dispatch(resetFiles());
     dispatch(resetPaymentModal());
     dispatch(resetUser());
+    dispatch(setQuestionsCount(0));
+    dispatch(resetCoupon())
   };
 
   const renderContent = (modalPage: number) => {
@@ -101,7 +104,7 @@ function ModalFrame() {
         <IconButton
           aria-label="close"
           onClick={handleClose}
-          sx={{ position: "absolute", right: 8, top: 8 }}
+          sx={{ position: "absolute", right: 8, top: 7 }}
         >
           <CloseIcon />
         </IconButton>
@@ -109,7 +112,7 @@ function ModalFrame() {
         <Box
           sx={{
             minWidth: 400,
-            p: 1,
+            p: 0.5,
             backgroundColor: "white",
             borderRadius: 2,
             textAlign: "center",

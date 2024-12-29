@@ -1,5 +1,6 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-
+import { createSlice, PayloadAction, createAsyncThunk} from "@reduxjs/toolkit";
+import {RootState} from "../store"
+import { Straighten } from "@mui/icons-material";
 
 const reaisPerQuestion = Number(process.env.REACT_APP_REAIS_PER_QUESTION);
 const humanRevisionExtra = Number(process.env.REACT_APP_HUMAN_REVISION_EXTRA);
@@ -41,6 +42,13 @@ const checkoutSlice = createSlice({
         state.price = state.pageCount.valueOf() * reaisPerQuestion.valueOf();
       }
     },
+    changePriceBasedOnCoupon: (state, action: PayloadAction<number>) => {
+      state.price = state.questionsCount.valueOf() * reaisPerQuestion.valueOf();
+      if (state.choice === "with_human_revision") {
+        state.price += humanRevisionExtra;
+      }
+      state.price *= action.payload
+    },
     resetCheckout: (state) => {
       state.pageCount = 0;
       state.price = 0;
@@ -51,8 +59,10 @@ const checkoutSlice = createSlice({
 
 export const {
   setPageCount,
-  setQuestionsCount, changePriceBasedOnModeChoice,
+  setQuestionsCount,
+  changePriceBasedOnModeChoice,
   resetCheckout,
+  changePriceBasedOnCoupon,
 } = checkoutSlice.actions;
 
 export default checkoutSlice.reducer;
