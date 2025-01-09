@@ -18,3 +18,5 @@ backend/mail_service/__pycache__
 backend/mail_service/__pycache__
 backend/uploads/*.pdf
 backend/gpt_api/dejavu_font/*
+backend/coupons/coupons.csv
+backend/app.log

@@ -10,7 +10,8 @@ from pdf2image import convert_from_path
 from flask_mail import Mail, Message
 import threading
 from dotenv import load_dotenv
-from coupons.couponsHandler import loadCoupons 
+from coupons.couponsHandler import loadCoupons
+from log.loggerConfig import loggerFlask
 # Initialize app with CORS
 app = Flask(__name__)
 CORS(app)
@@ -69,17 +70,21 @@ def upload_file():
     Endpoint to receive and save files (with custom filenames) uploaded from user.
     """
     if 'file' not in request.files or 'filename' not in request.form:
+        loggerFlask.warning("Upload with no file tryied")
         return jsonify({'error': 'No file or filename provided'}), 400
 
     file = request.files['file']
     custom_filename = request.form['filename']
 
     if file.filename == '':
+        loggerFlask.warning("Upload with no selected file tryied")
+        
         return jsonify({'error': 'No selected file'}), 400
     
     if file:
         file_path = os.path.join(FOLDER_UPLOADED_FILES, custom_filename)
         file.save(file_path)
+        loggerFlask.info("Upload done of file:" + str(file_path))
         return jsonify({'message': 'File uploaded successfully', 'file_path': file_path}), 200
     
 
@@ -158,8 +163,13 @@ def pix_new_cob():
         if not bool(re.match(r'^\d{1,10}\.\d{2}$', data['val'])):
             pass #throw custom exception
         pix_response = pix_service.createCharge(value = data['val'], txid = data['txid'])
+        loggerFlask.info("Cob with locid=" + str(pix_response['locId']) + " and value=" + str(data['val']) + "done.")
+
         return jsonify({'locId': pix_response['locId'], "pixCopiaECola": pix_response["pixCopiaECola"]}), 200
     except Exception as e:
+        loggerFlask.error("Cob with locid=" + str(pix_response['locId']) + " and value=" + str(data['val']) +
+                          " failed")
+        
         return str(e), 500
     
 
@@ -192,6 +202,7 @@ def pix_qrcode():
         pix_response = pix_service.getB64QRCode(locId = data['locId'])
         return jsonify({'qrcode': pix_response['b64Img']}), 200
     except Exception as e:
+        loggerFlask.error("QR code for locId=" + data['locId'] + " could not be created. Error: " + str(e))
         return str(e), 500
     
 @app.route('/api/coupon/<couponKey>', methods=['GET'])
@@ -200,6 +211,8 @@ def checkCoupon(couponKey):
     """
     try:
         if coupons.get(couponKey, False):
+            loggerFlask.info("Coupon=" + str(couponKey) + " was inserted.")
+
             return jsonify({'isValid': True, 'multiplier': coupons[couponKey]})
         else:
             return jsonify({'isValid': False})
@@ -212,8 +225,10 @@ def status_pix(txid):
     
     status_cobranca = pix_service.consultar_status_pix(txid)
     if (os.getenv("ENV") == 'development'):
+        loggerFlask.info("A payment was ignored because the environment was development. Txid=" + str(txid))
         return jsonify({'status': 'CONCLUIDA', 'mensagem': 'Pagamento ignorado por ser um ambiente de testes!'})
     if 'status' in status_cobranca and status_cobranca['status'] == 'CONCLUIDA':
+        loggerFlask.info("A payment was made. Txid=" + str(txid))
         return jsonify({'status': 'CONCLUIDA', 'mensagem': 'Pagamento realizado com sucesso!'})
     else:
         return jsonify({'status': status_cobranca.get('status', 'N/A'), 'mensagem': 'Pagamento não concluído.'})
@@ -226,17 +241,28 @@ def confirm_payment():
     userEmail = data["userEmail"].strip()
     pdf_filename = data["filenames"][0]
     original_pdf_filename = data["originalFilename"]
+    loggerFlask.info("Payment confirmed from user=" + userEmail + " for pdf=" + pdf_filename + " and original pdf="
+                     + original_pdf_filename)
 
     # Função para rodar o processamento do pedido no contexto correto
     def process_order(userEmail):
         with app.app_context():
-            mail_service.notify_admin_and_user_payment_confirmation(userEmail, pdf_filename)
-            google_docs_url = gpt_api.gpt_solver(pdf_filename, original_pdf_filename)
-            mail_service.send_admin_and_user_output_file(userEmail, pdf_filename, original_pdf_filename, google_docs_url)
+            try:
+                mail_service.notify_admin_and_user_payment_confirmation(userEmail, pdf_filename)
+                google_docs_url = gpt_api.gpt_solver(pdf_filename, original_pdf_filename)
+                mail_service.send_admin_and_user_output_file(userEmail, pdf_filename, original_pdf_filename, google_docs_url)
+                loggerFlask.info("Gpt solvig done and emails delivered to user=" + userEmail + " for pdf=" +
+                                 pdf_filename + " and original pdf=" + original_pdf_filename)
 
+            except Exception as e:
+                loggerFlask.error("Exception processing order from user=" + userEmail + " for pdf=" + pdf_filename +
+                                  " and original pdf=" + original_pdf_filename)
+                
+                
     # Iniciar uma thread para continuar o processamento em segundo plano
     threading.Thread(target=process_order, args=(userEmail,)).start()
-
+    loggerFlask.info("Process_order to user=" + userEmail + " for pdf=" + pdf_filename +
+                                 " and original pdf=" + original_pdf_filename + "started.")
     # Retorna a resposta para o frontend imediatamente
     return jsonify({'message': "Pagamento confirmado. Processamento iniciado"}), 200
 
