@@ -14,7 +14,7 @@ import pickle
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from google.oauth2 import service_account
-
+from log.loggerConfig import loggerGPT
 load_dotenv()
 
 # Define current directory, for relative paths
@@ -34,8 +34,12 @@ SERVICE_ACCOUNT_FILE = os.path.join(current_dir, "service-account.json")
 
 # Function to encode the image
 def encode_image(image_path):
-  with open(image_path, "rb") as image_file:
-    return base64.b64encode(image_file.read()).decode('utf-8')
+    try:
+        with open(image_path, "rb") as image_file:
+            loggerGPT.debug("Image=" + image_path + "was open to b64 encode.")
+            return base64.b64encode(image_file.read()).decode('utf-8')
+    except Exception as e:
+        loggerGPT.error("Image=" + image_path + "could not be 64encoded. Error message=" + e)
 
 # Class for GPT API instance
 class GPTAPI:
@@ -46,45 +50,48 @@ class GPTAPI:
         self.assistant_instructions = assistant_instructions
 
     def gpt_get_response(self, image_basename):
-        print(f"Making request for OpenAI API...")
+        try:
+            print(f"Making request for OpenAI API...")
 
-        # Getting the base64 string for image
-        image_path = os.path.join(current_dir, 'output_0_areas', f'{image_basename}.png')
-        base64_image = encode_image(image_path)
+            # Getting the base64 string for image
+            image_path = os.path.join(current_dir, 'output_0_areas', f'{image_basename}.png')
+            base64_image = encode_image(image_path)
 
-        # Define headers
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.API_KEY}"
-        }
+            # Define headers
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.API_KEY}"
+            }
 
-        # Define parameters for API call
-        payload = {
-            "model": self.gpt_model,
-            "messages": [
-                {
-                "role": "user",
-                "content": [
+            # Define parameters for API call
+            payload = {
+                "model": self.gpt_model,
+                "messages": [
                     {
-                    "type": "text",
-                    "text": self.assistant_instructions
-                    },
-                    {
-                    "type": "image_url",
-                    "image_url": {
-                        "url": f"data:image/jpeg;base64,{base64_image}"
+                    "role": "user",
+                    "content": [
+                        {
+                        "type": "text",
+                        "text": self.assistant_instructions
+                        },
+                        {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:image/jpeg;base64,{base64_image}"
+                        }
+                        }
+                    ]
                     }
-                    }
-                ]
-                }
-            ],
-            "max_tokens": int(self.MAX_TOKENS_PER_API_CALL)
-        }
+                ],
+                "max_tokens": int(self.MAX_TOKENS_PER_API_CALL)
+            }
 
-        # Make API call
-        response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
-
-        return response
+            # Make API call
+            response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+            loggerGPT.info("Gpt call for image=" + image_path + " was done.")
+            return response
+        except Exception as e:
+            loggerGPT.error("Gpt call for image=" + image_path + " could not be done. Error message=" + e)
     
     def generate_json(self, image_basename):
         # Make GPT API call for respective image
