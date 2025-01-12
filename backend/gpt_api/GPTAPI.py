@@ -30,10 +30,10 @@ SERVICE_ACCOUNT_FILE = os.path.join(current_dir, "service-account.json")
 def encode_image(image_path):
     try:
         with open(image_path, "rb") as image_file:
-            loggerGPT.debug("Image=" + image_path + "was open to b64 encode.")
+            loggerGPT.info("Image=" + image_path + "was open to b64 encode.")
             return base64.b64encode(image_file.read()).decode('utf-8')
     except Exception as e:
-        loggerGPT.error("Image=" + image_path + "could not be 64encoded. Error message=" + e)
+        loggerGPT.error("encode_image Image=" + image_path + " could not be 64encoded. Error message=" + e)
 
 # Class for GPT API instance
 class GPTAPI:
@@ -82,10 +82,10 @@ class GPTAPI:
 
             # Make API call
             response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
-            loggerGPT.info("Gpt call for image=" + image_path + " was done.")
+            loggerGPT.info("gpt_get_response for image=" + image_path + " was done with no error.")
             return response
         except Exception as e:
-            loggerGPT.error("Gpt call for image=" + image_path + " could not be done. Error message=" + e)
+            loggerGPT.error("gpt_get_response for image=" + image_path + " could not be done. Error message=" + e)
     
     def generate_json(self, image_basename):
         # Make GPT API call for respective image
@@ -93,24 +93,27 @@ class GPTAPI:
         
         # Check if response is valid
         if response.status_code != 200:
-            loggerGPT.error(f"Error in GPT API response for image={image_basename}: {response.status_code} - {response.text}")
+            loggerGPT.error(f"Error in generate_json response status code for image={image_basename}:" +
+                            f"{response.status_code} - {response.text}")
             return  # Early exit on error
 
         response_data = response.json()
-        loggerGPT.info(f"Error in GPT API response for image={image_basename} done.")
-        
-        self.save_response_data_as_json(image_basename, response_data)
-
+        try:
+            self.save_response_data_as_json(image_basename, response_data)
+            loggerGPT.info(f"generate_json for question image={image_basename} was done with no error.")
+        except Exception as e:
+            loggerGPT.error(f"generate_json got an error at save_response_data_as_json for image_basename={image_basename}")
+            
     def save_img(self, image_basename, image):
         try:
             image_path = os.path.join(current_dir, 'output_0_areas', image_basename + ".png")
             image.save(image_path, 'PNG')
+            loggerGPT.info(f"save_img for image_basename={image_basename} and image={image} done with no error.")
+            
         except Exception as e:
             loggerGPT.error(f"Error in save_img for image_basename={image_basename} and image={image}")
             
     def save_response_data_as_json(self, image_basename, response_data) -> None:
-        loggerGPT.info(f"Saving data as JSON: {image_basename}")
-
         # Initialize parsed_json
         parsed_json = None
 
@@ -118,12 +121,16 @@ class GPTAPI:
         choices_data = response_data.get('choices', [])
 
         if not choices_data:
-            loggerGPT.error(f"No choices found in response data. image_basename={image_basename}")
+            loggerGPT.error(f"Error at save_response_data_as_json: no choices found in response data. image_basename={image_basename}")
             return  # Early exit if no choices
 
         # Define the content string
-        content = choices_data[0]['message']['content']
-
+        try:
+            content = choices_data[0]['message']['content']
+        except Exception as e:
+            loggerGPT.error(f"Error at save_response_data_as_json: no choices_data[0]['message']['content']" +
+                            "found in response data. Image_basename={image_basename}, choices_data={choices_data}")
+            return # Early exit if no choices
         # Clean content string
         content = content.replace("```", "")
         content = content.replace("json", "")
@@ -143,6 +150,7 @@ class GPTAPI:
             # Write the 'choices' data to a file
             with open(filepath, 'w', encoding='utf-8') as file:
                 json.dump(parsed_json, file, indent=2, ensure_ascii=False)
+                loggerGPT.info(f"Response data for image_basename={image_basename} saved as json with no error.")
         except Exception as e:
             loggerGPT.error(f"Error saving JSON in file: {e}, image_basename={image_basename}")
             
@@ -281,64 +289,70 @@ class GPTAPI:
             loggerGPT.error(f"Error at insert_json_data_into_doc_instance: {e}, json_data={json_data}")
 
     def generate_doc_from_jsons(self, file_basename):
-        # Define JSON files
-        json_directory = os.path.join(current_dir, 'output_1_jsons')
-        files_paths = self.find_matching_files(file_basename, json_directory)
+        try:
+            # Define JSON files
+            json_directory = os.path.join(current_dir, 'output_1_jsons')
+            files_paths = self.find_matching_files(file_basename, json_directory)
 
-        # Create Doc instance
-        doc_instance = Document()
+            # Create Doc instance
+            doc_instance = Document()
 
-        # Iterate over JSON files, and add content do PDF
-        for i, file_path in enumerate(files_paths):
-            with open(file_path, 'r') as file:
-                json_data = json.load(file)
+            # Iterate over JSON files, and add content do PDF
+            for i, file_path in enumerate(files_paths):
+                with open(file_path, 'r') as file:
+                    json_data = json.load(file)
 
-            question_num = i+1
-            self.insert_json_data_into_doc_instance(json_data, doc_instance, question_num)
+                question_num = i+1
+                self.insert_json_data_into_doc_instance(json_data, doc_instance, question_num)
 
-            # Add page break only if it is not the last one
-            if i != len(files_paths) - 1:
-                doc_instance.add_page_break()
+                # Add page break only if it is not the last one
+                if i != len(files_paths) - 1:
+                    doc_instance.add_page_break()
 
-        # Save Doc
-        output_path_name = os.path.join(current_dir, 'output_2_pdfs', file_basename + "_resolvida.docx")
-        doc_instance.save(output_path_name)
+            # Save Doc
+            output_path_name = os.path.join(current_dir, 'output_2_pdfs', file_basename + "_resolvida.docx")
+            doc_instance.save(output_path_name)
+        except Exception as e:
+            loggerGPT.error(f"Error at generate_doc_from_jsons: {e}, file_basename={file_basename}")
 
     def gpt_solver(self, pdf_filename, original_pdf_filename):
-        """
-        Endpoint to activate GPT API on previously uploaded file, after having confirmed the payment.
-        """
+        try:
+            """
+            Endpoint to activate GPT API on previously uploaded file, after having confirmed the payment.
+            """
 
-        # Define the path of uploaded PDF file, based on the filename
-        pdf_path = os.path.join(current_dir, "uploaded_files", pdf_filename)
+            # Define the path of uploaded PDF file, based on the filename
+            pdf_path = os.path.join(current_dir, "uploaded_files", pdf_filename)
 
-        # Define file basename (without extension)
-        file_basename, _ = os.path.splitext(pdf_filename)
+            # Define file basename (without extension)
+            file_basename, _ = os.path.splitext(pdf_filename)
 
-        # Generate iterable of PDF pages as images
-        pdf_pages_as_imgs = convert_from_path(pdf_path)
+            # Generate iterable of PDF pages as images
+            pdf_pages_as_imgs = convert_from_path(pdf_path)
 
-        # Iterate images
-        for i, image in enumerate(pdf_pages_as_imgs):
-            # Define image basename (without extension)
-            image_basename = f"{file_basename}_page_{str(i+1).zfill(4)}" # Without extension
+            # Iterate images
+            for i, image in enumerate(pdf_pages_as_imgs):
+                # Define image basename (without extension)
+                image_basename = f"{file_basename}_page_{str(i+1).zfill(4)}" # Without extension
 
-            # Save image as .png
-            self.save_img(image_basename, image)
+                # Save image as .png
+                self.save_img(image_basename, image)
 
-            # Call GPT API to generate JSON from processed image
-            self.generate_json(image_basename)
+                # Call GPT API to generate JSON from processed image
+                self.generate_json(image_basename)
 
-        # Generate PDF from JSONs
-        self.generate_pdf_from_jsons(file_basename)
+            # Generate PDF from JSONs
+            self.generate_pdf_from_jsons(file_basename)
 
-        # Generate DOCX from JSONs
-        self.generate_doc_from_jsons(file_basename)
+            # Generate DOCX from JSONs
+            self.generate_doc_from_jsons(file_basename)
 
-        # Generate Google Docs from JSONs
-        google_docs_url = self.create_google_docs_with_jsons_contents(file_basename, [], original_pdf_filename)
-        
-        return google_docs_url
+            # Generate Google Docs from JSONs
+            google_docs_url = self.create_google_docs_with_jsons_contents(file_basename, [], original_pdf_filename)
+            
+            return google_docs_url
+        except Exception as e:
+            loggerGPT.error(f"Error at gpt_solver: {e}, pdf_filename={pdf_filename}, original_pdf_filename={original_pdf_filename}")
     
     # Google Docs methods
 
@@ -354,12 +368,13 @@ class GPTAPI:
             # Build the Google Docs and Drive services
             docs_service = build('docs', 'v1', credentials=credentials)
             drive_service = build('drive', 'v3', credentials=credentials)
-            logger.info("Successfully authenticated using service account")
+            loggerGPT.info(f"Successfully authenticated using service account")
+            
             
             return docs_service, drive_service
         
         except Exception as e:
-            logger.error(f"Failed to authenticate using service account: {str(e)}")
+            loggerGPT.error(f"Failed to authenticate using service account: {str(e)}")
             raise Exception("Failed to authenticate with Google services. Please check service account configuration.")
 
     def create_google_document(self, docs_service, title="New Document"):
@@ -368,7 +383,7 @@ class GPTAPI:
         """
         document = docs_service.documents().create(body={'title': title}).execute()
         document_id = document.get('documentId')
-        logger.info(f"Created document with ID: {document_id}")
+        loggerGPT.info(f"Created document with ID: {document_id}")
         return document_id
 
     def insert_formatted_content(self, docs_service, document_id, content_list):
@@ -486,9 +501,9 @@ class GPTAPI:
         try:
             result = docs_service.documents().batchUpdate(
                 documentId=document_id, body={'requests': requests}).execute()
-            logger.info(f"Inserted formatted content into document ID: {document_id}")
+            loggerGPT.info(f"Inserted formatted content into document ID: {document_id}")
         except HttpError as error:
-            logger.error(f"An error occurred: {error}")
+            loggerGPT.error(f"An error occurred: {error}")
             raise
 
     def share_document(self, drive_service, document_id, share_emails, make_public=False):
@@ -523,11 +538,11 @@ class GPTAPI:
                     fields='id'
                 ).execute()
                 if permission['type'] == 'anyone':
-                    logger.info(f"Granted {permission.get('role')} access to anyone (public).")
+                    loggerGPT.info(f"Granted {permission.get('role')} access to anyone (public).")
                 else:
-                    logger.info(f"Granted {permission.get('role')} access to {permission.get('emailAddress')}.")
+                    loggerGPT.info(f"Granted {permission.get('role')} access to {permission.get('emailAddress')}.")
             except HttpError as error:
-                logger.error(f"An error occurred while sharing: {error}")
+                loggerGPT.error(f"An error occurred while sharing: {error}")
 
     def create_google_docs(self, share_emails, json_content, title="Generated Document", make_public=True):
         """
@@ -561,13 +576,13 @@ class GPTAPI:
 
             # Get the document URL
             full_url = f"https://docs.google.com/document/d/{document_id}/edit"
-            logger.info(f"Google Docs URL: {full_url}")
+            loggerGPT.info(f"Google Docs URL: {full_url}")
 
             # Return the document URL
             return full_url
 
         except Exception as e:
-            logger.critical("A critical error occurred: %s", e)
+            loggerGPT.critical("A critical error occurred: %s", e)
             return None
 
 
