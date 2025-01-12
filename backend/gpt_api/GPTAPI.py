@@ -30,7 +30,7 @@ SERVICE_ACCOUNT_FILE = os.path.join(current_dir, "service-account.json")
 def encode_image(image_path):
     try:
         with open(image_path, "rb") as image_file:
-            loggerGPT.info("Image=" + image_path + "was open to b64 encode.")
+            loggerGPT.info("Image=" + image_path + " was open to b64 encode.")
             return base64.b64encode(image_file.read()).decode('utf-8')
     except Exception as e:
         loggerGPT.error("encode_image Image=" + image_path + " could not be 64encoded. Error message=" + e)
@@ -129,7 +129,7 @@ class GPTAPI:
             content = choices_data[0]['message']['content']
         except Exception as e:
             loggerGPT.error(f"Error at save_response_data_as_json: no choices_data[0]['message']['content']" +
-                            "found in response data. Image_basename={image_basename}, choices_data={choices_data}")
+                            " found in response data. Image_basename={image_basename}, choices_data={choices_data}")
             return # Early exit if no choices
         # Clean content string
         content = content.replace("```", "")
@@ -333,13 +333,17 @@ class GPTAPI:
             # Iterate images
             for i, image in enumerate(pdf_pages_as_imgs):
                 # Define image basename (without extension)
-                image_basename = f"{file_basename}_page_{str(i+1).zfill(4)}" # Without extension
+                try:
+                    image_basename = f"{file_basename}_page_{str(i+1).zfill(4)}" # Without extension
 
-                # Save image as .png
-                self.save_img(image_basename, image)
+                    # Save image as .png
+                    self.save_img(image_basename, image)
 
-                # Call GPT API to generate JSON from processed image
-                self.generate_json(image_basename)
+                    # Call GPT API to generate JSON from processed image
+                    self.generate_json(image_basename)
+                except Exception as e:
+                    loggerGPT.error(f"At gpt_solver: image_basename={image_basename} could not be solved. Skipping.")
+                    # TODO: advice user
 
             # Generate PDF from JSONs
             self.generate_pdf_from_jsons(file_basename)
