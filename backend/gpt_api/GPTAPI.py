@@ -8,8 +8,6 @@ from fpdf import FPDF
 import re
 from .assistant_instructions import assistant_instructions
 from docx import Document
-
-import logging
 import pickle
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
@@ -21,10 +19,6 @@ load_dotenv()
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
 # Make configurations for Google Docs
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 # Updated Scopes
 # Constants
@@ -99,18 +93,23 @@ class GPTAPI:
         
         # Check if response is valid
         if response.status_code != 200:
-            print(f"Error in GPT API response: {response.status_code} - {response.text}")
+            loggerGPT.error(f"Error in GPT API response for image={image_basename}: {response.status_code} - {response.text}")
             return  # Early exit on error
 
         response_data = response.json()
+        loggerGPT.info(f"Error in GPT API response for image={image_basename} done.")
+        
         self.save_response_data_as_json(image_basename, response_data)
 
     def save_img(self, image_basename, image):
-        image_path = os.path.join(current_dir, 'output_0_areas', image_basename + ".png")
-        image.save(image_path, 'PNG')
-
+        try:
+            image_path = os.path.join(current_dir, 'output_0_areas', image_basename + ".png")
+            image.save(image_path, 'PNG')
+        except Exception as e:
+            loggerGPT.error(f"Error in save_img for image_basename={image_basename} and image={image}")
+            
     def save_response_data_as_json(self, image_basename, response_data) -> None:
-        print(f"Saving data as JSON: {image_basename}")
+        loggerGPT.info(f"Saving data as JSON: {image_basename}")
 
         # Initialize parsed_json
         parsed_json = None
@@ -119,7 +118,7 @@ class GPTAPI:
         choices_data = response_data.get('choices', [])
 
         if not choices_data:
-            print("No choices found in response data.")
+            loggerGPT.error(f"No choices found in response data. image_basename={image_basename}")
             return  # Early exit if no choices
 
         # Define the content string
@@ -135,137 +134,151 @@ class GPTAPI:
             # Attempt to load the string as JSON
             parsed_json = json.loads(content, strict=False)
         except json.JSONDecodeError as e:
-            print(f"Error decoding JSON: {e}")
+            loggerGPT.error(f"Error decoding JSON: {e}, image_basename={image_basename}")
             return  # Early exit on error
-
-        # Specify the filename you want to write to
-        filepath = os.path.join(current_dir, 'output_1_jsons', f'{image_basename}.json')
-        
-        # Write the 'choices' data to a file
-        with open(filepath, 'w', encoding='utf-8') as file:
-            json.dump(parsed_json, file, indent=2, ensure_ascii=False)
-
+        try:
+            # Specify the filename you want to write to
+            filepath = os.path.join(current_dir, 'output_1_jsons', f'{image_basename}.json')
+            
+            # Write the 'choices' data to a file
+            with open(filepath, 'w', encoding='utf-8') as file:
+                json.dump(parsed_json, file, indent=2, ensure_ascii=False)
+        except Exception as e:
+            loggerGPT.error(f"Error saving JSON in file: {e}, image_basename={image_basename}")
+            
     def find_matching_files(self, file_basename, directory):
         """
         This function has O(N) time complexity, where N is the total number of files in the given directory.
         """
-        # This regex pattern will match any file that contains the file_basename anywhere in the filename.
-        pattern = re.compile(rf"{re.escape(file_basename)}")
+        try:
+            # This regex pattern will match any file that contains the file_basename anywhere in the filename.
+            pattern = re.compile(rf"{re.escape(file_basename)}")
 
-        # List all files in the given directory
-        files = os.listdir(directory)
+            # List all files in the given directory
+            files = os.listdir(directory)
 
-        # Filter files that match the pattern (list their path containing directory)
-        matching_files = [os.path.join(directory, file) for file in files if pattern.match(file)]
+            # Filter files that match the pattern (list their path containing directory)
+            matching_files = [os.path.join(directory, file) for file in files if pattern.match(file)]
 
-        # Sort the matching files to ensure correct order
-        matching_files.sort()  # Ensure files are sorted correctly
+            # Sort the matching files to ensure correct order
+            matching_files.sort()  # Ensure files are sorted correctly
 
-        return matching_files
+            return matching_files
+        except Exception as e:
+            loggerGPT.error(f"Error find_matching_files: {e}, file_basename={file_basename}")
+            
 
     def insert_json_data_into_pdf_instance(self, json_data, pdf_instance, question_num):
-        # Add page to PDF
-        pdf_instance.add_page()
+        try:
+            # Add page to PDF
+            pdf_instance.add_page()
 
-        # Display Question Number
-        pdf_instance.set_font("DejaVu", style='B', size=11)
-        pdf_instance.cell(200, 7, txt=f"Questão {question_num})", ln=True)
-        pdf_instance.cell(200, 7, txt="", ln=True)
+            # Display Question Number
+            pdf_instance.set_font("DejaVu", style='B', size=11)
+            pdf_instance.cell(200, 7, txt=f"Questão {question_num})", ln=True)
+            pdf_instance.cell(200, 7, txt="", ln=True)
 
-        # Display Question 'enunciado'
-        question_enunciado = json_data["enunciado"]
-        pdf_instance.set_font("DejaVu", style='', size=10)
-        pdf_instance.multi_cell(190, 7, txt=question_enunciado)
+            # Display Question 'enunciado'
+            question_enunciado = json_data["enunciado"]
+            pdf_instance.set_font("DejaVu", style='', size=10)
+            pdf_instance.multi_cell(190, 7, txt=question_enunciado)
 
-        if json_data['tipo'] == "Objetiva":
-            pdf_instance.cell(200, 5, txt="", ln=True)
-            for key, value in json_data['resposta'].items():
-                if key != "alternativaCorreta":
-                    text_alternativa = key.lower() + ')  ' + value['alternativa']
-                    pdf_instance.multi_cell(190, 7, txt=text_alternativa)
-                    pdf_instance.cell(200, 4, txt="", ln=True)
+            if json_data['tipo'] == "Objetiva":
+                pdf_instance.cell(200, 5, txt="", ln=True)
+                for key, value in json_data['resposta'].items():
+                    if key != "alternativaCorreta":
+                        text_alternativa = key.lower() + ')  ' + value['alternativa']
+                        pdf_instance.multi_cell(190, 7, txt=text_alternativa)
+                        pdf_instance.cell(200, 4, txt="", ln=True)
 
-        # Display Question 'resposta';
-        pdf_instance.cell(190, 10, txt="", ln=True)
-        pdf_instance.set_font("DejaVu", style='B', size=11)
-        pdf_instance.cell(200, 7, txt="Solução:", ln=True)
-        pdf_instance.cell(200, 7, txt="", ln=True)
-
-        pdf_instance.set_font("DejaVu", style='', size=10)
-        if json_data['tipo'] == "Discursiva":
-            pdf_instance.multi_cell(190, 7, txt=json_data['resposta'])
-        elif json_data['tipo'] == "Objetiva":
-            for key, value in json_data['resposta'].items():
-                if key != "alternativaCorreta":
-                    textoExplicativo = key.lower() + ')  ' + value['textoExplicativo']
-                    pdf_instance.multi_cell(180, 7, txt=textoExplicativo)
-                    pdf_instance.cell(200, 4, txt="", ln=True)
-
+            # Display Question 'resposta';
             pdf_instance.cell(190, 10, txt="", ln=True)
             pdf_instance.set_font("DejaVu", style='B', size=11)
-            pdf_instance.cell(200, 7, txt='Alternativa correta: ', ln=True)
+            pdf_instance.cell(200, 7, txt="Solução:", ln=True)
+            pdf_instance.cell(200, 7, txt="", ln=True)
 
             pdf_instance.set_font("DejaVu", style='', size=10)
-            pdf_instance.cell(200, 7, txt=json_data['resposta']['alternativaCorreta'].lower(), ln=True)
+            if json_data['tipo'] == "Discursiva":
+                pdf_instance.multi_cell(190, 7, txt=json_data['resposta'])
+            elif json_data['tipo'] == "Objetiva":
+                for key, value in json_data['resposta'].items():
+                    if key != "alternativaCorreta":
+                        textoExplicativo = key.lower() + ')  ' + value['textoExplicativo']
+                        pdf_instance.multi_cell(180, 7, txt=textoExplicativo)
+                        pdf_instance.cell(200, 4, txt="", ln=True)
 
+                pdf_instance.cell(190, 10, txt="", ln=True)
+                pdf_instance.set_font("DejaVu", style='B', size=11)
+                pdf_instance.cell(200, 7, txt='Alternativa correta: ', ln=True)
+
+                pdf_instance.set_font("DejaVu", style='', size=10)
+                pdf_instance.cell(200, 7, txt=json_data['resposta']['alternativaCorreta'].lower(), ln=True)
+        except Exception as e:
+            loggerGPT.error(f"Error at insert_json_data_into_pdf_instance: {e}, json_data={json_data}")
+        
     def generate_pdf_from_jsons(self, file_basename):
+        try:
+            # Define JSON files
+            json_directory = os.path.join(current_dir, 'output_1_jsons')
+            files_paths = self.find_matching_files(file_basename, json_directory)
 
-        # Define JSON files
-        json_directory = os.path.join(current_dir, 'output_1_jsons')
-        files_paths = self.find_matching_files(file_basename, json_directory)
+            # Create PDF instance
+            pdf_instance = FPDF()
+            font_dejavu_path = os.path.join(current_dir, 'dejavu_font', 'ttf', 'DejaVuSans.ttf')
+            pdf_instance.add_font('DejaVu', '', font_dejavu_path, uni=True)
+            font_dejavu_bold_path = os.path.join(current_dir, 'dejavu_font', 'ttf', 'DejaVuSans-Bold.ttf')
+            pdf_instance.add_font('DejaVu', 'B', font_dejavu_bold_path, uni=True)  
 
-        # Create PDF instance
-        pdf_instance = FPDF()
-        font_dejavu_path = os.path.join(current_dir, 'dejavu_font', 'ttf', 'DejaVuSans.ttf')
-        pdf_instance.add_font('DejaVu', '', font_dejavu_path, uni=True)
-        font_dejavu_bold_path = os.path.join(current_dir, 'dejavu_font', 'ttf', 'DejaVuSans-Bold.ttf')
-        pdf_instance.add_font('DejaVu', 'B', font_dejavu_bold_path, uni=True)  
+            # Iterate over JSON files, and add content do PDF
+            for i, file_path in enumerate(files_paths):
+                with open(file_path, 'r') as file:
+                    json_data = json.load(file)
 
-        # Iterate over JSON files, and add content do PDF
-        for i, file_path in enumerate(files_paths):
-            with open(file_path, 'r') as file:
-                json_data = json.load(file)
+                question_num = i+1
+                self.insert_json_data_into_pdf_instance(json_data, pdf_instance, question_num)
 
-            question_num = i+1
-            self.insert_json_data_into_pdf_instance(json_data, pdf_instance, question_num)
-
-        # Save PDF
-        output_path_name = os.path.join(current_dir, 'output_2_pdfs', file_basename + "_resolvida.pdf")
-        pdf_instance.output(output_path_name)
+            # Save PDF
+            output_path_name = os.path.join(current_dir, 'output_2_pdfs', file_basename + "_resolvida.pdf")
+            pdf_instance.output(output_path_name)
+        except Exception as e:
+            loggerGPT.error(f"Error at generate_pdf_from_jsons: {e}, file_basename={file_basename}")
 
     def insert_json_data_into_doc_instance(self, json_data, doc_instance, question_num):
-        # Display Question Number
-        doc_instance.add_paragraph().add_run(f"Questão {question_num})").bold = True
+        try:
+            # Display Question Number
+            doc_instance.add_paragraph().add_run(f"Questão {question_num})").bold = True
 
-        # Display Question 'enunciado'
-        doc_instance.add_paragraph().add_run(json_data['enunciado'])
+            # Display Question 'enunciado'
+            doc_instance.add_paragraph().add_run(json_data['enunciado'])
 
-        if json_data['tipo'] == "Objetiva":
-            for key, value in json_data['resposta'].items():
-                if key != "alternativaCorreta":
-                    p1 = doc_instance.add_paragraph()
-                    p1.add_run(key.lower() + ')  ' + value['alternativa'])
-                    
-            doc_instance.add_paragraph('\n')
+            if json_data['tipo'] == "Objetiva":
+                for key, value in json_data['resposta'].items():
+                    if key != "alternativaCorreta":
+                        p1 = doc_instance.add_paragraph()
+                        p1.add_run(key.lower() + ')  ' + value['alternativa'])
+                        
+                doc_instance.add_paragraph('\n')
 
-        # Display Question 'resposta';
-        p2 = doc_instance.add_paragraph()
-        p2.add_run('Solução:').bold = True
+            # Display Question 'resposta';
+            p2 = doc_instance.add_paragraph()
+            p2.add_run('Solução:').bold = True
 
-        if json_data['tipo'] == "Discursiva":
-            doc_instance.add_paragraph().add_run(json_data['resposta'])
-        elif json_data['tipo'] == "Objetiva":
-            for key, value in json_data['resposta'].items():
-                if key != "alternativaCorreta":
-                    p3 = doc_instance.add_paragraph(key.lower() + ')  ')
-                    p3.add_run(value['textoExplicativo'])
+            if json_data['tipo'] == "Discursiva":
+                doc_instance.add_paragraph().add_run(json_data['resposta'])
+            elif json_data['tipo'] == "Objetiva":
+                for key, value in json_data['resposta'].items():
+                    if key != "alternativaCorreta":
+                        p3 = doc_instance.add_paragraph(key.lower() + ')  ')
+                        p3.add_run(value['textoExplicativo'])
 
-            doc_instance.add_paragraph('\n')
+                doc_instance.add_paragraph('\n')
 
-            p4 = doc_instance.add_paragraph()
-            p4.add_run('Alternativa correta: ').bold = True
+                p4 = doc_instance.add_paragraph()
+                p4.add_run('Alternativa correta: ').bold = True
 
-            doc_instance.add_paragraph(json_data['resposta']['alternativaCorreta'].lower())
+                doc_instance.add_paragraph(json_data['resposta']['alternativaCorreta'].lower())
+        except Exception as e:
+            loggerGPT.error(f"Error at insert_json_data_into_doc_instance: {e}, json_data={json_data}")
 
     def generate_doc_from_jsons(self, file_basename):
         # Define JSON files
